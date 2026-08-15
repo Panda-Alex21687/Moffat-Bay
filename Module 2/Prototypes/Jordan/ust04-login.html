@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Login - Moffat Bay Marina Prototype</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<header class="site-header"><div class="header-inner"><a class="brand" href="index.html"><span class="brand-mark"></span><span class="brand-text"><strong>Moffat Bay Marina</strong><span>Module 2 Prototype</span></span></a><nav><a href="index.html">Prototype Hub</a><a href="ust04-register.html">Register</a><a class="active" href="ust04-login.html">Login</a><a href="ust06-waitlist.html">Wait List</a><span class="session-pill" id="sessionPill">Prototype session: signed out</span></nav></div></header>
+<main>
+  <section class="hero-compact">
+    <div><div class="eyebrow">UST-04 - Login / authentication</div><h1>Welcome back</h1><p class="lead">Registered customers log in with their email address and password. A successful prototype login activates a browser-only session indicator for navigation to the waitlist demonstration.</p></div>
+    <aside class="prototype-badge"><strong>Production security note</strong><p>The final application must validate credentials on the server, securely hash/store passwords, and manage authenticated sessions. This prototype does not store or transmit passwords.</p></aside>
+  </section>
+
+  <section class="card center-card" id="loginCard" style="text-align:left">
+    <div class="notice info">Prototype demonstration: use any valid email address and a password of at least 8 characters. The password is not saved.</div>
+    <form id="loginForm" novalidate>
+      <div class="stack">
+        <div><label for="loginEmail">Email address / username</label><input id="loginEmail" type="email" placeholder="name@example.com"><div class="error" id="loginEmailError"></div></div>
+        <div><label for="loginPassword">Password</label><input id="loginPassword" type="password" autocomplete="current-password"><div class="error" id="loginPasswordError"></div></div>
+        <button class="btn primary full" type="submit">Log In</button>
+        <a class="btn secondary full" href="ust04-register.html">Create a free account</a>
+      </div>
+    </form>
+  </section>
+
+  <section class="card center-card hidden" id="loginSuccess">
+    <div class="icon-circle">✓</div>
+    <div class="eyebrow">Prototype session active</div>
+    <h2>Login successful</h2>
+    <p>The customer is now represented as logged in for this browser tab. Continue to the waitlist prototype to demonstrate a session-dependent action.</p>
+    <div class="inline-actions" style="justify-content:center"><a class="btn primary" href="ust06-waitlist.html">Go to Wait List</a><button class="btn secondary" id="logoutBtn">Log Out Prototype Session</button></div>
+  </section>
+</main>
+<footer class="footer"><strong>UST-04 Prototype</strong> - Login / session flow</footer>
+<script src="prototype.js"></script>
+</body>
+</html>

@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Wait List - Moffat Bay Marina Prototype</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<header class="site-header"><div class="header-inner"><a class="brand" href="index.html"><span class="brand-mark"></span><span class="brand-text"><strong>Moffat Bay Marina</strong><span>Module 2 Prototype</span></span></a><nav><a href="index.html">Prototype Hub</a><a href="ust04-register.html">Register</a><a href="ust04-login.html">Login</a><a class="active" href="ust06-waitlist.html">Wait List</a><span class="session-pill" id="sessionPill">Prototype session: signed out</span></nav></div></header>
+<main>
+  <section class="hero-compact">
+    <div><div class="eyebrow">UST-06 - Waitlist Position / Count</div><h1>Marina wait list</h1><p class="lead">View the number of customers waiting for each marina slip category. Customer names are intentionally not displayed.</p></div>
+    <aside class="prototype-badge"><strong>Slip categories from the project</strong><p>Moffat Bay Marina uses 26 ft, 40 ft, and 50 ft slip categories. The values shown below are clearly labeled prototype sample data and are not connected to MySQL.</p></aside>
+  </section>
+
+  <section class="card">
+    <div class="notice info"><strong>Prototype sample data.</strong> Production counts will be retrieved from the database. This screen displays counts only and never customer names.</div>
+    <div class="metric-grid">
+      <div class="metric"><div class="size">26 ft slips</div><div class="count" id="count26">2</div><div class="caption">customers waiting</div></div>
+      <div class="metric"><div class="size">40 ft slips</div><div class="count" id="count40">4</div><div class="caption">customers waiting</div></div>
+      <div class="metric"><div class="size">50 ft slips</div><div class="count" id="count50">1</div><div class="caption">customers waiting</div></div>
+    </div>
+
+    <div class="waitlist-panel">
+      <div class="position-box">
+        <div class="small">If you joined the <span id="selectedCategoryText">26 ft</span> list now</div>
+        <div class="big" id="positionNumber">#3</div>
+        <p><strong id="aheadCount">2</strong> customers would be ahead of you.</p>
+      </div>
+
+      <div class="card soft" id="joinPrompt">
+        <h3>Preview waitlist position before commitment</h3>
+        <label for="slipCategory">Slip category</label>
+        <select id="slipCategory"><option value="26">26 ft</option><option value="40">40 ft</option><option value="50">50 ft</option></select>
+        <p class="helper">This preview supports the UST-06 requirement to calculate/display customers ahead and show the expected waitlist position before the customer commits.</p>
+        <div class="notice warning hidden" id="loginRequired">Joining the wait list is demonstrated as a logged-in customer action. Please activate the prototype session on the Login screen first.</div>
+        <div class="inline-actions"><button class="btn primary" id="joinWaitlistBtn">Join Wait List</button><a class="btn secondary" href="ust04-login.html">Open Login</a></div>
+      </div>
+    </div>
+
+    <div class="card soft hidden" id="confirmPanel" style="margin-top:20px">
+      <h3>Confirm waitlist request</h3>
+      <p>You selected the <strong id="confirmCategory">26 ft</strong> slip category. There are currently <strong id="confirmAhead">2</strong> customers ahead of you. If you confirm now, your prototype position will be <strong id="confirmPosition">#3</strong>.</p>
+      <div class="inline-actions"><button class="btn primary" id="confirmJoinBtn">Confirm Wait List</button><button class="btn secondary" id="cancelJoinBtn">Cancel</button></div>
+    </div>
+
+    <div class="card soft hidden" id="joinConfirmation" style="margin-top:20px">
+      <div class="notice success">Prototype confirmation: you were added to the <strong id="finalCategory">26 ft</strong> wait list. Your displayed prototype position is <strong id="finalPosition">#3</strong>.</div>
+      <p class="helper">In the production application, the database will determine the current count and position. This prototype does not store names or send data to MySQL.</p>
+      <button class="btn secondary" id="resetDemoBtn">Reset Prototype Sample Data</button>
+    </div>
+  </section>
+</main>
+<footer class="footer"><strong>UST-06 Prototype</strong> - Waitlist category counts and position preview</footer>
+<script src="prototype.js"></script>
+</body>
+</html>
