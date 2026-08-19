@@ -1,0 +1,72 @@
+<!--
+Max Jankowksi 
+Green Team Moffat bay marina 
+
+Used Aftab's landing page as template, it is also pointing to his styles.css file, so make sure you have that in the same folder when using on your local machine 
+Also didnt use the same icons. 
+
+-->
+
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Slip Availability | Moffat Bay Marina</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@500;600;700&family=Open+Sans:wght@400;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css"></head><body>
+<header><div class="nav">
+<a class="brand" href="reservation.html"><span class="anchor">⚓</span><span><span class="brand-name">MOFFAT BAY</span><span class="brand-sub">MARINA</span></span></a>
+<nav><ul>
+<li><a href="index.html">HOME</a></li>
+<li><a href="pricing.html">PRICING</a></li>
+<li><a class="active" href="availability.html">AVAILABILITY</a></li>
+<li><a href="waitlist.html">WAIT LIST</a></li>
+<li><a href="reservation.html">RESERVATION</a></li>
+</ul></nav>
+</div>
+</header>
+
+<main class="container">
+<div class="eyebrow">SLIP AVAILABILITY</div>
+<h1 class="title">Long-Term Slip Availability</h1><div class="gold-line"></div>
+
+<section class="card">
+<div class="card-head"><div><h2>Availability by Slip Size</h2><p class="small">Inventory across Docks A, B, and C. Linear docks are for transient moorage only and are not shown.</p></div></div>
+<div id="availabilityBody"></div>
+</section>
+
+<section class="card">
+<h2>Where the Slips Are</h2>
+<p class="small" style="margin:4px 0 18px">Each dock (A, B, C) has 24 slips arranged the same way.</p>
+<div class="grid">
+<div class="item"><span class="label">26 ft slips</span><span class="value">Slips 8–12 and 20–24 on each dock</span></div>
+<div class="item"><span class="label">40 ft slips</span><span class="value">Slips 4–7 and 16–19 on each dock</span></div>
+<div class="item"><span class="label">50 ft slips</span><span class="value">Slips 1–3 and 13–15 on each dock</span></div>
+<div class="item"><span class="label">Linear docks</span><span class="value">Transient moorage only</span></div>
+</div>
+</section>
+
+<div class="notice info"><strong>Prototype:</strong> These counts are simulated with a prototype data file. The final site should have these simulated numbers in a offical project database.</div>
+</main><footer>Moffat Bay Marina • CSD 460 Module 2 Green Team Prototype</footer>
+<script src="marina-data.js"></script><script> <!--Data about mockup slip inforamtion stored in the JS file -->
+
+<!--Using JS to create layout blocks for marina slip sizes, layout is based on diagram we got from the project overview section. Let me know if you guys want to do a image diaghram. --> 
+function row(size){
+ const total=SLIP_INVENTORY[size],avail=availableSlips(size);
+ const badge=avail>0?
+ '<span class="status">'+avail+' available</span>':'<span class="status cancelled">Fully reserved</span>';
+ return '<div class="item"><span class="label">'+size+' ft slips</span><span class="value">'+badge+'</span></div>'
+  +'<div class="item"><span class="label">Reserved / Total</span><span class="value">'+(total-avail)+' of '+total+'</span></div>';
+}
+
+function render(){
+ document.getElementById("availabilityBody").innerHTML='<div class="grid">'+row(26)+row(40)+row(50)+'</div>';
+}
+
+render();
+</script>
+
+
+</body>
+</html>
