@@ -7,8 +7,9 @@
     const pill = el('sessionPill');
     if (!pill) return;
     const active = sessionStorage.getItem('moffatPrototypeSession') === 'active';
-    const email = sessionStorage.getItem('moffatPrototypeEmail') || '';
-    pill.textContent = active ? `Prototype session: ${email || 'signed in'}` : 'Prototype session: signed out';
+    const name = sessionStorage.getItem('moffatPrototypeName') || '';
+    const firstName = name.trim().split(/\s+/)[0] || '';
+    pill.textContent = active ? (firstName ? `Welcome, ${firstName}` : 'Prototype session: signed in') : 'Prototype session: signed out';
   }
 
   function showError(input, message) {
@@ -134,6 +135,11 @@
       sessionStorage.setItem('moffatPrototypeEmail', email.value.trim());
       sessionStorage.setItem('moffatPrototypeSession', 'active');
       setSessionUI();
+      const welcomeName = el('welcomeName');
+      if (welcomeName) {
+        const storedName = sessionStorage.getItem('moffatPrototypeName') || '';
+        welcomeName.textContent = storedName.trim().split(/\s+/)[0] || 'Customer';
+      }
       el('loginCard').classList.add('hidden');
       el('loginSuccess').classList.remove('hidden');
     });
