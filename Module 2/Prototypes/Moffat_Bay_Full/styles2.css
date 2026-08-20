@@ -1,0 +1,43 @@
+:root{
+  --navy:#061b3a;--navy2:#102b52;--gold:#eab53f;--gold2:#f5c85b;
+  --white:#fff;--light:#f5f6f8;--text:#172033;--muted:#667085;
+  --border:#d9dde5;--success:#237a57;--danger:#a83a3a;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:"Open Sans",Arial,sans-serif;color:var(--text);background:var(--light);line-height:1.6}
+h1,h2,h3,nav a,.btn,.brand-name,.eyebrow{font-family:"Montserrat",Arial,sans-serif}
+header{background:var(--navy);color:#fff}
+.nav{max-width:1400px;min-height:82px;margin:auto;padding:0 6%;display:flex;align-items:center;justify-content:space-between;gap:30px}
+.brand{display:flex;align-items:center;gap:12px;color:#fff;text-decoration:none}
+.anchor{font-size:34px}.brand-name{font-size:22px;font-weight:700;letter-spacing:.8px}
+.brand-sub{display:block;color:var(--gold);font-size:12px;letter-spacing:4px}
+nav ul{display:flex;gap:28px;list-style:none}nav a{color:#fff;text-decoration:none;font-size:13px;font-weight:600}
+nav a:hover,nav a.active{color:var(--gold)}
+.container{max-width:1100px;margin:auto;padding:55px 5%}
+.eyebrow{color:#c8921e;font-weight:700;font-size:13px;letter-spacing:1.5px}
+.title{color:var(--navy);font-size:clamp(34px,4vw,50px);line-height:1.1;margin:6px 0 10px}
+.gold-line{width:60px;height:3px;background:var(--gold);margin-bottom:28px}
+.card{background:#fff;border:1px solid var(--border);border-radius:10px;box-shadow:0 8px 24px rgba(6,27,58,.08);padding:30px;margin-bottom:22px}
+.card-head{display:flex;justify-content:space-between;gap:20px;align-items:flex-start;margin-bottom:20px}
+.card h2{font-size:22px;color:var(--navy)}
+.id{font-family:Montserrat;font-size:12px;color:var(--muted);font-weight:600}
+.grid{display:grid;grid-template-columns:repeat(2,1fr);border:1px solid var(--border);border-radius:8px;overflow:hidden}
+.item{padding:17px 19px;border-bottom:1px solid var(--border)}
+.item:nth-child(odd){border-right:1px solid var(--border)}
+.item:nth-last-child(-n+2){border-bottom:0}
+.label{display:block;text-transform:uppercase;letter-spacing:.65px;font-size:11px;color:var(--muted);font-weight:600}
+.value{display:block;color:var(--navy);font-weight:600;margin-top:2px}
+.cost{font-family:Montserrat;font-size:25px;font-weight:700;color:var(--navy)}
+.status{display:inline-block;padding:4px 10px;border-radius:999px;background:#e9f6ef;color:var(--success);font-size:12px;font-weight:700}
+.status.cancelled{background:#fff0f0;color:var(--danger)}
+.actions{display:flex;justify-content:flex-end;gap:12px;flex-wrap:wrap;margin-top:24px}
+.btn{border:0;border-radius:5px;padding:13px 22px;text-decoration:none;cursor:pointer;font-weight:700;font-size:13px}
+.primary{background:var(--gold);color:var(--navy)}.primary:hover{background:var(--gold2)}
+.secondary{background:var(--navy);color:#fff}.secondary:hover{background:var(--navy2)}
+.danger{background:#fff;color:var(--danger);border:2px solid var(--danger)}.danger:hover{background:var(--danger);color:#fff}
+.notice{border-radius:7px;padding:15px 18px;margin-bottom:20px}.info{background:#eef4fb;border-left:4px solid var(--navy)}
+.success{background:#edf8f2;border-left:4px solid var(--success)}
+.warning{background:#fff7df;border-left:4px solid var(--gold)}
+footer{background:var(--navy);color:#fff;text-align:center;padding:22px;font-size:12px;margin-top:20px}
+.small{font-size:13px;color:var(--muted)}
+@media(max-width:800px){.nav{flex-direction:column;padding:18px 5%}nav ul{flex-wrap:wrap;justify-content:center;gap:14px 20px}.grid{grid-template-columns:1fr}.item:nth-child(odd){border-right:0}.item:nth-last-child(-n+2){border-bottom:1px solid var(--border)}.item:last-child{border-bottom:0}.actions{justify-content:stretch}.btn{flex:1;text-align:center}}

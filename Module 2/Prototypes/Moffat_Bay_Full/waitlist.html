@@ -1,0 +1,49 @@
+<!--
+Max Jankowksi 
+Green Team Moffat bay marina 
+
+Used Aftab's landing page as template, it is also pointing to his styles.css file, so make sure you have that in the same folder when using on your local machine 
+The waitlist uses the data file, to show functionality that it looking for data. As we dont have a DB ready yet, this file should work to show function
+-->
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Wait Lists | Moffat Bay Marina</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@500;600;700&family=Open+Sans:wght@400;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles2.css"></head><body>
+<header><div class="nav">
+<a class="brand" href="reservation.html"><span class="anchor">⚓</span><span><span class="brand-name">MOFFAT BAY</span><span class="brand-sub">MARINA</span></span></a>
+<nav><ul>
+<li><a href="index.html">HOME</a></li>
+<li><a href="pricing.html">PRICING</a></li>
+<li><a href="availability.html">AVAILABILITY</a></li>
+<li><a class="active" href="waitlist.html">WAIT LIST</a></li>
+<li><a href="reservation.html">RESERVATION</a></li>
+</ul></nav>
+</div></header>
+
+<main class="container">
+<div class="eyebrow">WAIT LIST LOOKUP</div>
+<h1 class="title">Slip Wait Lists</h1><div class="gold-line"></div>
+
+<section class="card">
+<div class="card-head"><div><h2>Customers Waiting by Slip Size</h2><p class="small">For privacy, wait lists show only the number of customers waiting — never customer names.</p></div></div>
+<div id="waitlistBody"></div>
+</section>
+
+<div class="notice info"><strong>Prototype:</strong> Wait list counts are simulated with localStorage. Joining a wait list happens from the <a href="pricing.html">pricing page</a> when your required slip size is fully reserved.</div>
+</main><footer>Moffat Bay Marina • CSD 460 Module 2 Prototype</footer>
+<script src="marina-data.js"></script><script> <!--Looking to the data file much as it would a functioniong database to pull information -->
+
+function row(size){
+ const s=getMarinaState(),n=s.waitlist[size],avail=availableSlips(size); <!--Pulls data as to current slip status for data file-->
+ const count=n===0?'<span class="status">No wait</span>':'<span class="value">'+n+' customer'+(n===1?'':'s')+' waiting</span>'; <!-- checks and displays o for no waiting and then the number of waiting clients. -->
+ return '<div class="item"><span class="label">'+size+' ft slips</span>'+count+'</div>'
+  +'<div class="item"><span class="label">Current Availability</span><span class="value">'+(avail>0?avail+' slips open':'Fully reserved')+'</span></div>';
+}
+document.getElementById("waitlistBody").innerHTML='<div class="grid">'+row(26)+row(40)+row(50)+'</div>';
+</script>
+</body>
+</html>
