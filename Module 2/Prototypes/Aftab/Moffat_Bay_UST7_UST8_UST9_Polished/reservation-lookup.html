@@ -1,0 +1,29 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Reservation Lookup | Moffat Bay Marina</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@500;600;700&family=Open+Sans:wght@400;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css"></head><body><header><div class="nav">
+<a class="brand" href="reservation.html"><span class="anchor">⚓</span><span><span class="brand-name">MOFFAT BAY</span><span class="brand-sub">MARINA</span></span></a>
+<nav><ul>
+<li><a href="reservation.html">RESERVATION</a></li>
+<li><a class="active" href="reservation-summary.html">SUMMARY</a></li>
+<li><a href="reservation-lookup.html">LOOKUP</a></li>
+</ul></nav>
+</div></header>
+
+<main class="container"><div class="eyebrow">UST-08 • RESERVATION LOOKUP</div>
+<h1 class="title">Find Your Reservation</h1><div class="gold-line"></div>
+<section class="card"><div class="card-head"><div><h2>Search Reservations</h2><p class="small">Search using a reservation ID or customer email address.</p></div></div>
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+<div><label class="label" for="rid">Reservation ID</label><input id="rid" style="width:100%;padding:12px;border:1px solid #cbd1dc;border-radius:6px" placeholder="MB-2026-00125"></div>
+<div><label class="label" for="email">Email Address</label><input id="email" style="width:100%;padding:12px;border:1px solid #cbd1dc;border-radius:6px" type="email" placeholder="customer@example.com"></div>
+</div><div class="actions"><button class="btn primary" onclick="search()">SEARCH RESERVATION</button></div></section>
+<section class="card" id="result" style="display:none"><h2>Reservation Result</h2><div id="resultBody" style="margin-top:18px"></div></section>
+<section class="card"><h2>Reservation History</h2><div id="history" style="margin-top:18px"></div></section>
+</main><footer>Moffat Bay Marina • CSD 460 Module 2 Prototype</footer>
+<script src="prototype.js"></script><script>
+function resultHTML(r){return '<div class="grid"><div class="item"><span class="label">Reservation ID</span><span class="value">'+r.id+'</span></div><div class="item"><span class="label">Boat Name</span><span class="value">'+r.boatName+'</span></div><div class="item"><span class="label">Boat Size</span><span class="value">'+r.boatLength+'</span></div><div class="item"><span class="label">Slip Size</span><span class="value">'+r.slipSize+'</span></div><div class="item"><span class="label">Slip Number</span><span class="value">'+r.slipNumber+'</span></div><div class="item"><span class="label">Check-In Date</span><span class="value">'+r.checkIn+'</span></div><div class="item"><span class="label">Status</span><span class="value">'+statusHTML(r.status)+'</span></div></div>'}
+function search(){const r=getReservation(),id=document.getElementById("rid").value.trim().toLowerCase(),email=document.getElementById("email").value.trim().toLowerCase(),box=document.getElementById("result"),body=document.getElementById("resultBody");box.style.display="block";if((id&&id===r.id.toLowerCase())||(email==="customer@example.com"))body.innerHTML=resultHTML(r);else body.innerHTML='<div class="notice warning">No reservation found. Check the reservation ID or email address and try again.</div>'}
+function history(){const r=getReservation();document.getElementById("history").innerHTML='<div class="grid"><div class="item"><span class="label">Reservation ID</span><span class="value">'+r.id+'</span></div><div class="item"><span class="label">Check-In</span><span class="value">'+r.checkIn+'</span></div><div class="item"><span class="label">Slip</span><span class="value">'+r.slipSize+' • '+r.slipNumber+'</span></div><div class="item"><span class="label">Status</span><span class="value">'+statusHTML(r.status)+'</span></div></div>'}
+history();
+</script></body></html>
