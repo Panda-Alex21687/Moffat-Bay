@@ -1,19 +1,252 @@
-<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Reservation | Moffat Bay Marina</title>
-<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@500;600;700&family=Open+Sans:wght@400;600&display=swap" rel="stylesheet"><link rel="stylesheet" href="styles.css"></head><body><header><div class="nav">
-<a class="brand" href="reservation.html"><span class="anchor">⚓</span><span><span class="brand-name">MOFFAT BAY</span><span class="brand-sub">MARINA</span></span></a>
-<nav>
-    <ul>
-        <li><a href="index.html">HOME</a></li>
-        <li><a class="active" href="reservation.html">RESERVATION</a></li>
-        <li><a href="reservation-summary.html">SUMMARY</a></li>
-        <li><a href="reservation-lookup.html">LOOKUP</a></li>
-    </ul>
-</nav></div></header>
+<!DOCTYPE html>
+<html lang="en">
 
-<main class="container"><div class="eyebrow">RESERVATION FLOW</div><h1 class="title">Reserve a Slip</h1><div class="gold-line"></div>
-<section class="card"><h2>Reservation Information</h2><p class="small" style="margin:4px 0 22px">This page is the return destination after a reservation is cancelled.</p>
-<div class="grid"><div class="item"><span class="label">Boat Name</span><span class="value">Sea Explorer</span></div><div class="item"><span class="label">Boat Length</span><span class="value">34 ft</span></div><div class="item"><span class="label">Required Slip Size</span><span class="value">40 ft</span></div><div class="item"><span class="label">Check-In Date</span><span class="value">09/15/2026</span></div></div>
-<div class="actions"><a class="btn primary" href="reservation-summary.html">CONTINUE TO SUMMARY</a></div></section></main>
-<footer>Moffat Bay Marina • CSD 460 Module 2 Prototype</footer></body></html>
+<head>
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>Reservation | Moffat Bay Marina</title>
+
+    <!-- ========================================
+         GOOGLE FONTS
+    ======================================== -->
+
+    <link
+        rel="preconnect"
+        href="https://fonts.googleapis.com"
+    >
+
+    <link
+        rel="preconnect"
+        href="https://fonts.gstatic.com"
+        crossorigin
+    >
+
+    <link
+        href="https://fonts.googleapis.com/css2?family=Montserrat:wght@500;600;700&family=Open+Sans:wght@400;600&display=swap"
+        rel="stylesheet"
+    >
+
+    <!-- ========================================
+         EXTERNAL STYLESHEET
+    ======================================== -->
+
+    <link
+        rel="stylesheet"
+        href="styles.css"
+    >
+</head>
+
+
+<body>
+
+    <!-- ========================================
+         HEADER / NAVIGATION
+    ======================================== -->
+
+    <header>
+
+        <div class="nav">
+
+            <!-- Marina Brand -->
+            <a
+                class="brand"
+                href="reservation.html"
+            >
+
+                <span class="anchor">
+                    ⚓
+                </span>
+
+                <span>
+
+                    <span class="brand-name">
+                        MOFFAT BAY
+                    </span>
+
+                    <span class="brand-sub">
+                        MARINA
+                    </span>
+
+                </span>
+
+            </a>
+
+
+            <!-- Main Navigation -->
+            <nav aria-label="Main navigation">
+
+                <ul>
+
+                    <li>
+                        <a href="index.html">
+                            HOME
+                        </a>
+                    </li>
+
+                    <li>
+                        <a
+                            class="active"
+                            href="reservation.html"
+                            aria-current="page"
+                        >
+                            RESERVATION
+                        </a>
+                    </li>
+
+                    <li>
+                        <a href="reservation-summary.html">
+                            SUMMARY
+                        </a>
+                    </li>
+
+                    <li>
+                        <a href="reservation-lookup.html">
+                            LOOKUP
+                        </a>
+                    </li>
+
+                </ul>
+
+            </nav>
+
+        </div>
+
+    </header>
+
+
+    <!-- ========================================
+         MAIN CONTENT
+    ======================================== -->
+
+    <main class="container">
+
+
+        <!-- ========================================
+             PAGE TITLE
+        ======================================== -->
+
+        <div class="eyebrow">
+            RESERVATION FLOW
+        </div>
+
+        <h1 class="title">
+            Reserve a Slip
+        </h1>
+
+        <div class="gold-line"></div>
+
+
+        <!-- ========================================
+             RESERVATION INFORMATION
+        ======================================== -->
+
+        <section class="card">
+
+            <h2>
+                Reservation Information
+            </h2>
+
+            <p
+                class="small"
+                style="margin: 4px 0 22px;"
+            >
+                This page is the return destination after
+                a reservation is cancelled.
+            </p>
+
+
+            <!-- Reservation Details -->
+            <div class="grid">
+
+
+                <!-- Boat Name -->
+                <div class="item">
+
+                    <span class="label">
+                        Boat Name
+                    </span>
+
+                    <span class="value">
+                        Sea Explorer
+                    </span>
+
+                </div>
+
+
+                <!-- Boat Length -->
+                <div class="item">
+
+                    <span class="label">
+                        Boat Length
+                    </span>
+
+                    <span class="value">
+                        34 ft
+                    </span>
+
+                </div>
+
+
+                <!-- Required Slip Size -->
+                <div class="item">
+
+                    <span class="label">
+                        Required Slip Size
+                    </span>
+
+                    <span class="value">
+                        40 ft
+                    </span>
+
+                </div>
+
+
+                <!-- Check-In Date -->
+                <div class="item">
+
+                    <span class="label">
+                        Check-In Date
+                    </span>
+
+                    <span class="value">
+                        09/15/2026
+                    </span>
+
+                </div>
+
+            </div>
+
+
+            <!-- Reservation Actions -->
+            <div class="actions">
+
+                <a
+                    class="btn primary"
+                    href="reservation-summary.html"
+                >
+                    CONTINUE TO SUMMARY
+                </a>
+
+            </div>
+
+        </section>
+
+    </main>
+
+
+    <!-- ========================================
+         FOOTER
+    ======================================== -->
+
+    <footer>
+        Moffat Bay Marina • CSD 460 Module 2 Prototype
+    </footer>
+
+</body>
+
+</html>

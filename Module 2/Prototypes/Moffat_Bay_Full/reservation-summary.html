@@ -1,53 +1,565 @@
-<!doctype html><html lang="en"><head>
-<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Reservation Summary | Moffat Bay Marina</title>
-<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@500;600;700&family=Open+Sans:wght@400;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="styles.css"></head><body>
-<header><div class="nav">
-<a class="brand" href="reservation.html"><span class="anchor">⚓</span><span><span class="brand-name">MOFFAT BAY</span><span class="brand-sub">MARINA</span></span></a>
-<nav>
-    <ul>
-        <li><a href="index.html">HOME</a></li>
-        <li><a href="reservation.html">RESERVATION</a></li>
-        <li><a class="active" href="reservation-summary.html">SUMMARY</a></li>
-        <li><a href="reservation-lookup.html">LOOKUP</a></li>
-    </ul>
-</nav></div></header>
+<!DOCTYPE html>
+<html lang="en">
 
-<main class="container">
-<div class="eyebrow">UST-07 • RESERVATION SUMMARY</div>
-<h1 class="title">Review Your Reservation</h1><div class="gold-line"></div>
-<div id="message"></div>
-<section class="card">
-<div class="card-head"><div><h2>Reservation Details</h2><p class="small">Please review your information before confirming.</p></div><span class="id" id="idTop"></span></div>
-<div class="grid">
-<div class="item"><span class="label">Reservation ID</span><span class="value" id="id"></span></div>
-<div class="item"><span class="label">Boat Name</span><span class="value" id="boatName"></span></div>
-<div class="item"><span class="label">Boat Length</span><span class="value" id="boatLength"></span></div>
-<div class="item"><span class="label">Slip Size</span><span class="value" id="slipSize"></span></div>
-<div class="item"><span class="label">Slip Number</span><span class="value" id="slipNumber"></span></div>
-<div class="item"><span class="label">Check-In Date</span><span class="value" id="checkIn"></span></div>
-<div class="item"><span class="label">Reservation Status</span><span class="value" id="status"></span></div>
-<div class="item"><span class="label">Monthly Cost</span><span class="cost" id="cost"></span></div>
-</div>
-<div class="actions" id="actions"></div>
-</section>
-<div class="notice info"><strong>Prototype:</strong> This screen demonstrates the UST-07 reservation summary and the UST-09 confirm/cancel workflow. Database integration will be added later.</div>
-</main><footer>Moffat Bay Marina • CSD 460 Module 2 Prototype</footer>
-<script src="prototype.js"></script><script>
-function render(){
- const r=getReservation();
- document.getElementById("id").textContent=r.id;document.getElementById("idTop").textContent=r.id;
- document.getElementById("boatName").textContent=r.boatName;document.getElementById("boatLength").textContent=r.boatLength;
- document.getElementById("slipSize").textContent=r.slipSize;document.getElementById("slipNumber").textContent=r.slipNumber;
- document.getElementById("checkIn").textContent=r.checkIn;document.getElementById("status").innerHTML=statusHTML(r.status);
- document.getElementById("cost").textContent="$"+r.monthlyCost+"/month";
- const a=document.getElementById("actions");
- if(r.status==="Cancelled"){a.innerHTML='<a class="btn primary" href="reservation.html">RETURN TO RESERVATION</a><a class="btn secondary" href="reservation-lookup.html">VIEW HISTORY</a>'}
- else{a.innerHTML='<button class="btn primary" onclick="confirmReservation()">CONFIRM RESERVATION</button><button class="btn danger" onclick="cancelReservation()">CANCEL RESERVATION</button>'}
-}
-function confirmReservation(){const r=getReservation();r.status="Confirmed";saveReservation(r);document.getElementById("message").innerHTML='<div class="notice success"><strong>Reservation confirmed.</strong> Your reservation has been confirmed in the prototype.</div>';render()}
-function cancelReservation(){const r=getReservation();if(!confirm("Cancel reservation "+r.id+"?"))return;r.status="Cancelled";r.availabilityUpdated=true;saveReservation(r);document.getElementById("message").innerHTML='<div class="notice warning"><strong>Reservation cancelled.</strong> The reservation remains in history while the slip is marked available in the prototype.</div>';render()}
-render();
-</script></body></html>
+<head>
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>Reservation Summary | Moffat Bay Marina</title>
+
+    <!-- ========================================
+         GOOGLE FONTS
+    ======================================== -->
+
+    <link
+        rel="preconnect"
+        href="https://fonts.googleapis.com"
+    >
+
+    <link
+        rel="preconnect"
+        href="https://fonts.gstatic.com"
+        crossorigin
+    >
+
+    <link
+        href="https://fonts.googleapis.com/css2?family=Montserrat:wght@500;600;700&family=Open+Sans:wght@400;600&display=swap"
+        rel="stylesheet"
+    >
+
+    <!-- ========================================
+         EXTERNAL STYLESHEET
+    ======================================== -->
+
+    <link
+        rel="stylesheet"
+        href="styles.css"
+    >
+</head>
+
+
+<body>
+
+    <!-- ========================================
+         HEADER / NAVIGATION
+    ======================================== -->
+
+    <header>
+
+        <div class="nav">
+
+            <!-- Marina Brand -->
+            <a
+                class="brand"
+                href="reservation.html"
+            >
+
+                <span class="anchor">
+                    ⚓
+                </span>
+
+                <span>
+
+                    <span class="brand-name">
+                        MOFFAT BAY
+                    </span>
+
+                    <span class="brand-sub">
+                        MARINA
+                    </span>
+
+                </span>
+
+            </a>
+
+
+            <!-- Main Navigation -->
+            <nav aria-label="Main navigation">
+
+                <ul>
+
+                    <li>
+                        <a href="index.html">
+                            HOME
+                        </a>
+                    </li>
+
+                    <li>
+                        <a href="reservation.html">
+                            RESERVATION
+                        </a>
+                    </li>
+
+                    <li>
+                        <a
+                            class="active"
+                            href="reservation-summary.html"
+                            aria-current="page"
+                        >
+                            SUMMARY
+                        </a>
+                    </li>
+
+                    <li>
+                        <a href="reservation-lookup.html">
+                            LOOKUP
+                        </a>
+                    </li>
+
+                </ul>
+
+            </nav>
+
+        </div>
+
+    </header>
+
+
+    <!-- ========================================
+         MAIN CONTENT
+    ======================================== -->
+
+    <main class="container">
+
+
+        <!-- ========================================
+             PAGE TITLE
+        ======================================== -->
+
+        <div class="eyebrow">
+            UST-07 • RESERVATION SUMMARY
+        </div>
+
+        <h1 class="title">
+            Review Your Reservation
+        </h1>
+
+        <div class="gold-line"></div>
+
+
+        <!-- Confirmation / Cancellation Messages -->
+        <div id="message"></div>
+
+
+        <!-- ========================================
+             RESERVATION DETAILS
+        ======================================== -->
+
+        <section class="card">
+
+            <div class="card-head">
+
+                <div>
+
+                    <h2>
+                        Reservation Details
+                    </h2>
+
+                    <p class="small">
+                        Please review your information
+                        before confirming.
+                    </p>
+
+                </div>
+
+
+                <!-- Reservation ID -->
+                <span
+                    class="id"
+                    id="idTop"
+                ></span>
+
+            </div>
+
+
+            <!-- ========================================
+                 RESERVATION INFORMATION GRID
+            ======================================== -->
+
+            <div class="grid">
+
+
+                <!-- Reservation ID -->
+                <div class="item">
+
+                    <span class="label">
+                        Reservation ID
+                    </span>
+
+                    <span
+                        class="value"
+                        id="id"
+                    ></span>
+
+                </div>
+
+
+                <!-- Boat Name -->
+                <div class="item">
+
+                    <span class="label">
+                        Boat Name
+                    </span>
+
+                    <span
+                        class="value"
+                        id="boatName"
+                    ></span>
+
+                </div>
+
+
+                <!-- Boat Length -->
+                <div class="item">
+
+                    <span class="label">
+                        Boat Length
+                    </span>
+
+                    <span
+                        class="value"
+                        id="boatLength"
+                    ></span>
+
+                </div>
+
+
+                <!-- Slip Size -->
+                <div class="item">
+
+                    <span class="label">
+                        Slip Size
+                    </span>
+
+                    <span
+                        class="value"
+                        id="slipSize"
+                    ></span>
+
+                </div>
+
+
+                <!-- Slip Number -->
+                <div class="item">
+
+                    <span class="label">
+                        Slip Number
+                    </span>
+
+                    <span
+                        class="value"
+                        id="slipNumber"
+                    ></span>
+
+                </div>
+
+
+                <!-- Check-In Date -->
+                <div class="item">
+
+                    <span class="label">
+                        Check-In Date
+                    </span>
+
+                    <span
+                        class="value"
+                        id="checkIn"
+                    ></span>
+
+                </div>
+
+
+                <!-- Reservation Status -->
+                <div class="item">
+
+                    <span class="label">
+                        Reservation Status
+                    </span>
+
+                    <span
+                        class="value"
+                        id="status"
+                    ></span>
+
+                </div>
+
+
+                <!-- Monthly Cost -->
+                <div class="item">
+
+                    <span class="label">
+                        Monthly Cost
+                    </span>
+
+                    <span
+                        class="cost"
+                        id="cost"
+                    ></span>
+
+                </div>
+
+            </div>
+
+
+            <!-- Reservation Action Buttons -->
+            <div
+                class="actions"
+                id="actions"
+            ></div>
+
+        </section>
+
+
+        <!-- ========================================
+             PROTOTYPE NOTICE
+        ======================================== -->
+
+        <div class="notice info">
+
+            <strong>
+                Prototype:
+            </strong>
+
+            This screen demonstrates the UST-07 reservation
+            summary and the UST-09 confirm/cancel workflow.
+            Database integration will be added later.
+
+        </div>
+
+    </main>
+
+
+    <!-- ========================================
+         FOOTER
+    ======================================== -->
+
+    <footer>
+        Moffat Bay Marina • CSD 460 Module 2 Prototype
+    </footer>
+
+
+    <!-- ========================================
+         EXTERNAL JAVASCRIPT
+    ======================================== -->
+
+    <script src="prototype.js"></script>
+
+
+    <!-- ========================================
+         RESERVATION SUMMARY JAVASCRIPT
+    ======================================== -->
+
+    <script>
+
+        /*
+         * Displays the current reservation
+         * information on the summary page.
+         */
+        function render() {
+
+            const reservation = getReservation();
+
+
+            /* Reservation ID */
+            document.getElementById(
+                "id"
+            ).textContent = reservation.id;
+
+            document.getElementById(
+                "idTop"
+            ).textContent = reservation.id;
+
+
+            /* Boat Information */
+            document.getElementById(
+                "boatName"
+            ).textContent = reservation.boatName;
+
+            document.getElementById(
+                "boatLength"
+            ).textContent = reservation.boatLength;
+
+
+            /* Slip Information */
+            document.getElementById(
+                "slipSize"
+            ).textContent = reservation.slipSize;
+
+            document.getElementById(
+                "slipNumber"
+            ).textContent = reservation.slipNumber;
+
+
+            /* Check-In Date */
+            document.getElementById(
+                "checkIn"
+            ).textContent = reservation.checkIn;
+
+
+            /* Reservation Status */
+            document.getElementById(
+                "status"
+            ).innerHTML = statusHTML(
+                reservation.status
+            );
+
+
+            /* Monthly Cost */
+            document.getElementById(
+                "cost"
+            ).textContent =
+                "$" +
+                reservation.monthlyCost +
+                "/month";
+
+
+            /* Action Buttons */
+            const actions =
+                document.getElementById("actions");
+
+
+            /*
+             * If the reservation has been cancelled,
+             * allow the customer to return to the
+             * reservation page or view history.
+             */
+            if (reservation.status === "Cancelled") {
+
+                actions.innerHTML =
+                    '<a class="btn primary" href="reservation.html">' +
+                        'RETURN TO RESERVATION' +
+                    '</a>' +
+
+                    '<a class="btn secondary" href="reservation-lookup.html">' +
+                        'VIEW HISTORY' +
+                    '</a>';
+            }
+
+
+            /*
+             * Otherwise, allow the customer to
+             * confirm or cancel the reservation.
+             */
+            else {
+
+                actions.innerHTML =
+                    '<button class="btn primary" ' +
+                        'onclick="confirmReservation()">' +
+                        'CONFIRM RESERVATION' +
+                    '</button>' +
+
+                    '<button class="btn danger" ' +
+                        'onclick="cancelReservation()">' +
+                        'CANCEL RESERVATION' +
+                    '</button>';
+            }
+
+        }
+
+
+        /*
+         * Confirms the current reservation and
+         * saves the updated reservation status.
+         */
+        function confirmReservation() {
+
+            const reservation = getReservation();
+
+            reservation.status = "Confirmed";
+
+            saveReservation(reservation);
+
+
+            document.getElementById(
+                "message"
+            ).innerHTML =
+
+                '<div class="notice success">' +
+
+                    '<strong>' +
+                        'Reservation confirmed.' +
+                    '</strong> ' +
+
+                    'Your reservation has been confirmed ' +
+                    'in the prototype.' +
+
+                '</div>';
+
+
+            /* Refresh the reservation information. */
+            render();
+        }
+
+
+        /*
+         * Cancels the current reservation after
+         * asking the customer for confirmation.
+         */
+        function cancelReservation() {
+
+            const reservation = getReservation();
+
+
+            /*
+             * Ask the user to confirm before
+             * cancelling the reservation.
+             */
+            if (
+                !confirm(
+                    "Cancel reservation " +
+                    reservation.id +
+                    "?"
+                )
+            ) {
+                return;
+            }
+
+
+            /* Update reservation status. */
+            reservation.status = "Cancelled";
+
+            /*
+             * Mark the slip as available again
+             * in the prototype.
+             */
+            reservation.availabilityUpdated = true;
+
+
+            /* Save updated reservation. */
+            saveReservation(reservation);
+
+
+            /* Display cancellation message. */
+            document.getElementById(
+                "message"
+            ).innerHTML =
+
+                '<div class="notice warning">' +
+
+                    '<strong>' +
+                        'Reservation cancelled.' +
+                    '</strong> ' +
+
+                    'The reservation remains in history while ' +
+                    'the slip is marked available in the prototype.' +
+
+                '</div>';
+
+
+            /* Refresh the reservation information. */
+            render();
+        }
+
+
+        /* Display reservation details when page loads. */
+        render();
+
+    </script>
+
+</body>
+
+</html>
