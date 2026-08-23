@@ -1,3 +1,14 @@
+<!--
+Alexander Baldree
+Max Jankowski
+Aftabur Rahman
+Jordan Dardar
+
+Moffat Bay Marina Project
+The Green Team
+CSD460
+-->
+
 <?php
 // Moffat Bay Marina database connection.
 // XAMPP commonly uses root with a blank password for local development.
