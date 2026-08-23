@@ -7,6 +7,9 @@ Jordan Dardar
 Moffat Bay Marina Project
 The Green Team
 CSD460
+
+Modification by Max 8-22 to include layout image 
+
 -->
 
 <!--
@@ -176,6 +179,58 @@ CSD460
 
 
         <!-- ========================================
+             SLIP MAP SECTION: added my Max on 8-22 to provide the client with a future fucntioning interactive feature that will allow the user to see available slips currently. 
+			 This will require a bit of research by the team as far as how to implement. for now this is a stand in. It shows the user the layout of the marina a informs them of open slips. 
+			 We are using the image sources from the project overveiw page for the CSD-460 course 
+        ======================================== -->
+
+        <section class="card">
+
+            <div class="card-head">
+
+                <div>
+
+                    <h2>
+                        Marina Slip Map
+                    </h2>
+
+                    <p class="small">
+                        Reference layout showing Docks A, B, and C
+                        and the slip size for each position.
+                    </p>
+
+                </div>
+
+            </div>
+
+            <img
+                src="images/marina_Slip_layout.png"
+                alt="Moffat Bay Marina slip layout showing Docks A, B, and C"
+                style="width: 100%; border-radius: 8px; border: 1px solid var(--border);"
+            >
+
+            <div
+                class="notice info"
+                style="margin-top: 20px;"
+            >
+
+                <strong>
+                    Prototype note:
+                </strong>
+
+                The layout image will be interactive and allow the
+                user to select a slip. Letting them know which
+                slips are taken. The implementation will require more time to
+                research and design a full, intuitive user
+                interface. For now, this is a prototype meant to
+                illustrate our goals to the client.
+
+            </div>
+
+        </section>
+
+
+        <!-- ========================================
              SLIP AVAILABILITY SECTION
         ======================================== -->
 
@@ -200,7 +255,7 @@ CSD460
             </div>
 
 
-            <!-- Availability information is generated with JavaScript -->
+            <!-- Availability of the information will be  generated with JavaScript -->
             <div id="availabilityBody"></div>
 
         </section>
