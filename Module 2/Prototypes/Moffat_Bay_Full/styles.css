@@ -1582,83 +1582,81 @@ textarea {
 }
 
 
-/* ========================================
-   FOOTER
-======================================== */
+/* =========================
+   Moffat Bay Footer
+   ========================= */
 
-footer,
 .footer {
-    background: var(--navy);
-    color: var(--white);
+  margin-top: 50px;
+  padding: 28px;
+  background: var(--navy-2);
+  color: white;
+  border-top: 4px solid #f2b632;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 28px;
+  flex-wrap: wrap;
 }
 
-
-.footer-container {
-    max-width: 1400px;
-
-    margin: auto;
-    padding: 35px 6%;
-
-    display: grid;
-    grid-template-columns:
-        repeat(4, 1fr);
-
-    gap: 35px;
+.footer-brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
 }
 
+.footer-anchor {
+  font-size: 42px;
+  line-height: 1;
+  color: #f2b632;
+}
 
-.footer-item {
-    display: flex;
+.footer-brand strong {
+  display: block;
+  color: white;
+  font-size: 20px;
+  letter-spacing: 1px;
+}
 
-    gap: 14px;
+.footer-brand span {
+  display: block;
+  color: #f2b632;
+  font-size: 12px;
+  letter-spacing: 4px;
+  margin-top: 3px;
+}
 
+.footer-contact {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 18px;
+  color: #dce8ef;
+  font-size: 13px;
+}
+
+.footer-meta {
+  color: #b9cad4;
+  font-size: 12px;
+  text-align: right;
+}
+
+@media (max-width: 860px) {
+  .footer {
+    flex-direction: column;
     align-items: flex-start;
+  }
+
+  .footer-contact {
+    justify-content: flex-start;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .footer-meta {
+    text-align: left;
+  }
 }
-
-
-.footer-icon {
-    color: var(--gold);
-
-    font-size: 24px;
-}
-
-
-.footer-item h3 {
-    font-size: 14px;
-
-    margin-bottom: 4px;
-}
-
-
-.footer-item p,
-.footer-item a {
-    color: #eef2f8;
-
-    font-size: 13px;
-
-    text-decoration: none;
-}
-
-
-.footer-item a:hover {
-    color: var(--gold-light);
-}
-
-
-.footer-note {
-    border-top:
-        1px solid
-        rgba(255, 255, 255, 0.15);
-
-    text-align: center;
-
-    padding: 15px;
-
-    color: #d9e0eb;
-
-    font-size: 12px;
-}
-
 
 /*
    Supports prototype pages that only
