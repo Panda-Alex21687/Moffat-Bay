@@ -101,7 +101,7 @@ CSD460
       sessionStorage.setItem('moffatPrototypeName', `${el('firstName').value.trim()} ${el('lastName').value.trim()}`);
       const customerId = `MB-${Math.floor(10000 + Math.random() * 90000)}`;
       sessionStorage.setItem('moffatPrototypeCustomerId', customerId);
-      window.location.href = 'ust04-verification.html';
+      window.location.href = 'verification.html';
     });
   }
 
