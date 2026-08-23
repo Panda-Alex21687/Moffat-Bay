@@ -7,7 +7,10 @@ Jordan Dardar
 Moffat Bay Marina Project
 The Green Team
 CSD460
+
+Modified by Max 8-22, removing JS Script and allowing this to function as a redirect for post login to demo user flow. 
 -->
+
 
 <!DOCTYPE html>
 <html lang="en">
@@ -93,37 +96,36 @@ CSD460
             </a>
 
 
-            <!-- Main Navigation -->
+            <!-- Main Navigation Modified by Max 8-22 to change spacing of navi links and remove prototype tab -->
             <nav aria-label="Main navigation">
 
-                <a href="index.html">
-                    HOME
-                </a>
+                <ul>
 
-                <a href="register.html">
-                    REGISTER
-                </a>
+                    <li>
+                        <a href="index.html">
+                            HOME
+                        </a>
+                    </li>
 
-                <a
-                    class="active"
-                    href="login.html"
-                    aria-current="page"
-                >
-                    LOGIN
-                </a>
+                    <li>
+                        <a href="about.html">
+                            ABOUT US
+                        </a>
+                    </li>
 
-                <a href="waitlist.html">
-                    WAIT LIST
-                </a>
+                    <li>
+                        <a href="contact.html">
+                            CONTACT US
+                        </a>
+                    </li>
 
+                    <li>
+                        <a href="register.html">
+                            REGISTER
+                        </a>
+                    </li>
 
-                <!-- Prototype Session Indicator -->
-                <span
-                    class="session-pill"
-                    id="sessionPill"
-                >
-                    Prototype session: signed out
-                </span>
+                </ul>
 
             </nav>
 
@@ -257,13 +259,13 @@ CSD460
                     </div>
 
 
-                    <!-- Login Button -->
-                    <button
+                    <!-- Login Link (demo: navigates like a normal link, no JS) -->
+                    <a
                         class="btn primary full"
-                        type="submit"
+                        href="post_login.html"
                     >
                         Log In
-                    </button>
+                    </a>
 
 
                     <!-- Registration Button -->
@@ -280,68 +282,6 @@ CSD460
 
         </section>
 
-
-        <!-- ========================================
-             LOGIN SUCCESS
-        ======================================== -->
-
-        <section
-            class="card center-card hidden"
-            id="loginSuccess"
-        >
-
-            <!-- Success Icon -->
-            <div class="icon-circle">
-                ✓
-            </div>
-
-
-            <div class="eyebrow">
-                Prototype session active
-            </div>
-
-
-            <h2>
-                Welcome,
-                <span id="welcomeName">
-                    Customer
-                </span>!
-            </h2>
-
-
-            <p>
-                Your prototype login was successful. In the
-                production application, the customer's saved
-                account information will be retrieved from the
-                database so the site can display a personalized
-                welcome message.
-            </p>
-
-
-            <!-- Logged-In Actions -->
-            <div
-                class="inline-actions"
-                style="justify-content: center;"
-            >
-
-                <a
-                    class="btn primary"
-                    href="waitlist.html"
-                >
-                    Go to Wait List
-                </a>
-
-                <button
-                    class="btn secondary"
-                    id="logoutBtn"
-                    type="button"
-                >
-                    Log Out Prototype Session
-                </button>
-
-            </div>
-
-        </section>
 
     </main>
 
@@ -360,12 +300,6 @@ CSD460
 
     </footer>
 
-
-    <!-- ========================================
-         EXTERNAL JAVASCRIPT
-    ======================================== -->
-
-    <script src="prototype.js"></script>
 
 </body>
 
