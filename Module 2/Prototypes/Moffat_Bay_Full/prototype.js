@@ -1,3 +1,14 @@
+/*
+Alexander Baldree
+Max Jankowski
+Aftabur Rahman
+Jordan Dardar
+
+Moffat Bay Marina Project
+The Green Team
+CSD460
+*/
+
 (function () {
   const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 

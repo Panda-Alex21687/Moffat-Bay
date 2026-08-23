@@ -1,3 +1,14 @@
+<!--
+Alexander Baldree
+Max Jankowski
+Aftabur Rahman
+Jordan Dardar
+
+Moffat Bay Marina Project
+The Green Team
+CSD460
+-->
+
 <?php
 require_once __DIR__ . '/../config/database.php';
 require_once __DIR__ . '/helpers.php';
