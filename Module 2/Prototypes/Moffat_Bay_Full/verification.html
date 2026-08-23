@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>Email Verification - Moffat Bay Marina Prototype</title>
+
+    <!-- ========================================
+         GOOGLE FONTS
+    ======================================== -->
+
+    <link
+        rel="preconnect"
+        href="https://fonts.googleapis.com"
+    >
+
+    <link
+        rel="preconnect"
+        href="https://fonts.gstatic.com"
+        crossorigin
+    >
+
+    <link
+        href="https://fonts.googleapis.com/css2?family=Montserrat:wght@500;600;700&family=Open+Sans:wght@400;600&display=swap"
+        rel="stylesheet"
+    >
+
+    <!-- ========================================
+         EXTERNAL STYLESHEET
+    ======================================== -->
+
+    <link
+        rel="stylesheet"
+        href="styles.css"
+    >
+</head>
+
+
+<body>
+
+    <!-- ========================================
+         HEADER / NAVIGATION
+    ======================================== -->
+
+    <header class="site-header">
+
+        <div class="header-inner">
+
+            <!-- Marina Brand -->
+            <a
+                class="brand"
+                href="index.html"
+                aria-label="Moffat Bay Marina home"
+            >
+
+                <span
+                    class="anchor-logo"
+                    aria-hidden="true"
+                >
+                    ⚓
+                </span>
+
+                <span>
+
+                    <span class="brand-name">
+                        MOFFAT BAY
+                    </span>
+
+                    <span class="brand-subtitle">
+                        MARINA
+                    </span>
+
+                </span>
+
+            </a>
+
+
+            <!-- Main Navigation -->
+            <nav aria-label="Main navigation">
+
+                <a href="index.html">
+                    HOME
+                </a>
+
+                <a
+                    class="active"
+                    href="ust04-register.html"
+                >
+                    REGISTER
+                </a>
+
+                <a href="ust04-login.html">
+                    LOGIN
+                </a>
+
+                <a href="ust06-waitlist.html">
+                    WAIT LIST
+                </a>
+
+
+                <!-- Prototype Session Indicator -->
+                <span
+                    class="session-pill"
+                    id="sessionPill"
+                >
+                    Prototype session: signed out
+                </span>
+
+            </nav>
+
+        </div>
+
+    </header>
+
+
+    <!-- ========================================
+         MAIN CONTENT
+    ======================================== -->
+
+    <main>
+
+
+        <!-- ========================================
+             VERIFICATION PENDING
+        ======================================== -->
+
+        <section
+            class="center-card card"
+            id="verificationPending"
+        >
+
+            <!-- Email Icon -->
+            <div
+                class="icon-circle"
+                aria-hidden="true"
+            >
+                ✉
+            </div>
+
+
+            <div class="eyebrow">
+                UST-04 - Verification workflow
+            </div>
+
+
+            <h1 style="font-size: 38px;">
+                Verify your email
+            </h1>
+
+
+            <p>
+                A verification message would be sent to:
+            </p>
+
+
+            <!-- Customer Email -->
+            <div
+                class="code-box"
+                id="verificationEmail"
+            >
+                customer@example.com
+            </div>
+
+
+            <p>
+                Your prototype customer ID is:
+            </p>
+
+
+            <!-- Customer ID -->
+            <div
+                class="code-box"
+                id="customerId"
+            >
+                MB-00000
+            </div>
+
+
+            <!-- Prototype Notice -->
+            <div
+                class="notice warning"
+                style="
+                    margin-top: 18px;
+                    text-align: left;
+                "
+            >
+                Module 2 prototype only: no real email is sent.
+                In the final application, verification must be
+                completed through the server-side email
+                verification workflow.
+            </div>
+
+
+            <!-- Verification Button -->
+            <button
+                class="btn primary"
+                id="verifyBtn"
+                type="button"
+            >
+                Simulate Verification Link
+            </button>
+
+        </section>
+
+
+        <!-- ========================================
+             VERIFICATION COMPLETE
+        ======================================== -->
+
+        <section
+            class="center-card card hidden"
+            id="verificationComplete"
+        >
+
+            <!-- Success Icon -->
+            <div
+                class="icon-circle"
+                aria-hidden="true"
+            >
+                ✓
+            </div>
+
+
+            <div class="eyebrow">
+                Verification complete
+            </div>
+
+
+            <h1 style="font-size: 38px;">
+                Email verified
+            </h1>
+
+
+            <p>
+                The prototype account is ready
+                for the login flow.
+            </p>
+
+
+            <!-- Continue to Login -->
+            <a
+                class="btn primary"
+                href="ust04-login.html"
+            >
+                Continue to Login
+            </a>
+
+        </section>
+
+    </main>
+
+
+    <!-- ========================================
+         FOOTER
+    ======================================== -->
+
+    <footer class="footer">
+
+        <strong>
+            UST-04 Prototype
+        </strong>
+
+        - Email verification flow
+
+    </footer>
+
+
+    <!-- ========================================
+         EXTERNAL JAVASCRIPT
+    ======================================== -->
+
+    <script src="prototype.js"></script>
+
+</body>
+
+</html>
