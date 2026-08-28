@@ -1,0 +1,359 @@
+<!--
+Alexander Baldree
+Max Jankowski
+Aftabur Rahman
+Jordan Dardar
+
+Moffat Bay Marina Project
+The Green Team
+CSD460
+-->
+
+<!--
+    Max Jankowski
+    Green Team - Moffat Bay Marina
+
+    Used Aftab's landing page as a template.
+    This page points to styles2.css, so make sure styles2.css
+    is located in the same folder when running the project locally.
+
+    The wait list uses the marina-data.js file to demonstrate
+    functionality that would eventually rely on a database.
+    Since the database is not ready yet, the data file is used
+    to simulate the wait list and slip availability information.
+-->
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>Wait Lists | Moffat Bay Marina</title>
+
+    <!-- ========================================
+         GOOGLE FONTS
+    ======================================== -->
+
+    <link
+        rel="preconnect"
+        href="https://fonts.googleapis.com"
+    >
+
+    <link
+        rel="preconnect"
+        href="https://fonts.gstatic.com"
+        crossorigin
+    >
+
+    <link
+        href="https://fonts.googleapis.com/css2?family=Montserrat:wght@500;600;700&family=Open+Sans:wght@400;600&display=swap"
+        rel="stylesheet"
+    >
+
+    <!-- ========================================
+         EXTERNAL STYLESHEET
+    ======================================== -->
+
+    <link
+        rel="stylesheet"
+        href="styles2.css"
+    >
+</head>
+
+
+<body>
+
+    <!-- ========================================
+         HEADER / NAVIGATION
+    ======================================== -->
+
+    <header>
+
+        <div class="nav">
+
+            <!-- Marina Brand -->
+            <a
+                class="brand"
+                href="reservation.html"
+            >
+
+                <span class="anchor">
+                    ⚓
+                </span>
+
+                <span>
+
+                    <span class="brand-name">
+                        MOFFAT BAY
+                    </span>
+
+                    <span class="brand-sub">
+                        MARINA
+                    </span>
+
+                </span>
+
+            </a>
+
+
+            <!-- Main Navigation -->
+            <nav aria-label="Main navigation">
+
+                <ul>
+
+                    <li>
+                        <a href="index.html">
+                            HOME
+                        </a>
+                    </li>
+
+                    <li>
+                        <a href="pricing.html">
+                            PRICING
+                        </a>
+                    </li>
+
+                    <li>
+                        <a href="availability.html">
+                            AVAILABILITY
+                        </a>
+                    </li>
+
+                    <li>
+                        <a
+                            class="active"
+                            href="waitlist.html"
+                            aria-current="page"
+                        >
+                            WAIT LIST
+                        </a>
+                    </li>
+
+                    <li>
+                        <a href="reservation.html">
+                            RESERVATION
+                        </a>
+                    </li>
+
+                </ul>
+
+            </nav>
+
+        </div>
+
+    </header>
+
+
+    <!-- ========================================
+         MAIN CONTENT
+    ======================================== -->
+
+    <main class="container">
+
+
+        <!-- ========================================
+             PAGE TITLE
+        ======================================== -->
+
+        <div class="eyebrow">
+            WAIT LIST LOOKUP
+        </div>
+
+        <h1 class="title">
+            Slip Wait Lists
+        </h1>
+
+        <div class="gold-line"></div>
+
+
+        <!-- ========================================
+             WAIT LIST INFORMATION
+        ======================================== -->
+
+        <section class="card">
+
+            <div class="card-head">
+
+                <div>
+
+                    <h2>
+                        Customers Waiting by Slip Size
+                    </h2>
+
+                    <p class="small">
+                        For privacy, wait lists show only the
+                        number of customers waiting — never
+                        customer names.
+                    </p>
+
+                </div>
+
+            </div>
+
+
+            <!--
+                Wait list information is generated
+                by JavaScript using marina-data.js.
+            -->
+            <div id="waitlistBody"></div>
+
+        </section>
+
+
+        <!-- ========================================
+             PROTOTYPE NOTICE
+        ======================================== -->
+
+        <div class="notice info">
+
+            <strong>
+                Prototype:
+            </strong>
+
+            Wait list counts are simulated with localStorage.
+            Joining a wait list happens from the
+
+            <a href="pricing.html">
+                pricing page
+            </a>
+
+            when your required slip size is fully reserved.
+
+        </div>
+
+    </main>
+
+
+    <!-- ========================================
+         FOOTER
+    ======================================== -->
+
+    <footer>
+        Moffat Bay Marina • CSD 460 Module 2 Prototype
+    </footer>
+
+
+    <!-- ========================================
+         EXTERNAL JAVASCRIPT
+    ======================================== -->
+
+    <!--
+        marina-data.js acts as the prototype data source.
+        In the completed application, this information
+        would eventually come from the project database.
+    -->
+    <script src="marina-data.js"></script>
+
+
+    <!-- ========================================
+         WAIT LIST JAVASCRIPT
+    ======================================== -->
+
+    <script>
+
+        /*
+         * Creates the wait list information
+         * for a specific marina slip size.
+         */
+        function row(size) {
+
+            /*
+             * Get the current marina state from
+             * the prototype data file.
+             */
+            const state = getMarinaState();
+
+            /*
+             * Get the number of customers waiting
+             * for this slip size.
+             */
+            const waiting = state.waitlist[size];
+
+            /*
+             * Get the current number of available
+             * slips for this slip size.
+             */
+            const available = availableSlips(size);
+
+
+            /*
+             * Display "No wait" when nobody is waiting.
+             * Otherwise, display the number of customers
+             * currently on the wait list.
+             */
+            const count =
+                waiting === 0
+                    ? '<span class="status">' +
+                        'No wait' +
+                      '</span>'
+                    : '<span class="value">' +
+                        waiting +
+                        ' customer' +
+                        (waiting === 1 ? '' : 's') +
+                        ' waiting' +
+                      '</span>';
+
+
+            /*
+             * Return the HTML used to display the
+             * wait list and availability information.
+             */
+            return (
+                '<div class="item">' +
+
+                    '<span class="label">' +
+                        size +
+                        ' ft slips' +
+                    '</span>' +
+
+                    count +
+
+                '</div>' +
+
+
+                '<div class="item">' +
+
+                    '<span class="label">' +
+                        'Current Availability' +
+                    '</span>' +
+
+                    '<span class="value">' +
+
+                        (
+                            available > 0
+                                ? available + ' slips open'
+                                : 'Fully reserved'
+                        ) +
+
+                    '</span>' +
+
+                '</div>'
+            );
+        }
+
+
+        /*
+         * Build the wait list grid for
+         * 26 ft, 40 ft, and 50 ft slips.
+         */
+        document.getElementById(
+            "waitlistBody"
+        ).innerHTML =
+
+            '<div class="grid">' +
+                row(26) +
+                row(40) +
+                row(50) +
+            '</div>';
+
+    </script>
+
+</body>
+
+</html>
