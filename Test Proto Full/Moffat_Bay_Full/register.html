@@ -1,0 +1,558 @@
+<!--
+Alexander Baldree
+Max Jankowski
+Aftabur Rahman
+Jordan Dardar
+
+Moffat Bay Marina Project
+The Green Team
+CSD460
+-->
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>Register - Moffat Bay Marina Prototype</title>
+
+    <!-- ========================================
+         GOOGLE FONTS
+    ======================================== -->
+
+    <link
+        rel="preconnect"
+        href="https://fonts.googleapis.com"
+    >
+
+    <link
+        rel="preconnect"
+        href="https://fonts.gstatic.com"
+        crossorigin
+    >
+
+    <link
+        href="https://fonts.googleapis.com/css2?family=Montserrat:wght@500;600;700&family=Open+Sans:wght@400;600&display=swap"
+        rel="stylesheet"
+    >
+
+    <!-- ========================================
+         EXTERNAL STYLESHEET
+    ======================================== -->
+
+    <link
+        rel="stylesheet"
+        href="StylesUniversal.css"
+    >
+</head>
+
+
+<body>
+
+    <!-- ========================================
+         HEADER / NAVIGATION
+    ======================================== -->
+
+    <header class="site-header">
+
+        <div class="header-inner">
+
+            <!-- Marina Brand -->
+            <a
+                class="brand"
+                href="index.html"
+                aria-label="Moffat Bay Marina home"
+            >
+
+                <span
+                    class="anchor-logo"
+                    aria-hidden="true"
+                >
+                    ⚓
+                </span>
+
+                <span>
+
+                    <span class="brand-name">
+                        MOFFAT BAY
+                    </span>
+
+                    <span class="brand-subtitle">
+                        MARINA
+                    </span>
+
+                </span>
+
+            </a>
+
+
+            <!-- Prototype Navigation -->
+             <nav aria-label="Main navigation">
+
+                <ul>
+
+
+                <a
+                    class="active"
+                    href="register.html"
+                    aria-current="page"
+                >
+                    REGISTER
+                </a>
+
+
+                    <li>
+                        <a href="about.html">
+                            ABOUT US
+                        </a>
+                    </li>
+
+                    <li>
+                        <a href="contact.html">
+                            CONTACT US
+                        </a>
+                    </li>
+
+                    <li>
+                        <a href="login.html">   <!-- Changed head spacing to match design. removed prototype indicator, Login link takes user to login  -->
+                            LOGIN
+                        </a>
+                    </li>
+
+                </ul>
+
+            </nav>
+
+        </div>
+
+    </header>
+
+
+    <!-- ========================================
+         MAIN CONTENT
+    ======================================== -->
+
+    <main>
+
+
+        <!-- ========================================
+             REGISTRATION HERO
+        ======================================== -->
+
+        <section class="hero-compact">
+
+
+            <!-- Hero Information
+            <div>
+
+                <div class="eyebrow">
+                    UST-04 - Registration
+                </div>
+
+                <h1>
+                    Create your marina account
+                </h1>
+
+                <p class="lead">
+                    Customers use their email address as the username.
+                    The prototype collects the required customer and
+                    boat information before continuing to the
+                    verification step.
+                </p>
+
+            </div>  -->
+
+
+            <!-- Password Requirement Notice -->
+            <aside class="prototype-badge">
+
+                <strong>
+                    Project password requirement
+                </strong>
+
+                <p>
+                    At least 8 characters, including at least one
+                    uppercase letter and one lowercase letter.
+                    This prototype validates that rule in the browser;
+                    secure password storage belongs to the later
+                    development phase.
+                </p>
+
+            </aside>
+
+        </section>
+
+
+        <!-- ========================================
+             REGISTRATION LAYOUT
+        ======================================== -->
+
+        <div class="form-layout">
+
+
+            <!-- ========================================
+                 REGISTRATION FORM
+            ======================================== -->
+
+            <section class="card form-card">
+
+                <!-- Existing Account Shortcut -->
+                <div class="notice info">
+                    Already have an account?
+                    <a href="login.html">Sign in here</a>.
+                </div>
+
+
+                <form
+                    id="registrationForm"
+                    novalidate
+                >
+
+                    <div class="form-grid">
+
+
+                        <!-- ========================================
+                             FIRST NAME
+                        ======================================== -->
+
+                        <div class="field">
+
+                            <label for="firstName">
+                                First name
+                            </label>
+
+                            <input
+                                id="firstName"
+                                name="firstName"
+                                type="text"
+                                autocomplete="given-name"
+                            >
+
+                            <div
+                                class="error"
+                                id="firstNameError"
+                            ></div>
+
+                        </div>
+
+
+                        <!-- ========================================
+                             LAST NAME
+                        ======================================== -->
+
+                        <div class="field">
+
+                            <label for="lastName">
+                                Last name
+                            </label>
+
+                            <input
+                                id="lastName"
+                                name="lastName"
+                                type="text"
+                                autocomplete="family-name"
+                            >
+
+                            <div
+                                class="error"
+                                id="lastNameError"
+                            ></div>
+
+                        </div>
+
+
+                        <!-- ========================================
+                             EMAIL ADDRESS
+                        ======================================== -->
+
+                        <div class="field full">
+
+                            <label for="email">
+                                Email address / username
+                            </label>
+
+                            <input
+                                id="email"
+                                name="email"
+                                type="email"
+                                autocomplete="email"
+                                placeholder="name@example.com"
+                            >
+
+                            <div class="helper">
+                                The project uses the customer's
+                                email address as the username.
+                            </div>
+
+                            <div
+                                class="error"
+                                id="emailError"
+                            ></div>
+
+                        </div>
+
+
+                        <!-- ========================================
+                             TELEPHONE
+                        ======================================== -->
+
+                        <div class="field">
+
+                            <label for="telephone">
+                                Telephone
+                            </label>
+
+                            <input
+                                id="telephone"
+                                name="telephone"
+                                type="tel"
+                                autocomplete="tel"
+                                placeholder="(555) 555-0123"
+                            >
+
+                            <div
+                                class="error"
+                                id="telephoneError"
+                            ></div>
+
+                        </div>
+
+
+                        <!-- ========================================
+                             BOAT NAME
+                        ======================================== -->
+
+                        <div class="field">
+
+                            <label for="boatName">
+                                Boat name
+                            </label>
+
+                            <input
+                                id="boatName"
+                                name="boatName"
+                                type="text"
+                                placeholder="Example: Sea Breeze"
+                            >
+
+                            <div
+                                class="error"
+                                id="boatNameError"
+                            ></div>
+
+                        </div>
+
+
+                        <!-- ========================================
+                             BOAT LENGTH
+                        ======================================== -->
+
+                        <div class="field full">
+
+                            <label for="boatLength">
+                                Boat length (feet)
+                            </label>
+
+                            <input
+                                id="boatLength"
+                                name="boatLength"
+                                type="number"
+                                min="1"
+                                step="1"
+                                placeholder="34"
+                            >
+
+                            <div class="helper">
+                                Boat length is required by the Marina
+                                registration requirements and will
+                                later be used to determine an
+                                appropriate slip size.
+                            </div>
+
+                            <div
+                                class="error"
+                                id="boatLengthError"
+                            ></div>
+
+                        </div>
+
+
+                        <!-- ========================================
+                             PASSWORD
+                        ======================================== -->
+
+                        <div class="field">
+
+                            <label for="password">
+                                Password
+                            </label>
+
+                            <input
+                                id="password"
+                                name="password"
+                                type="password"
+                                autocomplete="new-password"
+                            >
+
+
+                            <!-- Password Rules -->
+                            <ul class="rule-list">
+
+                                <li id="ruleLength">
+                                    8 or more characters
+                                </li>
+
+                                <li id="ruleUpper">
+                                    At least one uppercase letter
+                                </li>
+
+                                <li id="ruleLower">
+                                    At least one lowercase letter
+                                </li>
+
+                            </ul>
+
+
+                            <div
+                                class="error"
+                                id="passwordError"
+                            ></div>
+
+                        </div>
+
+
+                        <!-- ========================================
+                             CONFIRM PASSWORD
+                        ======================================== -->
+
+                        <div class="field">
+
+                            <label for="confirmPassword">
+                                Confirm password
+                            </label>
+
+                            <input
+                                id="confirmPassword"
+                                name="confirmPassword"
+                                type="password"
+                                autocomplete="new-password"
+                            >
+
+                            <div class="helper">
+                                Confirm password is included as
+                                a prototype usability safeguard.
+                            </div>
+
+                            <div
+                                class="error"
+                                id="confirmPasswordError"
+                            ></div>
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- ========================================
+                         FORM ACTIONS
+                    ======================================== -->
+
+                    <div class="inline-actions">
+
+                        <button
+                            class="btn primary"
+                            type="submit"
+                        >
+                            Create Account &amp; Continue
+                        </button>
+
+                    </div>
+
+                    <!-- Prototype Notice -->
+                    <div class="notice info">
+                        Prototype: no information entered here is
+                        transmitted to a server or saved to a database.
+                    </div>
+
+                </form>
+
+            </section>
+
+
+            <!-- ========================================
+                 REGISTRATION PROTOTYPE COVERAGE
+            ======================================== -->
+
+            <aside class="card soft">
+
+                <h3>
+                    Registration prototype coverage
+                </h3>
+
+                <ul class="aside-list">
+
+                    <li>
+                        Email-format validation using standard
+                        username/email format.
+                    </li>
+
+                    <li>
+                        Required fields: email, first name,
+                        last name, telephone, boat name,
+                        boat length, and password.
+                    </li>
+
+                    <li>
+                        Project password rule: 8+ characters
+                        with uppercase and lowercase letters.
+                    </li>
+
+                    <li>
+                        A unique prototype customer ID is
+                        generated after successful form completion.
+                    </li>
+
+                    <li>
+                        Email verification is represented by
+                        the next prototype screen.
+                    </li>
+
+                </ul>
+
+            </aside>
+
+        </div>
+
+    </main>
+
+
+    <!-- ========================================
+         FOOTER
+    ======================================== -->
+
+    <footer class="footer">
+
+        <strong>
+            UST-04 Prototype
+        </strong>
+
+        - Registration / account creation flow
+
+    </footer>
+
+
+    <!-- ========================================
+         EXTERNAL JAVASCRIPT
+    ======================================== -->
+
+    <script src="prototype.js"></script>
+
+</body>
+
+</html>
