@@ -32,10 +32,12 @@ import java.sql.Types;
 import java.util.HashMap; // Dont get excited, not a hash for the password. But we'll get there 
 import java.util.Map;
 import java.util.Properties;
+import java.sql.ResultSetMetaData; // added import on 8-26 to see why basic queries done run and trigger an type error. -Max
+
 
 public class GreenTeamDataBaseIdea {
 
-	// Seeding data with immutable data holders. this also is simpler thet using multiple arrays. 
+	// Seeding data with immutable data holders. this also is simpler that using multiple arrays. 
     private record CustomerSeed(
             String firstName, String lastName, String phone,
             String street, String city, String state, String zip,
@@ -86,9 +88,11 @@ public class GreenTeamDataBaseIdea {
         new BoatSeed("casey.jones@example.com", "Changing Tides", 45.0, "Sailboat", "WA-MB-4505")
     };
 
+    
+	// Modified on 8-28 by Max. removed notes field. not in finalized ERD
     private record ReservationSeed(
             String ownerEmail, String slipNumber, String checkInDate,
-            String expectedTerm, double monthlyCost, String notes,
+            String expectedTerm, double monthlyCost,
             String status, String cancelledAt
     ) {}
 
@@ -98,22 +102,22 @@ public class GreenTeamDataBaseIdea {
 
         // Priya registered and reserved in one session (26 ft boat so, goes without saying 26 ft slip).
         new ReservationSeed("priya.sharma@example.com", "A8", "2026-09-01",
-            "12 months", 270.00, "Registered and reserved in a single session.",
-            "CONFIRMED", null),
+            "12 months", 270.00,
+            "CONFIRMED", null), // Removed all the notes from what was once the Notes field. Modified by Max on 8-28
 
         // Emily already had a slip reserved (36 ft boat with a 40 ft slip).
         new ReservationSeed("emily.tran@example.com", "B4", "2026-09-15",
-            "6 months", 370.00, "Returning customer; slip was already reserved on a prior visit.",
+            "6 months", 370.00, 
             "CONFIRMED", null),
 
         // Johns reservation is still pending 
         new ReservationSeed("john.ruiz@example.com", "B5", "2026-10-01",
-            "6 months", 350.00, "Awaiting payment confirmation before the slip is finalized.",
+            "6 months", 350.00, 
             "PENDING", null),
 
         // Casey: cancelled after a change of plans, all this to prove a concept 
         new ReservationSeed("casey.jones@example.com", "C1", "2026-10-15",
-            "3 months", 460.00, "Customer cancelled after a change of plans.",
+            "3 months", 460.00, 
             "CANCELLED", "2026-08-24 15:00:00")
     };
 
@@ -148,9 +152,18 @@ public class GreenTeamDataBaseIdea {
  
         String serverUrl = "jdbc:mysql://" + host + ":" + port + "/";
         String dbUrl = "jdbc:mysql://" + host + ":" + port + "/" + dbName;
- 
+        
+        
+         
+            
         try {
-            // the database itself alread need to be there before we connect to it.          
+        		// Adding a drop db function on 8-28 just to make sure that during testing we are always working from a clean build.
+        		// This can be commented out once we are working with all the data we want to and or beginning to use data from a live environment 
+            dropDatabaseIfExists(serverUrl, user, password, dbName);
+ 
+            ensureDatabaseExists(serverUrl, user, password, dbName);
+ 
+            // the database itself already need to be there before we connect to it.          
             ensureDatabaseExists(serverUrl, user, password, dbName);
  
             
@@ -169,7 +182,7 @@ public class GreenTeamDataBaseIdea {
                         + "(3 persona-based, 2 generic), plus boats, slip_types, "
                         + "slips, reservations, waitlist_entries, and email_verifications.");
                 }
- 
+                printScreenshotQueries(conn); // added 8-26 by Max 
                 printSummary(conn);
             }
  
@@ -199,6 +212,19 @@ public class GreenTeamDataBaseIdea {
         return props;
     }
     
+  
+    // will drop database if it exists to keep working with a clean build 8-28 Max
+    private static void dropDatabaseIfExists(
+            String serverUrl, String user, String password, String dbName) throws SQLException {
+ 
+        try (Connection conn = DriverManager.getConnection(serverUrl, user, password);
+             Statement st = conn.createStatement()) {
+ 
+            st.executeUpdate("DROP DATABASE IF EXISTS " + dbName);
+        }
+ 
+        System.out.println("Dropped existing database (if any): " + dbName);
+    }
 	 // makes the DB itself IF it isnt there.  the JDBC URL indicates the DB so we first connect to server root, then CREATE. then another connection 
 	 //opens and we'll target that DB 
     private static void ensureDatabaseExists(
@@ -214,8 +240,8 @@ public class GreenTeamDataBaseIdea {
     }
 
 
-	// Now for more funn parts, making those tables. I will be using the CREATE TABLE IF NOT EXISTS here so we dont get those duplicate tables when running multiple times 
-	// Used alot of copy paste here with Jordans work, So thanks Jordan 
+	// Now for more fun parts, making those tables. I will be using the CREATE TABLE IF NOT EXISTS here so we dont get those duplicate tables when running multiple times 
+	// Used a lot of copy paste here with Jordan's work, So thanks Jordan 
     private static void createTables(Connection conn) throws SQLException {
         try (Statement st = conn.createStatement()) {
 
@@ -240,11 +266,13 @@ public class GreenTeamDataBaseIdea {
             st.executeUpdate(
                 "CREATE TABLE IF NOT EXISTS slip_types ("
                 + "slip_type_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,"
-                + "size_ft INT NOT NULL,"
+                // Modified on 8-28 by Max changed size_ft was INT. Official ERD makes this a decimal                 
+                + "size_ft DECIMAL(5,1) NOT NULL,"
                 + "total_capacity INT NOT NULL,"
                 + "rate_per_foot DECIMAL(8,2) NOT NULL,"
                 + "electric_fee DECIMAL(8,2) NOT NULL"
                 + ") ENGINE=InnoDB");
+
          
 			// Every boat will belong to 1 client, but a customer can have multiple boats. 
             st.executeUpdate(
@@ -272,7 +300,8 @@ public class GreenTeamDataBaseIdea {
                 + ") ENGINE=InnoDB");
 
             
-			// Linking a client and boat to a slip, should match Aftab's ERD, this appeared to be missing from the SQL file sent by Jordan, Let me know if I missed anthing 
+			// Linking a client and boat to a slip, should match Aftab's ERD, this appeared to be missing from the SQL file sent by Jordan, Let me know if I missed anthing            
+			// Modified on 8-28 to remove notes field to match the ERD            
             st.executeUpdate(
                 "CREATE TABLE IF NOT EXISTS reservations ("
                 + "reservation_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,"
@@ -282,7 +311,6 @@ public class GreenTeamDataBaseIdea {
                 + "check_in_date DATE NOT NULL,"
                 + "expected_term VARCHAR(30) NOT NULL,"
                 + "monthly_cost DECIMAL(10,2) NOT NULL,"
-                + "notes TEXT,"
                 + "status VARCHAR(30) NOT NULL,"
                 + "created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,"
                 + "cancelled_at TIMESTAMP NULL,"
@@ -351,7 +379,7 @@ public class GreenTeamDataBaseIdea {
 	 /*
 	 ============================================================
 	 
-	 There is no hashing yet. Sorry but i will sound redundent about this for now, Just want to make notes were attention will be required in the future 
+	 There is no hashing yet. Sorry but i will sound redundant about this for now, Just want to make notes were attention will be required in the future 
 	 
 	 ============================================================
 	 */
@@ -539,8 +567,8 @@ public class GreenTeamDataBaseIdea {
 
         String sql = "INSERT INTO reservations "
             + "(customer_id, boat_id, slip_id, check_in_date, expected_term, "
-            + "monthly_cost, notes, status, cancelled_at) "
-            + "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
+            + "monthly_cost, status, cancelled_at) "
+            + "VALUES (?, ?, ?, ?, ?, ?, ?, ?)"; // That 9th question mark was a Waldo in this problem, needed to delete that parameter so system would stop looking for it 8-28 Max 
 
         try (PreparedStatement ps = conn.prepareStatement(sql)) {
             for (ReservationSeed r : RESERVATION_SEEDS) {
@@ -550,23 +578,25 @@ public class GreenTeamDataBaseIdea {
                 ps.setDate(4, Date.valueOf(r.checkInDate()));
                 ps.setString(5, r.expectedTerm());
                 ps.setBigDecimal(6, BigDecimal.valueOf(r.monthlyCost()));
-                ps.setString(7, r.notes());
-                ps.setString(8, r.status());
+                // ps.setString(7, r.notes()); commenting out this line as the field removed to reflect the ERD. This was modified on 8-26 by Max
+                // Bug found, since Im a huge goof, I commented out the notes column. But never changed to numbering. system kep looking for that 9th  
+                ps.setString(7, r.status());
 
                 // cancelled_at is nullable - only Casey's row has a
                 // real value; everyone else gets an explicit SQL
                 // NULL via ps.setNull(...) rather than leaving the
                 // parameter unset (which JDBC does not allow).
                 if (r.cancelledAt() != null) {
-                    ps.setTimestamp(9, Timestamp.valueOf(r.cancelledAt()));
+                    ps.setTimestamp(8, Timestamp.valueOf(r.cancelledAt()));
                 } else {
-                    ps.setNull(9, Types.TIMESTAMP);
+                    ps.setNull(8, Types.TIMESTAMP);
                 }
 
                 ps.executeUpdate();
             }
         }
     }
+	
 	 
 	 //Inserts two wait list rows, one per Seeds entry
     private static void insertWaitlistEntries(
@@ -628,6 +658,9 @@ public class GreenTeamDataBaseIdea {
     // Quick sanity check printed after every run - lets you
     // confirm at a glance that all 7 tables have the row counts
     // you expect, without opening phpMyAdmin.
+	//
+	// So after a few days I  determined I dont mind this last section as a display of what the tables hold. 
+	// This will come in handy as more data is added to the test db and knowing how much data is stored in it.  
     // ------------------------------------------------------------
 
     private static void printSummary(Connection conn) throws SQLException {
@@ -646,4 +679,56 @@ public class GreenTeamDataBaseIdea {
             }
         }
     }
-}
+	
+	// Modification by Max on 8-28. Added method to perform an auto query from the Eclipse 
+	// terminal to queary te db and demonstarte the table view matching the teams ERD.	
+    private static void printScreenshotQueries(Connection conn) throws SQLException {
+        String[] queries = {
+            "SELECT * FROM customers",
+            "SELECT * FROM boats",
+            "SELECT * FROM slip_types",
+            "SELECT * FROM slips",
+            "SELECT * FROM reservations",
+            "SELECT * FROM waitlist_entries",
+            "SELECT * FROM email_verifications"
+        };
+ 
+        try (Statement st = conn.createStatement()) {
+            for (String query : queries) {
+                System.out.println();
+                System.out.println(query);
+ 
+                try (ResultSet rs = st.executeQuery(query)) {
+                    ResultSetMetaData meta = rs.getMetaData();
+                    int columnCount = meta.getColumnCount();
+ 
+                    StringBuilder header = new StringBuilder();
+                    for (int i = 1; i <= columnCount; i++) {
+                        if (i > 1) {
+                            header.append(" | ");
+                        }
+                        header.append(meta.getColumnName(i));
+                    }
+                    System.out.println(header);
+ 
+                    while (rs.next()) {
+                        StringBuilder row = new StringBuilder();
+                        for (int i = 1; i <= columnCount; i++) {
+                            if (i > 1) {
+                                row.append(" | ");
+                            }
+                            row.append(rs.getString(i));
+                        }
+                        System.out.println(row);
+                    }
+                }
+            }
+        }
+    }
+} // As update, I tried some styling to make these look better in the console window, not the best. 
+//I had nothing but trouble with it and in the end just performing some queries in the shell just looked better.  
+
+   
+ 
+
+ 
