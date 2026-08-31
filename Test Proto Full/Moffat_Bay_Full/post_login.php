@@ -1,0 +1,290 @@
+<?php
+require_once __DIR__ . '/database.php';
+
+if (!isset($_SESSION['customer_id'])) {
+    header('Location: login.php');
+    exit;
+}
+
+$firstName = $_SESSION['first_name'] ?? 'Customer';
+?>
+
+<!--
+    Max Jankowski
+    Jordan Dardar
+
+    Green Team - Moffat Bay Marina
+
+    Authenticated customer account page.
+    This page uses the PHP session created after successful
+    customer login and displays the logged-in customer's name.
+-->
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>My Account | Moffat Bay Marina</title>
+
+
+    <!-- ========================================
+         GOOGLE FONTS
+    ======================================== -->
+
+    <link
+        rel="preconnect"
+        href="https://fonts.googleapis.com"
+    >
+
+    <link
+        rel="preconnect"
+        href="https://fonts.gstatic.com"
+        crossorigin
+    >
+
+    <link
+        href="https://fonts.googleapis.com/css2?family=Montserrat:wght@500;600;700&family=Open+Sans:wght@400;600&display=swap"
+        rel="stylesheet"
+    >
+
+
+    <!-- ========================================
+     EXTERNAL STYLESHEET
+======================================== -->
+
+    <link
+        rel="stylesheet"
+        href="StylesUniversal.css"
+    >
+
+</head>
+
+
+
+<body>
+
+    <!-- ========================================
+         HEADER / NAVIGATION
+    ======================================== -->
+
+    <header>
+
+        <div class="nav">
+
+            <!-- Marina Brand -->
+            <a
+                class="brand"
+                href="index.html"
+            >
+
+                <span class="anchor">
+                    âš“
+                </span>
+
+                <span>
+
+                    <span class="brand-name">
+                        MOFFAT BAY
+                    </span>
+
+                    <span class="brand-sub">
+                        MARINA
+                    </span>
+
+                </span>
+
+            </a>
+
+
+            <!-- Main Navigation -->
+            <nav aria-label="Main navigation">
+
+                <ul>
+
+                    <li>
+                        <a href="reservation.html">
+                            RESERVATION
+                        </a>
+                    </li>
+
+                    <li>
+                        <a href="availability.html">
+                            AVAILABILITY
+                        </a>
+                    </li>
+
+                    <li>
+                        <a href="waitlist.html">
+                            WAIT LIST
+                        </a>
+                    </li>
+
+                    <li>
+                        <a href="pricing.html">
+                            PRICING
+                        </a>
+                    </li>
+
+                    <li>
+                        <a
+                            href="logout.php"
+                            id="logoutLink"
+                        >
+                            LOGOUT
+                        </a>
+                    </li>
+
+                </ul>
+
+            </nav>
+
+        </div>
+
+    </header>
+
+
+      <!-- ========================================
+         WELCOME HERO - Created a new Hero card for the post login, matches the index but will have a different image in final product.
+    ======================================== -->
+    <section
+        class="hero"
+        style="background:linear-gradient(90deg,rgba(2,18,42,.72),rgba(2,18,42,.15)),url('images/marina_dock.jpeg') center 42%/cover no-repeat;"
+    >
+
+        <div class="hero-content">
+
+            <h1>
+                Welcome Back<br><?= htmlspecialchars($firstName, ENT_QUOTES, 'UTF-8') ?>
+            </h1>
+
+            <div class="gold-line"></div>
+
+            <p>
+                Ready to check today's slip rates?
+            </p>
+
+            <p class="tagline">
+                Your slips, your rates, one click away.
+            </p>
+
+            <a
+                href="pricing.html"
+                class="btn btn-primary"
+            >
+                âš“ &nbsp; VIEW SLIP PRICING
+            </a>
+
+        </div>
+
+    </section>
+
+
+    <!-- ========================================
+         MAIN CONTENT
+    ======================================== -->
+
+    <main class="container">
+
+
+        <!-- ========================================
+            TITLE
+        ======================================== -->
+
+        <div class="eyebrow">
+            UST-04 â€¢ POST-LOGIN
+        </div>
+
+        <h1 class="title">
+            My Account
+        </h1>
+
+        <div class="gold-line"></div>
+
+
+        <!-- ========================================
+             QUICK ACTIONS
+        ======================================== -->
+
+        <section class="card">
+
+            <h2>
+                What would you like to do?
+            </h2>
+
+            <p
+                class="small"
+                style="margin: 4px 0 18px;"
+            >
+                Jump straight to the most common
+                customer tasks.
+            </p>
+
+
+            <div class="actions" style="justify-content: flex-start;">
+
+                <a
+                    class="btn primary"
+                    href="reservation.html"
+                >
+                    RESERVE A SLIP
+                </a>
+
+                <a
+                    class="btn secondary"
+                    href="availability.html"
+                >
+                    CHECK AVAILABILITY
+                </a>
+
+                <a
+                    class="btn secondary"
+                    href="waitlist.html"
+                >
+                    VIEW WAIT LISTS
+                </a>
+
+            </div>
+
+        </section>
+
+
+        <!-- ========================================
+     ACCOUNT SESSION STATUS
+======================================== -->
+
+<div class="notice info">
+
+    <strong>
+        Account session active:
+    </strong>
+
+    You are securely signed in as
+    <?= htmlspecialchars($firstName, ENT_QUOTES, 'UTF-8') ?>.
+    Use the navigation above to manage your marina account.
+
+</div>
+
+    </main>
+
+
+    <!-- ========================================
+         FOOTER
+    ======================================== -->
+
+    <footer>
+        Moffat Bay Marina â€¢ CSD 460 Green Team Project
+    </footer>
+
+
+
+
+</body>
+
+</html>

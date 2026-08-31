@@ -12,14 +12,20 @@ CSD460
 <?php
 // Moffat Bay Marina database connection.
 // XAMPP commonly uses root with a blank password for local development.
-// Change these values if your local MySQL setup is different.
-$host = 'localhost';
-$db   = 'moffat_bay';
-$user = 'root';
-$pass = '';
+// Environment variables can override the default connection settings when needed.
+$host = getenv('MOFFAT_DB_HOST') ?: 'localhost';
+$port = getenv('MOFFAT_DB_PORT') ?: '3306';
+$db = getenv('MOFFAT_DB_NAME') ?: 'moffat_bay';
+$user = getenv('MOFFAT_DB_USER') ?: 'root';
+
+$pass = getenv('MOFFAT_DB_PASS');
+if ($pass === false) {
+    $pass = '';
+}
+
 $charset = 'utf8mb4';
 
-$dsn = "mysql:host=$host;dbname=$db;charset=$charset";
+$dsn = "mysql:host=$host;port=$port;dbname=$db;charset=$charset";
 $options = [
     PDO::ATTR_ERRMODE            => PDO::ERRMODE_EXCEPTION,
     PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
@@ -33,7 +39,7 @@ try {
     header('Content-Type: application/json; charset=utf-8');
     echo json_encode([
         'ok' => false,
-        'message' => 'Database connection failed. Check config/database.php and confirm MySQL is running.'
+        'message' => 'Database connection failed. Check database.php settings and confirm MySQL is running.'
     ]);
     exit;
 }
