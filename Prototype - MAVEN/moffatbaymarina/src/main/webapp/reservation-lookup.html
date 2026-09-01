@@ -1,0 +1,921 @@
+<!--
+Alexander Baldree
+Max Jankowski
+Aftabur Rahman
+Jordan Dardar
+
+Moffat Bay Marina Project
+The Green Team
+CSD460
+-->
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>Reservation Lookup | Moffat Bay Marina</title>
+
+    <link
+        rel="preconnect"
+        href="https://fonts.googleapis.com"
+    >
+
+    <link
+        rel="preconnect"
+        href="https://fonts.gstatic.com"
+        crossorigin
+    >
+
+    <link
+        href="https://fonts.googleapis.com/css2?family=Montserrat:wght@500;600;700&family=Open+Sans:wght@400;600&display=swap"
+        rel="stylesheet"
+    >
+
+    <link
+        rel="stylesheet"
+        href="styles.css"
+    >
+
+    <!-- Universal Footer Stylesheet - load last -->
+    <link rel="stylesheet" href="footer.css">
+</head>
+
+<body>
+
+    <!-- ========================================
+         HEADER / NAVIGATION
+    ======================================== -->
+
+    <header>
+
+        <div class="nav">
+
+            <a
+                class="brand"
+                href="index.html"
+            >
+                <span class="anchor">⚓</span>
+
+                <span>
+                    <span class="brand-name">
+                        MOFFAT BAY
+                    </span>
+
+                    <span class="brand-sub">
+                        MARINA
+                    </span>
+                </span>
+            </a>
+
+
+            <nav aria-label="Main navigation">
+
+                <ul>
+
+                    <li>
+                        <a href="index.html">
+                            HOME
+                        </a>
+                    </li>
+
+                    <li>
+                        <a href="reservation.html">
+                            RESERVATION
+                        </a>
+                    </li>
+
+                    <li>
+                        <a href="reservation-summary.html">
+                            SUMMARY
+                        </a>
+                    </li>
+
+                    <li>
+                        <a
+                            class="active"
+                            href="reservation-lookup.html"
+                        >
+                            LOOKUP
+                        </a>
+                    </li>
+
+                </ul>
+
+            </nav>
+
+        </div>
+
+    </header>
+
+
+    <!-- ========================================
+         MAIN CONTENT
+    ======================================== -->
+
+    <main class="container">
+
+        <div class="eyebrow">
+            UST-08 • RESERVATION LOOKUP
+        </div>
+
+        <h1 class="title">
+            Find Your Reservation
+        </h1>
+
+        <div class="gold-line"></div>
+
+
+        <!-- ========================================
+             SEARCH
+        ======================================== -->
+
+        <section class="card">
+
+            <div class="card-head">
+
+                <div>
+
+                    <h2>
+                        Search Reservations
+                    </h2>
+
+                    <p class="small">
+                        Search using a reservation ID,
+                        customer email address, or both.
+                    </p>
+
+                </div>
+
+            </div>
+
+
+            <div class="grid">
+
+                <div class="item">
+
+                    <label
+                        class="label"
+                        for="rid"
+                    >
+                        Reservation ID
+                    </label>
+
+                    <input
+                        id="rid"
+                        type="text"
+                        placeholder="MB-2026-12345"
+                    >
+
+                </div>
+
+
+                <div class="item">
+
+                    <label
+                        class="label"
+                        for="email"
+                    >
+                        Email Address
+                    </label>
+
+                    <input
+                        id="email"
+                        type="email"
+                        placeholder="customer@example.com"
+                    >
+
+                </div>
+
+            </div>
+
+
+            <div class="actions">
+
+                <button
+                    class="btn primary"
+                    type="button"
+                    id="searchButton"
+                >
+                    SEARCH RESERVATION
+                </button>
+
+                <button
+                    class="btn secondary"
+                    type="button"
+                    id="clearButton"
+                >
+                    CLEAR SEARCH
+                </button>
+
+            </div>
+
+        </section>
+
+
+        <!-- ========================================
+             SEARCH RESULTS
+        ======================================== -->
+
+        <section
+            class="card"
+            id="result"
+            style="display: none;"
+        >
+
+            <h2>
+                Reservation Result
+            </h2>
+
+            <div
+                id="resultBody"
+                style="margin-top: 18px;"
+            ></div>
+
+        </section>
+
+
+        <!-- ========================================
+             HISTORY
+        ======================================== -->
+
+        <section class="card">
+
+            <div class="card-head">
+
+                <div>
+
+                    <h2>
+                        Reservation History
+                    </h2>
+
+                    <p class="small">
+                        Reservations created in this browser
+                        are displayed below.
+                    </p>
+
+                </div>
+
+            </div>
+
+
+            <div id="history"></div>
+
+        </section>
+
+    </main>
+
+
+    <!-- ========================================
+         UNIVERSAL FOOTER
+    ======================================== -->
+    <footer class="site-footer">
+
+        <div class="footer-container">
+
+            <div class="footer-item">
+                <div class="footer-icon" aria-hidden="true">📍</div>
+                <div>
+                    <h3>VISIT US</h3>
+                    <p>
+                        123 Harbor Way<br>
+                        Moffat Bay, ST 12345
+                    </p>
+                </div>
+            </div>
+
+            <div class="footer-item">
+                <div class="footer-icon" aria-hidden="true">📞</div>
+                <div>
+                    <h3>CALL US</h3>
+                    <p>
+                        <a href="tel:+15551234567">(555) 123-4567</a><br>
+                        Mon – Fri: 8am – 5pm
+                    </p>
+                </div>
+            </div>
+
+            <div class="footer-item">
+                <div class="footer-icon" aria-hidden="true">📡</div>
+                <div>
+                    <h3>VHF CHANNEL</h3>
+                    <p>
+                        Channel 16<br>
+                        Harbormaster
+                    </p>
+                </div>
+            </div>
+
+            <div class="footer-item">
+                <div class="footer-icon" aria-hidden="true">✉</div>
+                <div>
+                    <h3>EMAIL US</h3>
+                    <p>
+                        <a href="mailto:info@moffatbaymarina.com">
+                            info@moffatbaymarina.com
+                        </a><br>
+                        We're here to help!
+                    </p>
+                </div>
+            </div>
+
+        </div>
+
+        <div class="footer-bottom">
+            <p>
+                © 2026 Moffat Bay Marina &nbsp;•&nbsp; CSD460 &nbsp;•&nbsp; The Green Team
+            </p>
+        </div>
+
+    </footer>
+
+
+    <script>
+
+        /* ========================================
+           SHARED RESERVATION PROTOTYPE FUNCTIONS
+        ======================================== */
+
+        const RESERVATION_KEY = "moffatBayReservations";
+        const CURRENT_RESERVATION_KEY = "moffatBayCurrentReservationId";
+
+        function getReservations() {
+            try {
+                const saved = localStorage.getItem(RESERVATION_KEY);
+                return saved ? JSON.parse(saved) : [];
+            }
+            catch (error) {
+                console.error("Unable to read reservation data.", error);
+                return [];
+            }
+        }
+
+        function saveReservations(reservations) {
+            localStorage.setItem(
+                RESERVATION_KEY,
+                JSON.stringify(reservations)
+            );
+        }
+
+        function saveReservation(reservation) {
+            const reservations = getReservations();
+
+            const index = reservations.findIndex(
+                item => item.id === reservation.id
+            );
+
+            if (index >= 0) {
+                reservations[index] = reservation;
+            }
+            else {
+                reservations.push(reservation);
+            }
+
+            saveReservations(reservations);
+
+            localStorage.setItem(
+                CURRENT_RESERVATION_KEY,
+                reservation.id
+            );
+
+            return reservation;
+        }
+
+        function getReservationById(id) {
+            const cleanId = String(id || "").trim().toLowerCase();
+
+            return (
+                getReservations().find(
+                    reservation =>
+                        String(reservation.id)
+                            .toLowerCase() === cleanId
+                ) || null
+            );
+        }
+
+        function getCurrentReservation() {
+            const currentId =
+                localStorage.getItem(
+                    CURRENT_RESERVATION_KEY
+                );
+
+            if (currentId) {
+                const reservation =
+                    getReservationById(currentId);
+
+                if (reservation) {
+                    return reservation;
+                }
+            }
+
+            const reservations = getReservations();
+
+            return reservations.length
+                ? reservations[reservations.length - 1]
+                : null;
+        }
+
+        function requiredSlipSize(boatLength) {
+            const length = Number(boatLength);
+
+            if (!Number.isFinite(length) || length <= 0) {
+                return null;
+            }
+
+            if (length <= 26) {
+                return 26;
+            }
+
+            if (length <= 40) {
+                return 40;
+            }
+
+            if (length <= 50) {
+                return 50;
+            }
+
+            return null;
+        }
+
+        function monthlyCost(boatLength) {
+            return (Number(boatLength) * 10) + 10;
+        }
+
+        function generateReservationId() {
+            const year = new Date().getFullYear();
+
+            return (
+                "MB-" +
+                year +
+                "-" +
+                Math.floor(10000 + Math.random() * 90000)
+            );
+        }
+
+        function generateSlipNumber(slipSize) {
+            const reservations = getReservations();
+
+            const used = reservations.filter(
+                reservation =>
+                    Number(reservation.slipSize) ===
+                        Number(slipSize) &&
+                    reservation.status !== "Cancelled"
+            ).length;
+
+            const dockLetters = ["A", "B", "C"];
+
+            let startingSlip = 1;
+
+            if (Number(slipSize) === 26) {
+                startingSlip = 8;
+            }
+            else if (Number(slipSize) === 40) {
+                startingSlip = 4;
+            }
+
+            const dock =
+                dockLetters[
+                    Math.floor(used / 8) %
+                    dockLetters.length
+                ];
+
+            return (
+                dock +
+                "-" +
+                (startingSlip + (used % 8))
+            );
+        }
+
+        function statusHTML(status) {
+            if (status === "Cancelled") {
+                return (
+                    '<span class="status cancelled">' +
+                    "Cancelled" +
+                    "</span>"
+                );
+            }
+
+            return (
+                '<span class="status">' +
+                (status || "Pending") +
+                "</span>"
+            );
+        }
+
+        function escapeHTML(value) {
+            return String(value ?? "")
+                .replaceAll("&", "&amp;")
+                .replaceAll("<", "&lt;")
+                .replaceAll(">", "&gt;")
+                .replaceAll('"', "&quot;")
+                .replaceAll("'", "&#039;");
+        }
+
+
+        /* ========================================
+           LOOKUP PAGE FUNCTIONALITY
+        ======================================== */
+
+        /*
+         * Imports reservation history passed from
+         * the Summary page.
+         */
+        function importReservationDataFromURL() {
+
+            const params =
+                new URLSearchParams(
+                    window.location.search
+                );
+
+            const data =
+                params.get("data");
+
+            const currentId =
+                params.get("current");
+
+
+            if (data) {
+                try {
+
+                    const reservations =
+                        JSON.parse(data);
+
+                    if (Array.isArray(reservations)) {
+                        saveReservations(
+                            reservations
+                        );
+                    }
+
+                }
+                catch (error) {
+                    console.error(
+                        "Unable to import reservation history.",
+                        error
+                    );
+                }
+            }
+
+
+            if (currentId) {
+                localStorage.setItem(
+                    CURRENT_RESERVATION_KEY,
+                    currentId
+                );
+            }
+        }
+
+
+        function resultHTML(reservation) {
+
+            return (
+                '<div class="grid">' +
+
+                    '<div class="item">' +
+                        '<span class="label">Reservation ID</span>' +
+                        '<span class="value">' +
+                            escapeHTML(reservation.id) +
+                        '</span>' +
+                    '</div>' +
+
+                    '<div class="item">' +
+                        '<span class="label">Customer Email</span>' +
+                        '<span class="value">' +
+                            escapeHTML(reservation.email) +
+                        '</span>' +
+                    '</div>' +
+
+                    '<div class="item">' +
+                        '<span class="label">Boat Name</span>' +
+                        '<span class="value">' +
+                            escapeHTML(reservation.boatName) +
+                        '</span>' +
+                    '</div>' +
+
+                    '<div class="item">' +
+                        '<span class="label">Boat Length</span>' +
+                        '<span class="value">' +
+                            escapeHTML(reservation.boatLength) +
+                            ' ft' +
+                        '</span>' +
+                    '</div>' +
+
+                    '<div class="item">' +
+                        '<span class="label">Slip Size</span>' +
+                        '<span class="value">' +
+                            escapeHTML(reservation.slipSize) +
+                            ' ft' +
+                        '</span>' +
+                    '</div>' +
+
+                    '<div class="item">' +
+                        '<span class="label">Slip Number</span>' +
+                        '<span class="value">' +
+                            escapeHTML(reservation.slipNumber) +
+                        '</span>' +
+                    '</div>' +
+
+                    '<div class="item">' +
+                        '<span class="label">Check-In Date</span>' +
+                        '<span class="value">' +
+                            escapeHTML(reservation.checkIn) +
+                        '</span>' +
+                    '</div>' +
+
+                    '<div class="item">' +
+                        '<span class="label">Status</span>' +
+                        '<span class="value">' +
+                            statusHTML(reservation.status) +
+                        '</span>' +
+                    '</div>' +
+
+                    '<div class="item">' +
+                        '<span class="label">Monthly Cost</span>' +
+                        '<span class="cost">$' +
+                            Number(reservation.monthlyCost)
+                                .toFixed(2) +
+                            '/month' +
+                        '</span>' +
+                    '</div>' +
+
+                '</div>' +
+
+                '<div class="actions">' +
+
+                    '<button class="btn secondary" type="button" onclick="openSummary(\'' +
+                        escapeHTML(reservation.id) +
+                    '\')">' +
+                        'OPEN SUMMARY' +
+                    '</button>' +
+
+                '</div>'
+            );
+        }
+
+
+        function searchReservations() {
+
+            const reservationId =
+                document
+                    .getElementById("rid")
+                    .value
+                    .trim()
+                    .toLowerCase();
+
+            const email =
+                document
+                    .getElementById("email")
+                    .value
+                    .trim()
+                    .toLowerCase();
+
+            const result =
+                document.getElementById(
+                    "result"
+                );
+
+            const resultBody =
+                document.getElementById(
+                    "resultBody"
+                );
+
+
+            result.style.display =
+                "block";
+
+
+            if (!reservationId && !email) {
+
+                resultBody.innerHTML =
+                    '<div class="notice warning">' +
+                        "Enter a reservation ID or email address." +
+                    "</div>";
+
+                return;
+            }
+
+
+            const matches =
+                getReservations().filter(
+                    reservation => {
+
+                        const idMatches =
+                            reservationId &&
+                            String(
+                                reservation.id
+                            )
+                                .toLowerCase() ===
+                                reservationId;
+
+                        const emailMatches =
+                            email &&
+                            String(
+                                reservation.email || ""
+                            )
+                                .toLowerCase() ===
+                                email;
+
+
+                        if (
+                            reservationId &&
+                            email
+                        ) {
+                            return (
+                                idMatches &&
+                                emailMatches
+                            );
+                        }
+
+
+                        return (
+                            idMatches ||
+                            emailMatches
+                        );
+                    }
+                );
+
+
+            if (matches.length === 0) {
+
+                resultBody.innerHTML =
+                    '<div class="notice warning">' +
+                        "<strong>No reservation found.</strong> " +
+                        "Check the reservation ID or email address and try again." +
+                    "</div>";
+
+                return;
+            }
+
+
+            resultBody.innerHTML =
+                matches
+                    .map(resultHTML)
+                    .join(
+                        '<div style="height: 18px;"></div>'
+                    );
+        }
+
+
+        function openSummary(id) {
+
+            localStorage.setItem(
+                CURRENT_RESERVATION_KEY,
+                id
+            );
+
+            window.location.href =
+                "reservation-summary.html";
+        }
+
+
+        function renderHistory() {
+
+            const reservations =
+                getReservations();
+
+            const history =
+                document.getElementById(
+                    "history"
+                );
+
+
+            if (reservations.length === 0) {
+
+                history.innerHTML =
+                    '<div class="notice info">' +
+                        "No reservations have been created yet." +
+                    "</div>";
+
+                return;
+            }
+
+
+            const newestFirst =
+                [...reservations].reverse();
+
+
+            history.innerHTML =
+                newestFirst
+                    .map(
+                        reservation =>
+
+                            '<div class="grid" style="margin-bottom: 18px;">' +
+
+                                '<div class="item">' +
+                                    '<span class="label">Reservation ID</span>' +
+                                    '<span class="value">' +
+                                        escapeHTML(
+                                            reservation.id
+                                        ) +
+                                    '</span>' +
+                                '</div>' +
+
+                                '<div class="item">' +
+                                    '<span class="label">Boat</span>' +
+                                    '<span class="value">' +
+                                        escapeHTML(
+                                            reservation.boatName
+                                        ) +
+                                    '</span>' +
+                                '</div>' +
+
+                                '<div class="item">' +
+                                    '<span class="label">Check-In</span>' +
+                                    '<span class="value">' +
+                                        escapeHTML(
+                                            reservation.checkIn
+                                        ) +
+                                    '</span>' +
+                                '</div>' +
+
+                                '<div class="item">' +
+                                    '<span class="label">Status</span>' +
+                                    '<span class="value">' +
+                                        statusHTML(
+                                            reservation.status
+                                        ) +
+                                    '</span>' +
+                                '</div>' +
+
+                            '</div>'
+                    )
+                    .join("");
+        }
+
+
+        document.getElementById(
+            "searchButton"
+        ).addEventListener(
+            "click",
+            searchReservations
+        );
+
+
+        document.getElementById(
+            "clearButton"
+        ).addEventListener(
+            "click",
+            function () {
+
+                document.getElementById(
+                    "rid"
+                ).value = "";
+
+                document.getElementById(
+                    "email"
+                ).value = "";
+
+                document.getElementById(
+                    "result"
+                ).style.display =
+                    "none";
+            }
+        );
+
+
+        document.getElementById(
+            "rid"
+        ).addEventListener(
+            "keydown",
+            function (event) {
+
+                if (event.key === "Enter") {
+                    searchReservations();
+                }
+            }
+        );
+
+
+        document.getElementById(
+            "email"
+        ).addEventListener(
+            "keydown",
+            function (event) {
+
+                if (event.key === "Enter") {
+                    searchReservations();
+                }
+            }
+        );
+
+
+        document.addEventListener(
+            "DOMContentLoaded",
+            function () {
+
+                importReservationDataFromURL();
+
+                renderHistory();
+            }
+        );
+
+    </script>
+
+</body>
+
+</html>
