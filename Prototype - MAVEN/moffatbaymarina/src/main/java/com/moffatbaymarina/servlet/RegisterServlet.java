@@ -3,7 +3,12 @@ package com.moffatbaymarina.servlet;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.moffatbaymarina.config.DatabaseConnection;
-import jakarta.servlet.ServletException;
+import com.moffatbaymarina.dao.BoatDAO;
+import com.moffatbaymarina.dao.CustomerDAO;
+import com.moffatbaymarina.dao.EmailVerificationDAO;
+import com.moffatbaymarina.model.Boat;
+import com.moffatbaymarina.model.Customer;
+import com.moffatbaymarina.model.EmailVerification;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
@@ -12,333 +17,220 @@ import jakarta.servlet.http.HttpSession;
 import org.mindrot.jbcrypt.BCrypt;
 
 import java.io.IOException;
+import java.math.BigDecimal;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.security.SecureRandom;
 import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
+import java.time.LocalDateTime;
+import java.util.Base64;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.regex.Pattern;
 
-/**
- * Creates a customer account and the customer's boat in one transaction.
- * Endpoint: POST /register
- */
 @WebServlet("/register")
 public class RegisterServlet extends HttpServlet {
-
     private static final ObjectMapper JSON = new ObjectMapper();
-
-    private static final Pattern EMAIL_PATTERN = Pattern.compile(
-            "^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$");
-
-    private static final Pattern ZIP_PATTERN = Pattern.compile(
-            "^\\d{5}(-\\d{4})?$");
+    private static final SecureRandom RANDOM = new SecureRandom();
+    private static final Pattern EMAIL = Pattern.compile("^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$");
+    private static final Pattern ZIP = Pattern.compile("^\\d{5}(-\\d{4})?$");
 
     @Override
-    protected void doPost(HttpServletRequest request,
-            HttpServletResponse response)
-            throws ServletException, IOException {
-
+    protected void doPost(HttpServletRequest request, HttpServletResponse response)
+            throws IOException {
         prepareJson(response);
+        JsonNode data = readJson(request, response);
+        if (data == null) return;
 
-        JsonNode data;
-        try {
-            data = JSON.readTree(request.getInputStream());
-        } catch (Exception e) {
-            writeJson(response, HttpServletResponse.SC_BAD_REQUEST,
-                    error("Invalid JSON request body."));
+        String firstName = text(data, "firstName");
+        String lastName = text(data, "lastName");
+        String phone = text(data, "phone");
+        String street = text(data, "street");
+        String city = text(data, "city");
+        String state = text(data, "state").toUpperCase();
+        String zip = text(data, "zip");
+        String email = text(data, "email").toLowerCase();
+        String password = text(data, "password");
+        String boatName = text(data, "boatName");
+        String boatType = text(data, "boatType");
+        String registrationNumber = text(data, "registrationNumber");
+        BigDecimal boatLength = decimal(data, "boatLength");
+
+        if (firstName.isBlank() || lastName.isBlank() || phone.isBlank()
+                || street.isBlank() || city.isBlank() || state.isBlank()
+                || zip.isBlank() || email.isBlank() || password.isBlank()
+                || boatName.isBlank() || boatLength == null) {
+            writeJson(response, 422, error("Complete all required registration fields."));
+            return;
+        }
+        if (!EMAIL.matcher(email).matches()) {
+            writeJson(response, 422, error("Enter a valid email address."));
+            return;
+        }
+        if (!ZIP.matcher(zip).matches()) {
+            writeJson(response, 422, error("Enter a valid ZIP code."));
+            return;
+        }
+        if (state.length() != 2) {
+            writeJson(response, 422, error("Use the two-letter state abbreviation."));
+            return;
+        }
+        if (boatLength.compareTo(BigDecimal.ZERO) <= 0
+                || boatLength.compareTo(new BigDecimal("200")) > 0) {
+            writeJson(response, 422, error("Boat length must be between 1 and 200 feet."));
+            return;
+        }
+        if (!validPassword(password)) {
+            writeJson(response, 422, error(
+                    "Password must be at least 8 characters and include uppercase, "
+                            + "lowercase, a number, and a special character."));
             return;
         }
 
+        CustomerDAO customerDAO = new CustomerDAO();
+        BoatDAO boatDAO = new BoatDAO();
+        EmailVerificationDAO verificationDAO = new EmailVerificationDAO();
+
         try {
-            String firstName = requiredText(data, "firstName", "First name");
-            String lastName = requiredText(data, "lastName", "Last name");
-            String phone = requiredText(data, "phone", "Phone number");
-            String street = requiredText(data, "street", "Street address");
-            String city = requiredText(data, "city", "City");
-            String state = requiredText(data, "state", "State").toUpperCase();
-            String zip = requiredText(data, "zip", "ZIP code");
-            String email = requiredText(data, "email", "Email address")
-                    .toLowerCase();
-            String password = requiredText(data, "password", "Password");
-            String boatName = requiredText(data, "boatName", "Boat name");
-            double boatLength = requiredDouble(data, "boatLength", "Boat length");
-            String boatType = optionalText(data, "boatType");
-            String registrationNumber = optionalText(data, "registrationNumber");
-
-            if (!EMAIL_PATTERN.matcher(email).matches()) {
-                writeJson(response, 422,
-                        error("Enter a valid email address."));
-                return;
-            }
-
-            if (!ZIP_PATTERN.matcher(zip).matches()) {
-                writeJson(response, 422,
-                        error("Enter a valid ZIP code."));
-                return;
-            }
-
-            if (state.length() != 2) {
-                writeJson(response, 422,
-                        error("Use the two-letter state abbreviation."));
-                return;
-            }
-
-            if (boatLength <= 0 || boatLength > 200) {
-                writeJson(response, 422,
-                        error("Boat length must be between 1 and 200 feet."));
-                return;
-            }
-
-            if (!validPassword(password)) {
-                writeJson(response, 422, error(
-                        "Password must be at least 8 characters and include " +
-                                "uppercase, lowercase, a number, and a special character."));
+            if (customerDAO.emailExists(email)) {
+                writeJson(response, HttpServletResponse.SC_CONFLICT,
+                        error("An account already exists for this email address."));
                 return;
             }
 
             try (Connection connection = DatabaseConnection.getConnection()) {
-
-                if (emailExists(connection, email)) {
-                    writeJson(response, HttpServletResponse.SC_CONFLICT,
-                            error("An account already exists for this email address. Please sign in instead."));
-                    return;
-                }
-
                 connection.setAutoCommit(false);
-
                 try {
-                    long customerId = insertCustomer(
-                            connection,
-                            firstName,
-                            lastName,
-                            phone,
-                            street,
-                            city,
-                            state,
-                            zip,
-                            email,
-                            BCrypt.hashpw(password, BCrypt.gensalt(12)));
+                    Customer customer = new Customer();
+                    customer.setFirstName(firstName);
+                    customer.setLastName(lastName);
+                    customer.setPhone(phone);
+                    customer.setStreet(street);
+                    customer.setCity(city);
+                    customer.setState(state);
+                    customer.setZip(zip);
+                    customer.setEmail(email);
+                    customer.setPasswordHash(BCrypt.hashpw(password, BCrypt.gensalt(12)));
+                    customer.setEmailVerified(false);
+                    customerDAO.insert(connection, customer);
 
-                    long boatId = insertBoat(
-                            connection,
-                            customerId,
-                            boatName,
-                            boatLength,
-                            boatType,
-                            registrationNumber);
+                    Boat boat = new Boat();
+                    boat.setCustomerId(customer.getCustomerId());
+                    boat.setBoatName(boatName);
+                    boat.setBoatLengthFt(boatLength);
+                    boat.setBoatType(blankToNull(boatType));
+                    boat.setRegistrationNumber(blankToNull(registrationNumber));
+                    boatDAO.insert(connection, boat);
+
+                    String rawToken = generateVerificationToken();
+                    EmailVerification verification = new EmailVerification();
+                    verification.setCustomerId(customer.getCustomerId());
+                    verification.setTokenHash(sha256(rawToken));
+                    verification.setExpiresAt(LocalDateTime.now().plusHours(24));
+                    verificationDAO.insert(connection, verification);
 
                     connection.commit();
 
                     HttpSession session = request.getSession(true);
-                    request.changeSessionId();
-                    session.setAttribute("customerId", customerId);
-                    session.setAttribute("email", email);
-                    session.setAttribute("firstName", firstName);
-                    session.setAttribute("boatId", boatId);
+                    session.setAttribute("customerId", customer.getCustomerId());
+                    session.setAttribute("email", customer.getEmail());
+                    session.setAttribute("firstName", customer.getFirstName());
 
-                    Map<String, Object> result = new LinkedHashMap<>();
-                    result.put("ok", true);
-                    result.put("message", "Account and boat information saved.");
-                    result.put("customerId", customerId);
-                    result.put("boatId", boatId);
-                    result.put("redirect", "verification.html");
-
-                    writeJson(response, HttpServletResponse.SC_CREATED, result);
-
+                    Map<String, Object> body = new LinkedHashMap<>();
+                    body.put("ok", true);
+                    body.put("message", "Account and boat information saved.");
+                    body.put("customerId", customer.getCustomerId());
+                    body.put("boatId", boat.getBoatId());
+                    body.put("emailVerified", false);
+                    // Prototype only: a real site would email this token.
+                    body.put("verificationToken", rawToken);
+                    body.put("verificationUrl", "verification.html?token=" + rawToken);
+                    writeJson(response, HttpServletResponse.SC_CREATED, body);
                 } catch (SQLException | RuntimeException e) {
-                    rollbackQuietly(connection);
+                    connection.rollback();
                     throw e;
                 } finally {
-                    try {
-                        connection.setAutoCommit(true);
-                    } catch (SQLException ignored) {
-                    }
+                    connection.setAutoCommit(true);
                 }
             }
-
-        } catch (IllegalArgumentException e) {
-            writeJson(response, 422, error(e.getMessage()));
         } catch (SQLException e) {
             log("Registration database error", e);
             writeJson(response, HttpServletResponse.SC_INTERNAL_SERVER_ERROR,
                     error("The account could not be created."));
         } catch (RuntimeException e) {
-            log("Registration server error", e);
+            log("Registration error", e);
             writeJson(response, HttpServletResponse.SC_INTERNAL_SERVER_ERROR,
                     error("The account could not be created."));
         }
     }
 
-    private boolean emailExists(Connection connection, String email)
-            throws SQLException {
-
-        String sql = "SELECT customer_id FROM customers WHERE email = ?";
-
-        try (PreparedStatement statement = connection.prepareStatement(sql)) {
-            statement.setString(1, email);
-
-            try (ResultSet result = statement.executeQuery()) {
-                return result.next();
-            }
-        }
-    }
-
-    private long insertCustomer(Connection connection,
-            String firstName,
-            String lastName,
-            String phone,
-            String street,
-            String city,
-            String state,
-            String zip,
-            String email,
-            String passwordHash)
-            throws SQLException {
-
-        String sql = """
-                INSERT INTO customers
-                (first_name, last_name, phone, street, city, state, zip, email, password_hash)
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
-                """;
-
-        try (PreparedStatement statement = connection.prepareStatement(
-                sql,
-                Statement.RETURN_GENERATED_KEYS)) {
-            statement.setString(1, firstName);
-            statement.setString(2, lastName);
-            statement.setString(3, phone);
-            statement.setString(4, street);
-            statement.setString(5, city);
-            statement.setString(6, state);
-            statement.setString(7, zip);
-            statement.setString(8, email);
-            statement.setString(9, passwordHash);
-
-            statement.executeUpdate();
-
-            try (ResultSet keys = statement.getGeneratedKeys()) {
-                if (!keys.next()) {
-                    throw new SQLException("Customer ID was not generated.");
-                }
-                return keys.getLong(1);
-            }
-        }
-    }
-
-    private long insertBoat(Connection connection,
-            long customerId,
-            String boatName,
-            double boatLength,
-            String boatType,
-            String registrationNumber)
-            throws SQLException {
-
-        String sql = """
-                INSERT INTO boats
-                (customer_id, boat_name, boat_length_ft, boat_type, registration_number)
-                VALUES (?, ?, ?, ?, ?)
-                """;
-
-        try (PreparedStatement statement = connection.prepareStatement(
-                sql,
-                Statement.RETURN_GENERATED_KEYS)) {
-            statement.setLong(1, customerId);
-            statement.setString(2, boatName);
-            statement.setDouble(3, boatLength);
-            setNullableString(statement, 4, boatType);
-            setNullableString(statement, 5, registrationNumber);
-
-            statement.executeUpdate();
-
-            try (ResultSet keys = statement.getGeneratedKeys()) {
-                if (!keys.next()) {
-                    throw new SQLException("Boat ID was not generated.");
-                }
-                return keys.getLong(1);
-            }
-        }
-    }
-
-    private static boolean validPassword(String password) {
+    private boolean validPassword(String password) {
         return password.length() >= 8
-                && password.chars().anyMatch(Character::isUpperCase)
-                && password.chars().anyMatch(Character::isLowerCase)
-                && password.chars().anyMatch(Character::isDigit)
-                && password.chars().anyMatch(ch -> !Character.isLetterOrDigit(ch));
+                && password.matches(".*[A-Z].*")
+                && password.matches(".*[a-z].*")
+                && password.matches(".*\\d.*")
+                && password.matches(".*[^A-Za-z0-9].*");
     }
 
-    private static String requiredText(JsonNode data,
-            String field,
-            String label) {
-        JsonNode node = data.get(field);
-        String value = node == null || node.isNull() ? "" : node.asText().trim();
-
-        if (value.isEmpty()) {
-            throw new IllegalArgumentException(label + " is required.");
-        }
-        return value;
+    private String generateVerificationToken() {
+        byte[] bytes = new byte[32];
+        RANDOM.nextBytes(bytes);
+        return Base64.getUrlEncoder().withoutPadding().encodeToString(bytes);
     }
 
-    private static double requiredDouble(JsonNode data,
-            String field,
-            String label) {
-        JsonNode node = data.get(field);
-        if (node == null || node.isNull()) {
-            throw new IllegalArgumentException(label + " is required.");
-        }
-
+    private String sha256(String value) {
         try {
-            return node.asDouble();
-        } catch (Exception e) {
-            throw new IllegalArgumentException(label + " must be a number.");
+            MessageDigest digest = MessageDigest.getInstance("SHA-256");
+            byte[] bytes = digest.digest(value.getBytes(java.nio.charset.StandardCharsets.UTF_8));
+            StringBuilder hex = new StringBuilder();
+            for (byte current : bytes) hex.append(String.format("%02x", current));
+            return hex.toString();
+        } catch (NoSuchAlgorithmException e) {
+            throw new IllegalStateException("Unable to hash verification token.", e);
         }
     }
 
-    private static String optionalText(JsonNode data, String field) {
-        JsonNode node = data.get(field);
-        if (node == null || node.isNull()) {
+    private JsonNode readJson(HttpServletRequest request, HttpServletResponse response)
+            throws IOException {
+        try {
+            return JSON.readTree(request.getInputStream());
+        } catch (IOException e) {
+            writeJson(response, HttpServletResponse.SC_BAD_REQUEST,
+                    error("Invalid JSON request body."));
             return null;
         }
-        String value = node.asText().trim();
-        return value.isEmpty() ? null : value;
     }
 
-    private static void setNullableString(PreparedStatement statement,
-            int index,
-            String value)
-            throws SQLException {
-        if (value == null || value.isBlank()) {
-            statement.setNull(index, java.sql.Types.VARCHAR);
-        } else {
-            statement.setString(index, value);
-        }
+    private BigDecimal decimal(JsonNode data, String field) {
+        JsonNode node = data.get(field);
+        if (node == null || node.isNull()) return null;
+        try { return new BigDecimal(node.asText().trim()); }
+        catch (NumberFormatException e) { return null; }
     }
 
-    private static void rollbackQuietly(Connection connection) {
-        try {
-            connection.rollback();
-        } catch (SQLException ignored) {
-        }
+    private String text(JsonNode data, String field) {
+        JsonNode node = data.get(field);
+        return node == null || node.isNull() ? "" : node.asText("").trim();
     }
 
-    private static Map<String, Object> error(String message) {
-        Map<String, Object> result = new LinkedHashMap<>();
-        result.put("ok", false);
-        result.put("message", message);
-        return result;
+    private String blankToNull(String value) {
+        return value == null || value.isBlank() ? null : value.trim();
     }
 
-    private static void prepareJson(HttpServletResponse response) {
+    private Map<String, Object> error(String message) {
+        Map<String, Object> body = new LinkedHashMap<>();
+        body.put("ok", false);
+        body.put("message", message);
+        return body;
+    }
+
+    private void prepareJson(HttpServletResponse response) {
         response.setContentType("application/json");
         response.setCharacterEncoding("UTF-8");
     }
 
-    private static void writeJson(HttpServletResponse response,
-            int status,
-            Object body)
+    private void writeJson(HttpServletResponse response, int status, Object body)
             throws IOException {
         response.setStatus(status);
         JSON.writeValue(response.getWriter(), body);
