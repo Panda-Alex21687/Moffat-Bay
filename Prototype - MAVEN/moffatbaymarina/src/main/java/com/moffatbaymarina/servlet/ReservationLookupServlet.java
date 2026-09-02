@@ -1,7 +1,16 @@
 package com.moffatbaymarina.servlet;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.moffatbaymarina.config.DatabaseConnection;
+import com.moffatbaymarina.dao.BoatDAO;
+import com.moffatbaymarina.dao.CustomerDAO;
+import com.moffatbaymarina.dao.ReservationDAO;
+import com.moffatbaymarina.dao.SlipDAO;
+import com.moffatbaymarina.dao.SlipTypeDAO;
+import com.moffatbaymarina.model.Boat;
+import com.moffatbaymarina.model.Customer;
+import com.moffatbaymarina.model.Reservation;
+import com.moffatbaymarina.model.Slip;
+import com.moffatbaymarina.model.SlipType;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
@@ -9,169 +18,112 @@ import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 
 import java.io.IOException;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-/**
- * Looks up reservations belonging to the logged-in customer.
- * Endpoint: GET /reservation-lookup?id=MB-2026-12345&email=name@example.com
- * Either filter may be omitted. With neither filter, returns reservation
- * history.
- */
 @WebServlet("/reservation-lookup")
 public class ReservationLookupServlet extends HttpServlet {
-
     private static final ObjectMapper JSON = new ObjectMapper();
 
     @Override
-    protected void doGet(HttpServletRequest request,
-            HttpServletResponse response)
+    protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws IOException {
-
         prepareJson(response);
+        Long reservationId = parseLong(firstNonBlank(
+                request.getParameter("reservationId"), request.getParameter("id")));
+        String email = clean(request.getParameter("email"));
+        Long sessionCustomerId = authenticatedCustomerId(request);
 
-        Long customerId = authenticatedCustomerId(request);
-        if (customerId == null) {
-            writeJson(response, HttpServletResponse.SC_UNAUTHORIZED,
-                    error("You must be logged in to view reservations."));
-            return;
-        }
-
-        String reservationId = clean(request.getParameter("id"));
-        String email = clean(request.getParameter("email")).toLowerCase();
-
-        StringBuilder sql = new StringBuilder("""
-                SELECT r.reservation_id,
-                       c.email,
-                       b.boat_name,
-                       b.boat_length_ft,
-                       r.slip_size_ft,
-                       r.slip_number,
-                       r.check_in_date,
-                       r.monthly_cost,
-                       r.status,
-                       r.created_at,
-                       r.cancelled_at
-                FROM reservations r
-                JOIN customers c ON c.customer_id = r.customer_id
-                JOIN boats b ON b.boat_id = r.boat_id
-                WHERE r.customer_id = ?
-                """);
-
-        List<Object> parameters = new ArrayList<>();
-        parameters.add(customerId);
-
-        if (!reservationId.isBlank()) {
-            sql.append(" AND LOWER(r.reservation_id) = LOWER(?) ");
-            parameters.add(reservationId);
-        }
-
-        if (!email.isBlank()) {
-            sql.append(" AND LOWER(c.email) = LOWER(?) ");
-            parameters.add(email);
-        }
-
-        sql.append(" ORDER BY r.created_at DESC ");
-
-        try (Connection connection = DatabaseConnection.getConnection();
-                PreparedStatement statement = connection.prepareStatement(sql.toString())) {
-
-            for (int i = 0; i < parameters.size(); i++) {
-                Object value = parameters.get(i);
-                if (value instanceof Number number) {
-                    statement.setLong(i + 1, number.longValue());
-                } else {
-                    statement.setString(i + 1, String.valueOf(value));
-                }
+        try {
+            ReservationDAO reservationDAO = new ReservationDAO();
+            List<Reservation> reservations;
+            if (reservationId != null || !email.isBlank()) {
+                reservations = reservationDAO.search(reservationId, email);
+            } else if (sessionCustomerId != null) {
+                reservations = reservationDAO.findByCustomerId(sessionCustomerId);
+            } else {
+                writeJson(response, 422,
+                        error("Enter a reservation ID or email address."));
+                return;
             }
 
-            List<Map<String, Object>> reservations = new ArrayList<>();
-
-            try (ResultSet result = statement.executeQuery()) {
-                while (result.next()) {
-                    reservations.add(toReservation(result));
-                }
-            }
-
+            List<Map<String, Object>> results = new ArrayList<>();
+            for (Reservation reservation : reservations) results.add(details(reservation));
             Map<String, Object> body = new LinkedHashMap<>();
             body.put("ok", true);
-            body.put("count", reservations.size());
-            body.put("reservations", reservations);
-
+            body.put("count", results.size());
+            body.put("reservations", results);
             writeJson(response, HttpServletResponse.SC_OK, body);
-
         } catch (SQLException e) {
-            log("Reservation lookup database error", e);
+            log("Reservation lookup error", e);
             writeJson(response, HttpServletResponse.SC_INTERNAL_SERVER_ERROR,
-                    error("Reservations could not be loaded."));
+                    error("Reservation lookup could not be completed."));
         }
     }
 
-    private static Map<String, Object> toReservation(ResultSet result)
-            throws SQLException {
+    private Map<String, Object> details(Reservation reservation) throws SQLException {
+        Customer customer = new CustomerDAO().findById(reservation.getCustomerId());
+        Boat boat = new BoatDAO().findById(reservation.getBoatId());
+        Slip slip = new SlipDAO().findById(reservation.getSlipId());
+        SlipType slipType = slip == null ? null
+                : new SlipTypeDAO().findById(slip.getSlipTypeId());
 
-        Map<String, Object> reservation = new LinkedHashMap<>();
-        reservation.put("id", result.getString("reservation_id"));
-        reservation.put("email", result.getString("email"));
-        reservation.put("boatName", result.getString("boat_name"));
-        reservation.put("boatLength", result.getDouble("boat_length_ft"));
-        reservation.put("slipSize", result.getInt("slip_size_ft"));
-        reservation.put("slipNumber", result.getString("slip_number"));
-        reservation.put("checkIn", result.getDate("check_in_date").toLocalDate().toString());
-        reservation.put("monthlyCost", result.getDouble("monthly_cost"));
-        reservation.put("status", result.getString("status"));
-
-        if (result.getTimestamp("created_at") != null) {
-            reservation.put("createdAt",
-                    result.getTimestamp("created_at").toInstant().toString());
-        }
-
-        if (result.getTimestamp("cancelled_at") != null) {
-            reservation.put("cancelledAt",
-                    result.getTimestamp("cancelled_at").toInstant().toString());
-        }
-
-        return reservation;
+        Map<String, Object> map = new LinkedHashMap<>();
+        map.put("reservationId", reservation.getReservationId());
+        map.put("email", customer == null ? null : customer.getEmail());
+        map.put("customerName", customer == null ? null
+                : customer.getFirstName() + " " + customer.getLastName());
+        map.put("boatName", boat == null ? null : boat.getBoatName());
+        map.put("boatLengthFt", boat == null ? null : boat.getBoatLengthFt());
+        map.put("slipNumber", slip == null ? null : slip.getSlipNumber());
+        map.put("slipSizeFt", slipType == null ? null : slipType.getSizeFt());
+        map.put("checkInDate", reservation.getCheckInDate() == null ? null
+                : reservation.getCheckInDate().toString());
+        map.put("expectedTerm", reservation.getExpectedTerm());
+        map.put("monthlyCost", reservation.getMonthlyCost());
+        map.put("status", reservation.getStatus());
+        map.put("createdAt", reservation.getCreatedAt() == null ? null
+                : reservation.getCreatedAt().toString());
+        map.put("cancelledAt", reservation.getCancelledAt() == null ? null
+                : reservation.getCancelledAt().toString());
+        return map;
     }
 
-    private static Long authenticatedCustomerId(HttpServletRequest request) {
+    private Long authenticatedCustomerId(HttpServletRequest request) {
         HttpSession session = request.getSession(false);
-        if (session == null) {
-            return null;
-        }
-
+        if (session == null) return null;
         Object value = session.getAttribute("customerId");
-        if (value instanceof Number number) {
-            return number.longValue();
-        }
-        return null;
+        return value instanceof Number number ? number.longValue() : null;
     }
 
-    private static String clean(String value) {
-        return value == null ? "" : value.trim();
+    private Long parseLong(String value) {
+        if (value == null || value.isBlank()) return null;
+        try { return Long.valueOf(value.trim()); }
+        catch (NumberFormatException e) { return null; }
     }
 
-    private static Map<String, Object> error(String message) {
+    private String firstNonBlank(String first, String second) {
+        return first != null && !first.isBlank() ? first : second;
+    }
+
+    private String clean(String value) { return value == null ? "" : value.trim(); }
+
+    private Map<String, Object> error(String message) {
         Map<String, Object> body = new LinkedHashMap<>();
         body.put("ok", false);
         body.put("message", message);
         return body;
     }
 
-    private static void prepareJson(HttpServletResponse response) {
+    private void prepareJson(HttpServletResponse response) {
         response.setContentType("application/json");
         response.setCharacterEncoding("UTF-8");
     }
 
-    private static void writeJson(HttpServletResponse response,
-            int status,
-            Object body)
+    private void writeJson(HttpServletResponse response, int status, Object body)
             throws IOException {
         response.setStatus(status);
         JSON.writeValue(response.getWriter(), body);

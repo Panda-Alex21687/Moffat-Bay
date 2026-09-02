@@ -1,173 +1,109 @@
 package com.moffatbaymarina.dao;
 
 import com.moffatbaymarina.config.DatabaseConnection;
+import com.moffatbaymarina.model.Customer;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.sql.Timestamp;
 
-/**
- * Data-access methods for the customers table.
- *
- * This DAO keeps SQL out of the servlet layer. Methods that accept an
- * existing Connection are intended for transactions such as registration,
- * where a customer and boat must be inserted together.
- */
 public class CustomerDAO {
 
-    public boolean emailExists(String email) throws SQLException {
+    public Customer insert(Customer customer) throws SQLException {
         try (Connection connection = DatabaseConnection.getConnection()) {
-            return emailExists(connection, email);
+            return insert(connection, customer);
         }
     }
 
-    public boolean emailExists(Connection connection, String email)
-            throws SQLException {
-
-        String sql = "SELECT customer_id FROM customers WHERE LOWER(email) = LOWER(?)";
-
-        try (PreparedStatement statement = connection.prepareStatement(sql)) {
-            statement.setString(1, email);
-
-            try (ResultSet result = statement.executeQuery()) {
-                return result.next();
-            }
-        }
-    }
-
-    public long insertCustomer(Connection connection,
-            String firstName,
-            String lastName,
-            String phone,
-            String street,
-            String city,
-            String state,
-            String zip,
-            String email,
-            String passwordHash)
-            throws SQLException {
-
+    public Customer insert(Connection connection, Customer customer) throws SQLException {
         String sql = """
                 INSERT INTO customers
-                (first_name, last_name, phone, street, city, state, zip, email, password_hash)
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+                (first_name, last_name, phone, street, city, state, zip,
+                 email, password_hash, email_verified)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                 """;
 
         try (PreparedStatement statement = connection.prepareStatement(
-                sql,
-                Statement.RETURN_GENERATED_KEYS)) {
-            statement.setString(1, firstName);
-            statement.setString(2, lastName);
-            statement.setString(3, phone);
-            statement.setString(4, street);
-            statement.setString(5, city);
-            statement.setString(6, state);
-            statement.setString(7, zip);
-            statement.setString(8, email);
-            statement.setString(9, passwordHash);
+                sql, Statement.RETURN_GENERATED_KEYS)) {
+            statement.setString(1, customer.getFirstName());
+            statement.setString(2, customer.getLastName());
+            statement.setString(3, customer.getPhone());
+            statement.setString(4, customer.getStreet());
+            statement.setString(5, customer.getCity());
+            statement.setString(6, customer.getState());
+            statement.setString(7, customer.getZip());
+            statement.setString(8, customer.getEmail());
+            statement.setString(9, customer.getPasswordHash());
+            statement.setBoolean(10, customer.isEmailVerified());
 
-            int changed = statement.executeUpdate();
-            if (changed != 1) {
-                throw new SQLException("Customer insert did not create exactly one row.");
+            if (statement.executeUpdate() != 1) {
+                throw new SQLException("Customer insert did not create one row.");
             }
 
             try (ResultSet keys = statement.getGeneratedKeys()) {
                 if (!keys.next()) {
-                    throw new SQLException("Customer ID was not generated.");
+                    throw new SQLException("No customer_id was generated.");
                 }
-                return keys.getLong(1);
+                customer.setCustomerId(keys.getLong(1));
             }
         }
+        return customer;
     }
 
-    public LoginCustomer findLoginByEmail(String email) throws SQLException {
-        try (Connection connection = DatabaseConnection.getConnection()) {
-            return findLoginByEmail(connection, email);
-        }
+    public boolean emailExists(String email) throws SQLException {
+        return findByEmail(email) != null;
     }
 
-    public LoginCustomer findLoginByEmail(Connection connection, String email)
-            throws SQLException {
-
-        String sql = """
-                SELECT customer_id, first_name, email, password_hash
-                FROM customers
-                WHERE LOWER(email) = LOWER(?)
-                LIMIT 1
-                """;
-
-        try (PreparedStatement statement = connection.prepareStatement(sql)) {
-            statement.setString(1, email);
-
-            try (ResultSet result = statement.executeQuery()) {
-                if (!result.next()) {
-                    return null;
-                }
-
-                return new LoginCustomer(
-                        result.getLong("customer_id"),
-                        result.getString("first_name"),
-                        result.getString("email"),
-                        result.getString("password_hash"));
-            }
-        }
-    }
-
-    public CustomerRecord findById(long customerId) throws SQLException {
-        String sql = """
-                SELECT customer_id,
-                       first_name,
-                       last_name,
-                       phone,
-                       street,
-                       city,
-                       state,
-                       zip,
-                       email
-                FROM customers
-                WHERE customer_id = ?
-                """;
-
+    public Customer findByEmail(String email) throws SQLException {
+        String sql = "SELECT * FROM customers WHERE LOWER(email) = LOWER(?) LIMIT 1";
         try (Connection connection = DatabaseConnection.getConnection();
-                PreparedStatement statement = connection.prepareStatement(sql)) {
-
-            statement.setLong(1, customerId);
-
+             PreparedStatement statement = connection.prepareStatement(sql)) {
+            statement.setString(1, email);
             try (ResultSet result = statement.executeQuery()) {
-                if (!result.next()) {
-                    return null;
-                }
-
-                return new CustomerRecord(
-                        result.getLong("customer_id"),
-                        result.getString("first_name"),
-                        result.getString("last_name"),
-                        result.getString("phone"),
-                        result.getString("street"),
-                        result.getString("city"),
-                        result.getString("state"),
-                        result.getString("zip"),
-                        result.getString("email"));
+                return result.next() ? map(result) : null;
             }
         }
     }
 
-    public record LoginCustomer(long customerId,
-            String firstName,
-            String email,
-            String passwordHash) {
+    public Customer findById(long customerId) throws SQLException {
+        String sql = "SELECT * FROM customers WHERE customer_id = ?";
+        try (Connection connection = DatabaseConnection.getConnection();
+             PreparedStatement statement = connection.prepareStatement(sql)) {
+            statement.setLong(1, customerId);
+            try (ResultSet result = statement.executeQuery()) {
+                return result.next() ? map(result) : null;
+            }
+        }
     }
 
-    public record CustomerRecord(long customerId,
-            String firstName,
-            String lastName,
-            String phone,
-            String street,
-            String city,
-            String state,
-            String zip,
-            String email) {
+    public boolean setEmailVerified(Connection connection, long customerId, boolean verified)
+            throws SQLException {
+        String sql = "UPDATE customers SET email_verified = ? WHERE customer_id = ?";
+        try (PreparedStatement statement = connection.prepareStatement(sql)) {
+            statement.setBoolean(1, verified);
+            statement.setLong(2, customerId);
+            return statement.executeUpdate() == 1;
+        }
+    }
+
+    private Customer map(ResultSet result) throws SQLException {
+        Customer customer = new Customer();
+        customer.setCustomerId(result.getLong("customer_id"));
+        customer.setFirstName(result.getString("first_name"));
+        customer.setLastName(result.getString("last_name"));
+        customer.setPhone(result.getString("phone"));
+        customer.setStreet(result.getString("street"));
+        customer.setCity(result.getString("city"));
+        customer.setState(result.getString("state"));
+        customer.setZip(result.getString("zip"));
+        customer.setEmail(result.getString("email"));
+        customer.setPasswordHash(result.getString("password_hash"));
+        customer.setEmailVerified(result.getBoolean("email_verified"));
+        Timestamp created = result.getTimestamp("created_at");
+        customer.setCreatedAt(created == null ? null : created.toLocalDateTime());
+        return customer;
     }
 }
