@@ -52,11 +52,11 @@ Modified by Max 8-22, removing JS Script and allowing this to function as a redi
 
     <link
         rel="stylesheet"
-        href="styles.css"
+        href="css/styles.css"
     >
 
     <!-- Universal Footer Stylesheet - load last -->
-    <link rel="stylesheet" href="footer.css">
+    <link rel="stylesheet" href="css/footer.css">
 </head>
 
 
@@ -163,10 +163,8 @@ Modified by Max 8-22, removing JS Script and allowing this to function as a redi
                 </h1>
 
                 <p class="lead">
-                    Registered customers log in with their email
-                    address and password. A successful prototype
-                    login activates a browser-only session indicator
-                    for navigation to the waitlist demonstration.
+                    Registered customers can log in with their email
+                    address and password to securely access their account.
                 </p>
 
             </div>
@@ -176,14 +174,14 @@ Modified by Max 8-22, removing JS Script and allowing this to function as a redi
             <aside class="prototype-badge">
 
                 <strong>
-                    Production security note
+                    Secure customer login
                 </strong>
 
                 <p>
-                    The final application must validate credentials
-                    on the server, securely hash/store passwords,
-                    and manage authenticated sessions. This prototype
-                    does not store or transmit passwords.
+                    Credentials are securely validated on the server.
+                    Passwords are verified against their stored hash,
+                    and an authenticated server-side session is created
+                    after a successful login.
                 </p>
 
             </aside>
@@ -205,9 +203,7 @@ Modified by Max 8-22, removing JS Script and allowing this to function as a redi
             <!-- Prototype Notice -->
             <div class="notice info">
 
-                Prototype demonstration: use any valid email
-                address and a password of at least 8 characters.
-                The password is not saved.
+                Enter your registered customer email address and password to sign in.
 
             </div>
 
@@ -262,13 +258,14 @@ Modified by Max 8-22, removing JS Script and allowing this to function as a redi
                     </div>
 
 
-                    <!-- Login Link (demo: navigates like a normal link, no JS) -->
-                    <a
+                    <!-- Login Button -->
+                    <button
                         class="btn primary full"
-                        href="post_login.html"
+                        type="submit"
+                        id="loginButton"
                     >
                         Log In
-                    </a>
+                    </button>
 
 
                     <!-- Registration Button -->
@@ -351,7 +348,68 @@ Modified by Max 8-22, removing JS Script and allowing this to function as a redi
     </footer>
 
 
+<script>
+    const loginForm = document.getElementById("loginForm");
+    const emailInput = document.getElementById("loginEmail");
+    const passwordInput = document.getElementById("loginPassword");
+    const emailError = document.getElementById("loginEmailError");
+    const passwordError = document.getElementById("loginPasswordError");
+    const loginButton = document.getElementById("loginButton");
 
+    loginForm.addEventListener("submit", async function (event) {
+        event.preventDefault();
+
+        emailError.textContent = "";
+        passwordError.textContent = "";
+
+        const email = emailInput.value.trim();
+        const password = passwordInput.value;
+
+        if (!email) {
+            emailError.textContent = "Email address is required.";
+            return;
+        }
+
+        if (!password) {
+            passwordError.textContent = "Password is required.";
+            return;
+        }
+
+        loginButton.disabled = true;
+        loginButton.textContent = "Signing In...";
+
+        try {
+            const response = await fetch("login", {
+                method: "POST",
+                credentials: "same-origin",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({
+                    email: email,
+                    password: password
+                })
+            });
+
+            const data = await response.json();
+
+            if (!response.ok || !data.ok) {
+                passwordError.textContent =
+                    data.message || "Unable to sign in.";
+                return;
+            }
+
+            window.location.href = data.redirect || "post_login.html";
+
+        } catch (error) {
+            passwordError.textContent =
+                "Unable to connect to the login service.";
+        } finally {
+            loginButton.disabled = false;
+            loginButton.textContent = "Log In";
+        }
+    });
+</script>
 </body>
 
 </html>

@@ -73,8 +73,14 @@ public class LoginServlet extends HttpServlet {
                 boolean passwordMatches;
 
                 try {
-                    passwordMatches = storedHash != null
-                            && BCrypt.checkpw(password, storedHash);
+                    String verificationHash = storedHash;
+
+                    if (verificationHash != null && verificationHash.startsWith("$2y$")) {
+                        verificationHash = "$2a$" + verificationHash.substring(4);
+                    }
+
+                    passwordMatches = verificationHash != null
+                            && BCrypt.checkpw(password, verificationHash);
                 } catch (IllegalArgumentException e) {
                     passwordMatches = false;
                 }
