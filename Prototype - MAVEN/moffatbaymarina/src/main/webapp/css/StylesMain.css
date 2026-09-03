@@ -144,7 +144,7 @@ nav a.active {
             rgba(2, 18, 42, 0.72),
             rgba(2, 18, 42, 0.15)
         ),
-    url("images/marina_dock.jpeg")
+        url("../images/marina_dock.jpeg")
         center 42% / cover no-repeat;
 
     display: flex;
@@ -340,7 +340,7 @@ nav a.active {
     border-radius: 10px;
 
     background:
-        url("moffat-bay-marina.jpg")
+        url("../images/moffat_beach.jpg")
         center 67% / cover no-repeat;
 
     box-shadow: 0 10px 25px rgba(0, 0, 0, 0.12);
