@@ -83,14 +83,23 @@ public class LoginServlet extends HttpServlet {
     private boolean passwordMatches(String password, String storedValue) {
         if (storedValue == null || storedValue.isBlank())
             return false;
-        if (storedValue.startsWith("$2a$") || storedValue.startsWith("$2b$")
+
+        if (storedValue.startsWith("$2a$")
+                || storedValue.startsWith("$2b$")
                 || storedValue.startsWith("$2y$")) {
             try {
-                return BCrypt.checkpw(password, storedValue);
+                String verificationValue = storedValue;
+
+                if (verificationValue.startsWith("$2y$")) {
+                    verificationValue = "$2a$" + verificationValue.substring(4);
+                }
+
+                return BCrypt.checkpw(password, verificationValue);
             } catch (IllegalArgumentException e) {
                 return false;
             }
         }
+
         return password.equals(storedValue);
     }
 
