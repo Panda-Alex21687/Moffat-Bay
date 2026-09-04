@@ -12,7 +12,11 @@ import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
 
+
+ // creating a DAO for the waitlist_entries table
 public class WaitlistDAO {
+
+	// adding a cust/boat to the the list for a particular slip type. used it own short-lived' connection as opposed to the other reservation daos  
     public WaitlistEntry insert(WaitlistEntry entry) throws SQLException {
         String sql = """
                 INSERT INTO waitlist_entries
@@ -29,7 +33,8 @@ public class WaitlistDAO {
             if (statement.executeUpdate() != 1) {
                 throw new SQLException("Waitlist insert did not create one row.");
             }
-            try (ResultSet keys = statement.getGeneratedKeys()) {
+           
+            try (ResultSet keys = statement.getGeneratedKeys()) { //auto increment 
                 if (!keys.next()) throw new SQLException("No waitlist_id was generated.");
                 entry.setWaitlistId(keys.getLong(1));
             }
@@ -37,6 +42,9 @@ public class WaitlistDAO {
         return entry;
     }
 
+ 
+	 // checking to see if this boat is already on the waitlist of this slip type. 
+	 // this prevent a double sign up 
     public boolean hasActiveEntry(long customerId, long boatId, long slipTypeId)
             throws SQLException {
         String sql = """
@@ -56,6 +64,8 @@ public class WaitlistDAO {
         }
     }
 
+ 
+	 // returning every list entry a client has, starting at oldest 
     public List<WaitlistEntry> findByCustomerId(long customerId) throws SQLException {
         String sql = """
                 SELECT * FROM waitlist_entries
@@ -73,6 +83,10 @@ public class WaitlistDAO {
         return entries;
     }
 
+  
+	 // calculating the 1 based postion of the entry for the slip. counts the entries that are still waiting 
+		// the calculation happens on the fly from the joined_at rather then a pre-stored value. This in concept 
+		// should stay current as other clients leave the list. 
     public int getPosition(WaitlistEntry entry) throws SQLException {
         if (entry.getJoinedAt() == null) return 0;
         String sql = """
@@ -94,6 +108,7 @@ public class WaitlistDAO {
         }
     }
 
+  // conversion to @link 
     private WaitlistEntry map(ResultSet result) throws SQLException {
         WaitlistEntry entry = new WaitlistEntry();
         entry.setWaitlistId(result.getLong("waitlist_id"));
