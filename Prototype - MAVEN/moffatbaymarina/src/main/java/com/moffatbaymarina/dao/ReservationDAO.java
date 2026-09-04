@@ -1,3 +1,13 @@
+/**Alexander Baldree
+Max Jankowski
+Aftabur Rahman
+Jordan Dardar
+
+Green team Module 5
+Modified by Max on 9-3-26
+
+*/
+
 package com.moffatbaymarina.dao;
 
 import com.moffatbaymarina.config.DatabaseConnection;
@@ -14,7 +24,14 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
+
+ //DAO class for the reservations table
 public class ReservationDAO {
+
+   
+	 
+	//Inserts a reservation in the reservations table. Agian we are using caller supplied connection 
+	// as this occurs along with the slip status update in the same action.
     public Reservation insert(Connection connection, Reservation reservation) throws SQLException {
         String sql = """
                 INSERT INTO reservations
@@ -31,7 +48,8 @@ public class ReservationDAO {
             statement.setString(5, reservation.getExpectedTerm());
             statement.setBigDecimal(6, reservation.getMonthlyCost());
             statement.setString(7, reservation.getStatus());
-            if (reservation.getCancelledAt() == null) {
+          
+            if (reservation.getCancelledAt() == null) { //a new reservation is never 'already' canceled. The column still has to be given a null value 
                 statement.setNull(8, java.sql.Types.TIMESTAMP);
             } else {
                 statement.setTimestamp(8, Timestamp.valueOf(reservation.getCancelledAt()));
@@ -39,6 +57,7 @@ public class ReservationDAO {
             if (statement.executeUpdate() != 1) {
                 throw new SQLException("Reservation insert did not create one row.");
             }
+
             try (ResultSet keys = statement.getGeneratedKeys()) {
                 if (!keys.next()) {
                     throw new SQLException("No reservation_id was generated.");
@@ -49,6 +68,12 @@ public class ReservationDAO {
         return reservation;
     }
 
+    /**
+     * Looks up a reservation by primary key, using its own short-lived
+     * connection - for read-only lookups outside of any transaction.
+     *
+     * @return the matching reservation, or {@code null} if none exists
+     */
     public Reservation findById(long reservationId) throws SQLException {
         String sql = "SELECT * FROM reservations WHERE reservation_id = ?";
         try (Connection connection = DatabaseConnection.getConnection();
@@ -60,6 +85,9 @@ public class ReservationDAO {
         }
     }
 
+	 //Same as the findbyId lookup. though this takes a caller supplied conn and adds FOR UPDATE to put in a row lock on result.
+	 // this to be used if the reservation is to be changed in a transaction. in this case the second request 
+	 // touchs the same reservation as the same time has to wait rather then rush to this one. 
     public Reservation findByIdForUpdate(Connection connection, long reservationId)
             throws SQLException {
         String sql = "SELECT * FROM reservations WHERE reservation_id = ? FOR UPDATE";
@@ -70,7 +98,8 @@ public class ReservationDAO {
             }
         }
     }
-
+    
+	// returning each reservation a client made. the most recent first to provide an account history  
     public List<Reservation> findByCustomerId(long customerId) throws SQLException {
         String sql = """
                 SELECT * FROM reservations
@@ -90,6 +119,10 @@ public class ReservationDAO {
         return reservations;
     }
 
+
+	// backing the look up you reservation page. search possible by ID, email of both. either of these parameters can be left null.
+	// So it should cover all search combos to make it easier for the cleint.
+	// our sql is build up from Where 1 = 1, which is true so every filter can be appended as a AND clause without having any special case logic. 	
     public List<Reservation> search(Long reservationId, String email) throws SQLException {
         StringBuilder sql = new StringBuilder("""
                 SELECT r.* FROM reservations r
@@ -108,6 +141,10 @@ public class ReservationDAO {
         try (Connection connection = DatabaseConnection.getConnection();
              PreparedStatement statement = connection.prepareStatement(sql.toString())) {
 
+        
+			// As either filter above may have been skipped, the ? placeholders dont land on a fixed parameter value. 
+			// parameterIndex tracks the next free slot and advances only when value is bound. https://docs.oracle.com/en/database/oracle/property-graph/22.4/spgdg/using-bind-variables.html
+			
             int parameterIndex = 1;
 
             if (reservationId != null) {
@@ -127,6 +164,8 @@ public class ReservationDAO {
         return reservations;
     }
 
+   
+	 // method to update reservation status, and in cases of canceling will add canceled_at timestamp
     public boolean updateStatus(Connection connection, long reservationId,
                                 String status, LocalDateTime cancelledAt) throws SQLException {
         String sql = "UPDATE reservations SET status = ?, cancelled_at = ? WHERE reservation_id = ?";
@@ -139,6 +178,8 @@ public class ReservationDAO {
         }
     }
 
+   
+	 //Converting ResultSet into @link Reservation.
     private Reservation map(ResultSet result) throws SQLException {
         Reservation reservation = new Reservation();
         reservation.setReservationId(result.getLong("reservation_id"));
@@ -149,7 +190,7 @@ public class ReservationDAO {
         reservation.setCheckInDate(checkIn == null ? null : checkIn.toLocalDate());
         reservation.setExpectedTerm(result.getString("expected_term"));
         reservation.setMonthlyCost(result.getBigDecimal("monthly_cost"));
-        reservation.setStatus(result.getString("status"));
+        reservation.setStatus(result.getString("status"));       
         Timestamp created = result.getTimestamp("created_at");
         reservation.setCreatedAt(created == null ? null : created.toLocalDateTime());
         Timestamp cancelled = result.getTimestamp("cancelled_at");
