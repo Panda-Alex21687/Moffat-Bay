@@ -79,7 +79,7 @@ public class BoatDAO {
         }
     }
 
-    /
+    
 	 // Searchs boat by the primary key. returns only if it belongs to the given customer. this is used when a client is looking for 
 	 // "their vessel". This way other customers cant view other cleints boat information. 
     public Boat findForCustomer(long boatId, long customerId) throws SQLException {
