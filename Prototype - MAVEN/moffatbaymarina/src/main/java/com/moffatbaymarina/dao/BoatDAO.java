@@ -83,10 +83,16 @@ public class BoatDAO {
         }
     }
 
+<<<<<<< HEAD
+    
+	 // Searchs boat by the primary key. returns only if it belongs to the given customer. this is used when a client is looking for 
+	 // "their vessel". This way other customers cant view other cleints boat information. 
+=======
     // Searchs boat by the primary key. returns only if it belongs to the given
     // customer. this is used when a client is looking for
     // "their vessel". This way other customers cant view other cleints boat
     // information.
+>>>>>>> main
     public Boat findForCustomer(long boatId, long customerId) throws SQLException {
         String sql = "SELECT * FROM boats WHERE boat_id = ? AND customer_id = ?";
         try (Connection connection = DatabaseConnection.getConnection();
