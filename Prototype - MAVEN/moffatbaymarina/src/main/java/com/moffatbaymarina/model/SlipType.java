@@ -1,16 +1,29 @@
+/**Alexander Baldree
+Max Jankowski
+Aftabur Rahman
+Jordan Dardar
+
+Green team Module 5
+Modified by Max on 9-5-26
+
+*/
+
 package com.moffatbaymarina.model;
 
 import java.math.BigDecimal;
 
+
+ //holder for row data the mirrors the slips_type table. 
 public class SlipType {
     private long slipTypeId;
-    private BigDecimal sizeFt;
-    private int totalCapacity;
-    private BigDecimal ratePerFoot;
+    private BigDecimal sizeFt;// slip type is in feet units, the slip needs to be greater then or equal to boat. 
+    private int totalCapacity; // holds the ammount of slips in this size that the marina has in total 
+    private BigDecimal ratePerFoot;// Again this is combined with the elec. which we still need to discuss if it is optional for the user/ baot reservation
     private BigDecimal electricFee;
 
     public SlipType() {}
 
+    // agian a full-argument constructor, see the relevent DAO
     public SlipType(long slipTypeId, BigDecimal sizeFt, int totalCapacity,
                     BigDecimal ratePerFoot, BigDecimal electricFee) {
         this.slipTypeId = slipTypeId;

@@ -1,3 +1,13 @@
+/**Alexander Baldree
+Max Jankowski
+Aftabur Rahman
+Jordan Dardar
+
+Green team Module 5
+Modified by Max on 9-4-26
+
+*/
+
 package com.moffatbaymarina.servlet;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -18,10 +28,18 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+
+ // backing both the general how many slips of each size are open display and optionally a boat length look up that 
+ // informs the customer which category slip their boat fits in , as well as the price.
+ // login is not required for this. 
 @WebServlet("/availability")
 public class AvailabilityServlet extends HttpServlet {
     private static final ObjectMapper JSON = new ObjectMapper();
 
+   	 
+	 // Always to return every slip tyoe with its current open count. if the boatlength parameter is present 
+	 //this will also respond with sliptype section. the smallest slip category that the boat fits in. How many of that size are there now, 
+	 // plus the price 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws IOException {
@@ -30,7 +48,7 @@ public class AvailabilityServlet extends HttpServlet {
         SlipTypeDAO slipTypeDAO = new SlipTypeDAO();
         SlipDAO slipDAO = new SlipDAO();
 
-        try {
+        try { // basic list, every slip type plus how many are open right now
             List<Map<String, Object>> availability = new ArrayList<>();
             for (SlipType slipType : slipTypeDAO.findAll()) {
                 Map<String, Object> row = new LinkedHashMap<>();
@@ -47,12 +65,15 @@ public class AvailabilityServlet extends HttpServlet {
             body.put("ok", true);
             body.put("slipTypes", availability);
 
+            // boatLength is an optional field for this. only adding the extra "what does MY
+            // boat need" section when the customer actually supplied one.
+			// only bother with this part if they actually gave us a boat length
             if (boatLength != null && boatLength.compareTo(BigDecimal.ZERO) > 0) {
                 SlipType required = slipTypeDAO.findRequiredForBoatLength(boatLength);
-                if (required == null) {
-                    body.put("requiredSlipType", null);
+                if (required == null) {                    
+                    body.put("requiredSlipType", null);// Boat is longer than the largest slip category offered.
                     body.put("message", "No slip type can accommodate this boat.");
-                } else {
+                } else {  // same cost formula as everywhere else: length * rate + electric
                     BigDecimal estimatedCost = boatLength.multiply(required.getRatePerFoot())
                             .add(required.getElectricFee())
                             .setScale(2, RoundingMode.HALF_UP);
@@ -74,6 +95,7 @@ public class AvailabilityServlet extends HttpServlet {
         }
     }
 
+	// will return null for missing boatLength. for this reason a null input is treated as no boat length instead of failed req. 
     private BigDecimal parseDecimal(String value) {
         if (value == null || value.isBlank()) return null;
         try { return new BigDecimal(value.trim()); }
