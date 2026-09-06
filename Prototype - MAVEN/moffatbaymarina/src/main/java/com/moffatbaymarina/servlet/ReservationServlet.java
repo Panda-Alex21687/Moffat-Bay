@@ -1,3 +1,12 @@
+/**Alexander Baldree
+Max Jankowski
+Aftabur Rahman
+Jordan Dardar
+
+Green team Module 5
+Modified by Max on 9-4-26
+
+*/
 package com.moffatbaymarina.servlet;
 
 import com.fasterxml.jackson.databind.JsonNode;
@@ -28,10 +37,21 @@ import java.time.format.DateTimeParseException;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+
+ // Handles the reservation life cycle for a logged-in customer:
+ // POST /reservation creates a new 'pending' reservation, and PUT /reservation confirms or cancels an existing one.  
+ // Both require an active session. there's no unlogged in reservation creation.
+ 
 @WebServlet("/reservation")
 public class ReservationServlet extends HttpServlet {
     private static final ObjectMapper JSON = new ObjectMapper();
 
+  
+	 //looks up client's boat and checks which slip type it needs.
+	 // then it claims one that is still available inside the transaction using row locking
+	 // this is what in theory should stop to customers from claiming the same slip.
+	 // makrked as pending if its claimed and then to held.
+	 // triggers 401 if not logged in 409 if slip isnt open. 	 
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws IOException {
@@ -75,6 +95,8 @@ public class ReservationServlet extends HttpServlet {
         ReservationDAO reservationDAO = new ReservationDAO();
 
         try {
+            // works whether they picked a boat from a dropdown meaning it has an id
+            // or just typed the name again. In either case findForCustomer findByCustomerAndName make sure it's actually THEIR boat
             Boat boat = boatId != null
                     ? boatDAO.findForCustomer(boatId, customerId)
                     : boatDAO.findByCustomerAndName(customerId, boatName);
@@ -98,6 +120,7 @@ public class ReservationServlet extends HttpServlet {
             try (Connection connection = DatabaseConnection.getConnection()) {
                 connection.setAutoCommit(false);
                 try {
+                    // locks the slip row until we commit or rollback. stops two people from both grabbing the last open slip of this size at the same time.
                     Slip slip = slipDAO.findAvailableForUpdate(
                             connection, slipType.getSlipTypeId());
                     if (slip == null) {
@@ -120,7 +143,7 @@ public class ReservationServlet extends HttpServlet {
                     reservation.setMonthlyCost(monthlyCost);
                     reservation.setStatus("PENDING");
                     reservationDAO.insert(connection, reservation);
-                    // Matches the supplied seed pattern: PENDING reservation -> HELD slip.
+                    // Matches the supplied seed pattern: PENDING reservation--- HELD slip.
                     slipDAO.updateStatus(connection, slip.getSlipId(), "HELD");
                     connection.commit();
 
@@ -145,6 +168,8 @@ public class ReservationServlet extends HttpServlet {
         }
     }
 
+    // confirm or cancel an existing reservation. updates the reservation and the slip status together. Checks the reservation actually
+    // belongs to whoever's asking before touching anything.
     @Override
     protected void doPut(HttpServletRequest request, HttpServletResponse response)
             throws IOException {
@@ -174,6 +199,7 @@ public class ReservationServlet extends HttpServlet {
             connection.setAutoCommit(false);
             try {
                 Reservation reservation = reservationDAO.findByIdForUpdate(connection, reservationId);
+               // getCustomerId() is a primitive long here, so != auto-unboxes the boxed customerId first. This compares the actual numbers, not object identity, so it's fine
                 if (reservation == null || reservation.getCustomerId() != customerId) {
                     connection.rollback();
                     writeJson(response, HttpServletResponse.SC_NOT_FOUND,
@@ -226,6 +252,7 @@ public class ReservationServlet extends HttpServlet {
         return map;
     }
 
+     // both handlers above need to be logged in, hence checking this first
     private Long authenticatedCustomerId(HttpServletRequest request) {
         HttpSession session = request.getSession(false);
         if (session == null) return null;

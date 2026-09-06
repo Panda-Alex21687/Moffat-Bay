@@ -1,3 +1,14 @@
+
+
+/**Alexander Baldree
+Max Jankowski
+Aftabur Rahman
+Jordan Dardar
+
+Green team Module 5
+Modified by Max on 9-4-26
+
+*/
 package com.moffatbaymarina.servlet;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -24,10 +35,17 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+// GET /reservation-lookup - the "find your reservation" page. Tries a
+// reservation ID or email first, and if neither was given, falls back
+// to whoever's currently logged in.
 @WebServlet("/reservation-lookup")
 public class ReservationLookupServlet extends HttpServlet {
     private static final ObjectMapper JSON = new ObjectMapper();
 
+    
+	 //if res id or email is in the query string, seaches by those. if both are missing falls back 
+	 //to the client logged in reservations. if that too is not present there will be nothing to search 
+	 //with so this triggers the 422
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws IOException {
@@ -67,6 +85,9 @@ public class ReservationLookupServlet extends HttpServlet {
         }
     }
 
+     // builds the full display info for one reservation - looks up
+    // customer/boat/slip/slip type separately per reservation. Kind of
+    // a N+1 query pattern, fine for our scale but worth knowing about
     private Map<String, Object> details(Reservation reservation) throws SQLException {
         Customer customer = new CustomerDAO().findById(reservation.getCustomerId());
         Boat boat = new BoatDAO().findById(reservation.getBoatId());
@@ -95,6 +116,8 @@ public class ReservationLookupServlet extends HttpServlet {
         return map;
     }
 
+     // Reads customerId out of the current session, if there is one.
+     // used as the fallback lookup when no ID/email was supplied. 
     private Long authenticatedCustomerId(HttpServletRequest request) {
         HttpSession session = request.getSession(false);
         if (session == null) return null;

@@ -1,3 +1,13 @@
+/**Alexander Baldree
+Max Jankowski
+Aftabur Rahman
+Jordan Dardar
+
+Green team Module 5
+Modified by Max on 9-4-26
+
+*/
+
 package com.moffatbaymarina.servlet;
 
 import com.fasterxml.jackson.databind.JsonNode;
@@ -29,6 +39,9 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.regex.Pattern;
 
+// POST /register - creates the customer, their first boat, and an
+// email verification token all in one go. Expects JSON in the body
+// (register.html's script builds the exact shape we read below).
 @WebServlet("/register")
 public class RegisterServlet extends HttpServlet {
     private static final ObjectMapper JSON = new ObjectMapper();
@@ -36,6 +49,9 @@ public class RegisterServlet extends HttpServlet {
     private static final Pattern EMAIL = Pattern.compile("^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$");
     private static final Pattern ZIP = Pattern.compile("^\\d{5}(-\\d{4})?$");
 
+  
+	 // will validate each field, then if the customer with the email doesnt exist will insert the row with cleint and boat. 
+	 // if any of the inserts fail all are rolled back as one. 	
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws IOException {
@@ -57,6 +73,8 @@ public class RegisterServlet extends HttpServlet {
         String registrationNumber = text(data, "registrationNumber");
         BigDecimal boatLength = decimal(data, "boatLength");
 
+        // one generic "fill everything out" message - register.html
+        // already shows a field-specific error before it even calls us
         if (firstName.isBlank() || lastName.isBlank() || phone.isBlank()
                 || street.isBlank() || city.isBlank() || state.isBlank()
                 || zip.isBlank() || email.isBlank() || password.isBlank()
@@ -98,7 +116,9 @@ public class RegisterServlet extends HttpServlet {
                         error("An account already exists for this email address."));
                 return;
             }
-
+			// customer + boat + verification token all inserted together -
+            // if any one fails, everything rolls back so we never end up
+            // with half an account 
             try (Connection connection = DatabaseConnection.getConnection()) {
                 connection.setAutoCommit(false);
                 try {
@@ -111,6 +131,8 @@ public class RegisterServlet extends HttpServlet {
                     customer.setState(state);
                     customer.setZip(zip);
                     customer.setEmail(email);
+                    // Real password hashing unlike the prototype-phasedatabase setup class this project also has. controls how slow/expensive this hash is
+                    // to compute, which is what keeps it resistant to brute-force attempts even years from now.
                     customer.setPasswordHash(BCrypt.hashpw(password, BCrypt.gensalt(12)));
                     customer.setEmailVerified(false);
                     customerDAO.insert(connection, customer);
@@ -123,6 +145,7 @@ public class RegisterServlet extends HttpServlet {
                     boat.setRegistrationNumber(blankToNull(registrationNumber));
                     boatDAO.insert(connection, boat);
 
+                    // random token we'd normally email out, only its hash gets stored. see the sha256() section below
                     String rawToken = generateVerificationToken();
                     EmailVerification verification = new EmailVerification();
                     verification.setCustomerId(customer.getCustomerId());
@@ -165,6 +188,7 @@ public class RegisterServlet extends HttpServlet {
         }
     }
 
+    // matches the rule shown on register.html: 8+ chars, upper, lower, digit, and a special character
     private boolean validPassword(String password) {
         return password.length() >= 8
                 && password.matches(".*[A-Z].*")
@@ -173,12 +197,15 @@ public class RegisterServlet extends HttpServlet {
                 && password.matches(".*[^A-Za-z0-9].*");
     }
 
+    // 32 random bytes, url-safe base64 so it drops straight into a link with no escaping needed - this is the raw token we'd email out
+	// https://www.geeksforgeeks.org/java/url-encoding-decoding-using-base64-in-java/
     private String generateVerificationToken() {
         byte[] bytes = new byte[32];
         RANDOM.nextBytes(bytes);
         return Base64.getUrlEncoder().withoutPadding().encodeToString(bytes);
     }
 
+    // one-way hash of the token before we store it. look at EmailVerificationDAO.findValid for how this gets checked later
     private String sha256(String value) {
         try {
             MessageDigest digest = MessageDigest.getInstance("SHA-256");
@@ -191,6 +218,7 @@ public class RegisterServlet extends HttpServlet {
         }
     }
 
+    // returns null with a 400 already written if the body isn't valid JSON
     private JsonNode readJson(HttpServletRequest request, HttpServletResponse response)
             throws IOException {
         try {

@@ -1,3 +1,13 @@
+
+/**Alexander Baldree
+Max Jankowski
+Aftabur Rahman
+Jordan Dardar
+
+Green team Module 5
+Modified by Max on 9-4-26
+
+*/
 package com.moffatbaymarina.servlet;
 
 import com.fasterxml.jackson.databind.JsonNode;
@@ -22,10 +32,15 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+// Wait list stuff for whoever's logged in: 'GET' lists their own entries
+// plus each one's current spot in line, POST adds a new entry. 
+// both reqiure active session.
 @WebServlet("/waitlist")
 public class WaitlistServlet extends HttpServlet {
     private static final ObjectMapper JSON = new ObjectMapper();
 
+	// returns waitlist entries belonging to the custoemr logged in. Each has the current position so the client can see
+	// how many people are still ahead of them in that particular slip category.	
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws IOException {
@@ -42,6 +57,8 @@ public class WaitlistServlet extends HttpServlet {
             BoatDAO boatDAO = new BoatDAO();
             SlipTypeDAO slipTypeDAO = new SlipTypeDAO();
             List<Map<String, Object>> results = new ArrayList<>();
+			// tack the current position onto each entry so the customer
+            // can see how many people are ahead of them
             for (WaitlistEntry entry : waitlistDAO.findByCustomerId(customerId)) {
                 Boat boat = boatDAO.findById(entry.getBoatId());
                 SlipType slipType = slipTypeDAO.findById(entry.getSlipTypeId());
@@ -60,6 +77,10 @@ public class WaitlistServlet extends HttpServlet {
         }
     }
 
+
+	 //adds a waitlist entry for one customer boat. the slip type can be given sliptypeID, 
+	 // or worked out by boay length. This can happen by the length supplied or by the recorded value.
+	 // preventing duplicate sign up. 
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws IOException {
@@ -94,7 +115,8 @@ public class WaitlistServlet extends HttpServlet {
                 writeJson(response, HttpServletResponse.SC_NOT_FOUND, error("Boat not found."));
                 return;
             }
-
+			 // slip type can come in directly, or we work it out from a
+            // boat length, either the one passed in, or the boat's own
             SlipType slipType;
             if (slipTypeId != null) slipType = slipTypeDAO.findById(slipTypeId);
             else {
@@ -119,6 +141,9 @@ public class WaitlistServlet extends HttpServlet {
             entry.setStatus("WAITING");
             waitlistDAO.insert(entry);
 
+            // insert already fills in entry's waitlistId, so entry
+            // already has everything we need - this re-fetch is a bit
+            // redundant but doesn't hurt anything
             WaitlistEntry saved = waitlistDAO.findByCustomerId(customerId).stream()
                     .filter(item -> item.getWaitlistId() == entry.getWaitlistId())
                     .findFirst().orElse(entry);
@@ -149,6 +174,7 @@ public class WaitlistServlet extends HttpServlet {
         return map;
     }
 
+    // both handlers above need to be logged in, hence checking this first
     private Long authenticatedCustomerId(HttpServletRequest request) {
         HttpSession session = request.getSession(false);
         if (session == null) return null;
