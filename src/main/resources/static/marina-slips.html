@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Marina Slip Locations - Moffat Bay Marina</title>
+
+    <link rel="stylesheet" href="/styles.css">
+    <link rel="stylesheet" href="/footer.css">
+
+    <style>
+        .marina-page {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+
+        .marina-page h2 {
+            color: var(--navy);
+            margin-bottom: 10px;
+        }
+
+        .marina-page .intro {
+            margin-bottom: 25px;
+        }
+
+        .marina-map {
+            position: relative;
+            width: 100%;
+            max-width: 1000px;
+            margin: 0 auto 30px;
+        }
+
+        .marina-map img {
+            display: block;
+            width: 100%;
+            height: auto;
+        }
+
+      .slip-link {
+          position: absolute;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          width: 4.2%;
+          height: 3.5%;
+          min-width: 32px;
+          min-height: 22px;
+          background: rgba(234, 181, 63, 0.90);
+          color: var(--navy);
+          border: 2px solid var(--navy);
+          border-radius: 4px;
+          font-size: 11px;
+          font-weight: bold;
+          text-decoration: none;
+          box-sizing: border-box;
+
+          /* Center each button on its left/top coordinates */
+          transform: translate(-35%, -50%);
+
+          transition: transform 0.2s ease, background 0.2s ease;
+          z-index: 2;
+        }  
+
+        .slip-link:hover {
+            background: var(--gold-light);
+            transform: translate(-35%, -50%) scale(1.15);
+            z-index: 5;
+        }
+
+        .slip-link:focus {
+            outline: 3px solid var(--navy);
+            outline-offset: 2px;
+        }
+
+        .slip-legend {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+            background: var(--soft);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+        }
+
+        .slip-legend h3 {
+            margin-top: 0;
+            color: var(--navy);
+        }
+
+        .legend-item {
+            display: inline-block;
+            margin-right: 25px;
+            margin-bottom: 8px;
+        }
+
+        @media (max-width: 700px) {
+            .slip-link {
+                min-width: 25px;
+                min-height: 18px;
+                font-size: 8px;
+                border-width: 1px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<header>
+    <h1>
+        MOFFAT BAY
+        <span>MARINA</span>
+    </h1>
+
+    <nav>
+        <a href="/register.html">REGISTER</a>
+        <a href="/about.html">ABOUT US</a>
+        <a href="/contact.html">CONTACT US</a>
+        <a href="/login.html">LOGIN</a>
+    </nav>
+</header>
+
+<main>
+    <section class="marina-page">
+
+        <h2>Marina Slip Locations</h2>
+
+        <p class="intro">
+            Select an available slip on the marina map to continue with your reservation.
+        </p>
+
+        <div class="marina-map">
+
+            <img src="/images/marina_Slip_layout.png"
+                 alt="Moffat Bay Marina slip layout showing Docks A, B, and C">
+
+            <!-- Dock A -->
+            <a class="slip-link" style="left: 22.0%; top: 18.0%;" href="/reserve-slip.html?slip=A1">A1</a>
+            <a class="slip-link" style="left: 22.0%; top: 22.5%;" href="/reserve-slip.html?slip=A2">A2</a>
+            <a class="slip-link" style="left: 22.0%; top: 27.0%;" href="/reserve-slip.html?slip=A3">A3</a>
+            <a class="slip-link" style="left: 22.0%; top: 31.0%;" href="/reserve-slip.html?slip=A4">A4</a>
+            <a class="slip-link" style="left: 22.0%; top: 36.0%;" href="/reserve-slip.html?slip=A5">A5</a>
+            <a class="slip-link" style="left: 22.0%; top: 40.0%;" href="/reserve-slip.html?slip=A6">A6</a>
+            <a class="slip-link" style="left: 22.0%; top: 44.0%;" href="/reserve-slip.html?slip=A7">A7</a>
+            <a class="slip-link" style="left: 22.0%; top: 49.0%;" href="/reserve-slip.html?slip=A8">A8</a>
+            <a class="slip-link" style="left: 22.0%; top: 53.0%;" href="/reserve-slip.html?slip=A9">A9</a>
+            <a class="slip-link" style="left: 22.0%; top: 58.0%;" href="/reserve-slip.html?slip=A10">A10</a>
+            <a class="slip-link" style="left: 22.0%; top: 62.0%;" href="/reserve-slip.html?slip=A11">A11</a>
+            <a class="slip-link" style="left: 22.0%; top: 67.0%;" href="/reserve-slip.html?slip=A12">A12</a>
+
+            <a class="slip-link" style="left: 28.5%; top: 18.0%;" href="/reserve-slip.html?slip=A13">A13</a>
+            <a class="slip-link" style="left: 28.5%; top: 22.5%;" href="/reserve-slip.html?slip=A14">A14</a>
+            <a class="slip-link" style="left: 28.5%; top: 27.0%;" href="/reserve-slip.html?slip=A15">A15</a>
+            <a class="slip-link" style="left: 28.5%; top: 31.0%;" href="/reserve-slip.html?slip=A16">A16</a>
+            <a class="slip-link" style="left: 28.5%; top: 35.0%;" href="/reserve-slip.html?slip=A17">A17</a>
+            <a class="slip-link" style="left: 28.5%; top: 40.0%;" href="/reserve-slip.html?slip=A18">A18</a>
+            <a class="slip-link" style="left: 28.5%; top: 44.5%;" href="/reserve-slip.html?slip=A19">A19</a>
+            <a class="slip-link" style="left: 28.5%; top: 49.0%;" href="/reserve-slip.html?slip=A20">A20</a>
+            <a class="slip-link" style="left: 28.5%; top: 53.0%;" href="/reserve-slip.html?slip=A21">A21</a>
+            <a class="slip-link" style="left: 28.5%; top: 58.0%;" href="/reserve-slip.html?slip=A22">A22</a>
+            <a class="slip-link" style="left: 28.5%; top: 62.0%;" href="/reserve-slip.html?slip=A23">A23</a>
+            <a class="slip-link" style="left: 28.5%; top: 67.0%;" href="/reserve-slip.html?slip=A24">A24</a>
+
+            <!-- Dock B -->
+            <a class="slip-link" style="left: 42.0%; top: 22.5%;" href="/reserve-slip.html?slip=B1">B1</a>
+            <a class="slip-link" style="left: 42.0%; top: 27.0%;" href="/reserve-slip.html?slip=B2">B2</a>
+            <a class="slip-link" style="left: 42.0%; top: 31.5%;" href="/reserve-slip.html?slip=B3">B3</a>
+            <a class="slip-link" style="left: 42.0%; top: 36.0%;" href="/reserve-slip.html?slip=B4">B4</a>
+            <a class="slip-link" style="left: 42.0%; top: 40.0%;" href="/reserve-slip.html?slip=B5">B5</a>
+            <a class="slip-link" style="left: 42.0%; top: 44.0%;" href="/reserve-slip.html?slip=B6">B6</a>
+            <a class="slip-link" style="left: 42.0%; top: 49.0%;" href="/reserve-slip.html?slip=B7">B7</a>
+            <a class="slip-link" style="left: 42.0%; top: 53.5%;" href="/reserve-slip.html?slip=B8">B8</a>
+            <a class="slip-link" style="left: 42.0%; top: 57.5%;" href="/reserve-slip.html?slip=B9">B9</a>
+            <a class="slip-link" style="left: 42.0%; top: 61.5%;" href="/reserve-slip.html?slip=B10">B10</a>
+            <a class="slip-link" style="left: 42.0%; top: 66.5%;" href="/reserve-slip.html?slip=B11">B11</a>
+            <a class="slip-link" style="left: 42.0%; top: 70.5%;" href="/reserve-slip.html?slip=B12">B12</a>
+
+            <a class="slip-link" style="left: 48.0%; top: 22.5%;" href="/reserve-slip.html?slip=B13">B13</a>
+            <a class="slip-link" style="left: 48.0%; top: 27.0%;" href="/reserve-slip.html?slip=B14">B14</a>
+            <a class="slip-link" style="left: 48.0%; top: 31.5%;" href="/reserve-slip.html?slip=B15">B15</a>
+            <a class="slip-link" style="left: 48.0%; top: 35.0%;" href="/reserve-slip.html?slip=B16">B16</a>
+            <a class="slip-link" style="left: 48.0%; top: 40.0%;" href="/reserve-slip.html?slip=B17">B17</a>
+            <a class="slip-link" style="left: 48.0%; top: 44.0%;" href="/reserve-slip.html?slip=B18">B18</a>
+            <a class="slip-link" style="left: 48.0%; top: 49.0%;" href="/reserve-slip.html?slip=B19">B19</a>
+            <a class="slip-link" style="left: 48.0%; top: 53.5%;" href="/reserve-slip.html?slip=B20">B20</a>
+            <a class="slip-link" style="left: 48.0%; top: 57.5%;" href="/reserve-slip.html?slip=B21">B21</a>
+            <a class="slip-link" style="left: 48.0%; top: 61.5%;" href="/reserve-slip.html?slip=B22">B22</a>
+            <a class="slip-link" style="left: 48.0%; top: 66.5%;" href="/reserve-slip.html?slip=B23">B23</a>
+            <a class="slip-link" style="left: 48.0%; top: 70.5%;" href="/reserve-slip.html?slip=B24">B24</a>
+
+            <!-- Dock C -->
+            <a class="slip-link" style="left: 62.0%; top: 21.5%;" href="/reserve-slip.html?slip=C1">C1</a>
+            <a class="slip-link" style="left: 62.0%; top: 26.0%;" href="/reserve-slip.html?slip=C2">C2</a>
+            <a class="slip-link" style="left: 62.0%; top: 30.5%;" href="/reserve-slip.html?slip=C3">C3</a>
+            <a class="slip-link" style="left: 62.0%; top: 34.5%;" href="/reserve-slip.html?slip=C4">C4</a>
+            <a class="slip-link" style="left: 62.0%; top: 38.5%;" href="/reserve-slip.html?slip=C5">C5</a>
+            <a class="slip-link" style="left: 62.0%; top: 43.5%;" href="/reserve-slip.html?slip=C6">C6</a>
+            <a class="slip-link" style="left: 62.0%; top: 47.5%;" href="/reserve-slip.html?slip=C7">C7</a>
+            <a class="slip-link" style="left: 62.0%; top: 52.0%;" href="/reserve-slip.html?slip=C8">C8</a>
+            <a class="slip-link" style="left: 62.0%; top: 56.0%;" href="/reserve-slip.html?slip=C9">C9</a>
+            <a class="slip-link" style="left: 62.0%; top: 61.0%;" href="/reserve-slip.html?slip=C10">C10</a>
+            <a class="slip-link" style="left: 62.0%; top: 65.0%;" href="/reserve-slip.html?slip=C11">C11</a>
+            <a class="slip-link" style="left: 62.0%; top: 70.0%;" href="/reserve-slip.html?slip=C12">C12</a>
+
+            <a class="slip-link" style="left: 68.0%; top: 21.5%;" href="/reserve-slip.html?slip=C13">C13</a>
+            <a class="slip-link" style="left: 68.0%; top: 26.0%;" href="/reserve-slip.html?slip=C14">C14</a>
+            <a class="slip-link" style="left: 68.0%; top: 30.5%;" href="/reserve-slip.html?slip=C15">C15</a>
+            <a class="slip-link" style="left: 68.0%; top: 34.5%;" href="/reserve-slip.html?slip=C16">C16</a>
+            <a class="slip-link" style="left: 68.0%; top: 38.5%;" href="/reserve-slip.html?slip=C17">C17</a>
+            <a class="slip-link" style="left: 68.0%; top: 43.5%;" href="/reserve-slip.html?slip=C18">C18</a>
+            <a class="slip-link" style="left: 68.0%; top: 47.5%;" href="/reserve-slip.html?slip=C19">C19</a>
+            <a class="slip-link" style="left: 68.0%; top: 52.0%;" href="/reserve-slip.html?slip=C20">C20</a>
+            <a class="slip-link" style="left: 68.0%; top: 57.0%;" href="/reserve-slip.html?slip=C21">C21</a>
+            <a class="slip-link" style="left: 68.0%; top: 61.0%;" href="/reserve-slip.html?slip=C22">C22</a>
+            <a class="slip-link" style="left: 68.0%; top: 65.0%;" href="/reserve-slip.html?slip=C23">C23</a>
+            <a class="slip-link" style="left: 68.0%; top: 70.0%;" href="/reserve-slip.html?slip=C24">C24</a>
+
+        </div>
+
+        <div class="slip-legend">
+            <h3>Slip Information</h3>
+
+            <div class="legend-item">
+                <strong>26 ft:</strong> Slips 8–12 and 20–24
+            </div>
+
+            <div class="legend-item">
+                <strong>40 ft:</strong> Slips 4–7 and 16–19
+            </div>
+
+            <div class="legend-item">
+                <strong>50 ft:</strong> All other slips
+            </div>
+
+            <p>
+                Click a slip on the map to continue to the reservation page.
+            </p>
+        </div>
+
+    </section>
+</main>
+
+<footer>
+    <div class="footer-container">
+
+        <div class="footer-item">
+            <div class="footer-icon">⚓</div>
+            <div>
+                <h3>Visit Us</h3>
+                <p>Moffat Bay Marina</p>
+                <p>Oceanside, Washington</p>
+            </div>
+        </div>
+
+        <div class="footer-item">
+            <div class="footer-icon">☎</div>
+            <div>
+                <h3>Call Us</h3>
+                <p>(555) 123-4567</p>
+            </div>
+        </div>
+
+        <div class="footer-item">
+            <div class="footer-icon">✦</div>
+            <div>
+                <h3>VHF Channel</h3>
+                <p>Channel 16</p>
+            </div>
+        </div>
+
+        <div class="footer-item">
+            <div class="footer-icon">✉</div>
+            <div>
+                <h3>Email Us</h3>
+                <p>info@moffatbaymarina.com</p>
+            </div>
+        </div>
+
+    </div>
+
+    <div class="footer-bottom">
+        <p>&copy; 2026 Moffat Bay Marina. All Rights Reserved.</p>
+    </div>
+</footer>
+
+</body>
+</html>

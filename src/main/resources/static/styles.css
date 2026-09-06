@@ -1,0 +1,176 @@
+/* Moffat Bay Marina - Main Styles */
+
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #f4f8fb;
+    color: #333;
+}
+
+header {
+    background-color: #0b3d5c;
+    color: white;
+    padding: 20px;
+    text-align: center;
+}
+
+header h1 {
+    margin: 0 0 15px 0;
+}
+
+nav a {
+    color: white;
+    text-decoration: none;
+    margin: 0 10px;
+    font-weight: bold;
+}
+
+nav a:hover {
+    text-decoration: underline;
+}
+
+main {
+    max-width: 900px;
+    margin: 40px auto;
+    padding: 20px;
+}
+
+.login-container,
+.welcome-container {
+    background-color: white;
+    padding: 30px;
+    border-radius: 10px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+h2 {
+    color: #0b3d5c;
+}
+
+form div {
+    margin-bottom: 15px;
+}
+
+label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: bold;
+}
+
+input {
+    width: 100%;
+    max-width: 400px;
+    padding: 10px;
+    border: 1px solid #bbb;
+    border-radius: 5px;
+    box-sizing: border-box;
+}
+
+button {
+    background-color: #0b3d5c;
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-weight: bold;
+}
+
+button:hover {
+    background-color: #07527d;
+}
+
+a {
+    color: #0b3d5c;
+}
+
+footer {
+    text-align: center;
+    padding: 20px;
+    margin-top: 40px;
+    color: #666;
+}
+
+/* =========================================================
+   MOFFAT BAY MARINA - BRANDED HEADER
+   ========================================================= */
+
+header {
+    background-color: #061b3a !important;
+    color: #ffffff !important;
+    min-height: 96px;
+    padding: 0 8%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    box-sizing: border-box;
+}
+
+header h1 {
+    margin: 0;
+    padding: 0;
+    color: #ffffff !important;
+    font-size: 28px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    line-height: 1.05;
+}
+
+header h1::before {
+    content: "⚓";
+    color: #28a9e8;
+    font-size: 48px;
+    margin-right: 14px;
+    vertical-align: middle;
+}
+
+header h1 span {
+    display: block;
+    color: #eab53f !important;
+    font-size: 16px;
+    letter-spacing: 5px;
+    margin-left: 66px;
+    margin-top: -2px;
+}
+
+header nav {
+    display: flex;
+    align-items: center;
+    gap: 42px;
+}
+
+header nav a {
+    color: #ffffff !important;
+    text-decoration: none;
+    font-size: 16px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    padding: 14px 0 10px;
+    border-bottom: 2px solid transparent;
+    transition: color 0.2s ease, border-color 0.2s ease;
+}
+
+header nav a:hover {
+    color: #eab53f !important;
+}
+
+header nav a.active {
+    color: #eab53f !important;
+    border-bottom-color: #eab53f !important;
+}
+
+/* Responsive header */
+@media (max-width: 800px) {
+    header {
+        flex-direction: column;
+        padding: 20px;
+        gap: 18px;
+    }
+
+    header nav {
+        gap: 20px;
+        flex-wrap: wrap;
+        justify-content: center;
+    }
+}

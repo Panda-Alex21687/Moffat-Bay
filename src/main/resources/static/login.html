@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Login - Moffat Bay Marina</title>
+
+    <link rel="stylesheet" href="/styles.css">
+    <link rel="stylesheet" href="/footer.css">
+</head>
+
+<body>
+
+    <header>
+        <h1>Moffat Bay Marina</h1>
+
+        <nav>
+            <a href="/index.html">Home</a>
+            <a href="/about.html">About Us</a>
+            <a href="/contact.html">Contact Us</a>
+            <a href="/register.html">Register</a>
+        </nav>
+    </header>
+
+    <main>
+
+        <section class="login-container">
+
+            <h2>Welcome Back</h2>
+
+            <p>
+                Please enter your email address and password to sign in.
+            </p>
+            
+               <div id="loginError" class="notice warning" style="display: none;">
+               Invalid email address or password. Please try again.
+               </div>
+               
+            <form action="/login" method="post">
+
+                <div>
+                    <label for="email">Email Address</label>
+
+                    <input
+                        type="email"
+                        id="email"
+                        name="email"
+                        required
+                        autocomplete="email">
+                </div>
+
+                <div>
+                    <label for="password">Password</label>
+
+                    <input
+                        type="password"
+                        id="password"
+                        name="password"
+                        required
+                        autocomplete="current-password">
+                </div>
+
+                <button type="submit">
+                    Log In
+                </button>
+
+            </form>
+
+            <p>
+                Don't have an account?
+                <a href="/register.html">Create an account</a>
+            </p>
+
+        </section>
+
+    </main>
+
+ <footer class="site-footer">
+
+    <div class="footer-container">
+
+        <div class="footer-item">
+            <div class="footer-icon">📍</div>
+            <div>
+                <h3>Visit Us</h3>
+                <p>Moffat Bay Marina</p>
+                <p>Oceanside, Washington</p>
+            </div>
+        </div>
+
+        <div class="footer-item">
+            <div class="footer-icon">☎</div>
+            <div>
+                <h3>Call Us</h3>
+                <p>(555) 123-4567</p>
+            </div>
+        </div>
+
+        <div class="footer-item">
+            <div class="footer-icon">⚓</div>
+            <div>
+                <h3>VHF Channel</h3>
+                <p>Channel 16</p>
+            </div>
+        </div>
+
+        <div class="footer-item">
+            <div class="footer-icon">✉</div>
+            <div>
+                <h3>Email Us</h3>
+                <p>info@moffatbaymarina.com</p>
+            </div>
+        </div>
+
+    </div>
+
+    <div class="footer-bottom">
+        <p>&copy; 2026 Moffat Bay Marina. All Rights Reserved.</p>
+    </div>
+
+</footer>
+
+<script>
+    const params = new URLSearchParams(window.location.search);
+
+    if (params.get("error") === "1") {
+        document.getElementById("loginError").style.display = "block";
+    }
+</script>
+
+</body>
+
+</html>
