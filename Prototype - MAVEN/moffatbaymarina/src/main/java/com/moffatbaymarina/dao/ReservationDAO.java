@@ -172,6 +172,49 @@ public class ReservationDAO {
         return reservations;
     }
 
+    /**
+     * Searches reservations that belong to one authenticated customer only.
+     * The customer_id condition is always present so a logged-in customer can
+     * never retrieve another customer's reservation by guessing an ID or email.
+     */
+    public List<Reservation> searchForCustomer(long customerId, Long reservationId,
+            String email) throws SQLException {
+        StringBuilder sql = new StringBuilder("""
+                SELECT r.* FROM reservations r
+                JOIN customers c ON c.customer_id = r.customer_id
+                WHERE r.customer_id = ?
+                """);
+
+        if (reservationId != null) {
+            sql.append(" AND r.reservation_id = ?");
+        }
+        if (email != null && !email.isBlank()) {
+            sql.append(" AND LOWER(c.email) = LOWER(?)");
+        }
+        sql.append(" ORDER BY r.created_at DESC, r.reservation_id DESC");
+
+        List<Reservation> reservations = new ArrayList<>();
+        try (Connection connection = DatabaseConnection.getConnection();
+                PreparedStatement statement = connection.prepareStatement(sql.toString())) {
+            int parameterIndex = 1;
+            statement.setLong(parameterIndex++, customerId);
+
+            if (reservationId != null) {
+                statement.setLong(parameterIndex++, reservationId);
+            }
+            if (email != null && !email.isBlank()) {
+                statement.setString(parameterIndex, email.trim());
+            }
+
+            try (ResultSet result = statement.executeQuery()) {
+                while (result.next()) {
+                    reservations.add(map(result));
+                }
+            }
+        }
+        return reservations;
+    }
+
     // method to update reservation status, and in cases of canceling will add
     // canceled_at timestamp
     public boolean updateStatus(Connection connection, long reservationId,
