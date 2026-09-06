@@ -1,23 +1,36 @@
+
+/**Alexander Baldree
+Max Jankowski
+Aftabur Rahman
+Jordan Dardar
+
+Green team Module 5
+Modified by Max on 9-4-26
+
+*/
 package com.moffatbaymarina.model;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
+
+ // data holder for a row in the reservations table. see dao for the queries 
 public class Reservation {
     private long reservationId;
     private long customerId;
     private long boatId;
     private long slipId;
     private LocalDate checkInDate;
-    private String expectedTerm;
-    private BigDecimal monthlyCost;
-    private String status;
+    private String expectedTerm; // free text here so 6 months 12 months etc
+    private BigDecimal monthlyCost; // we still need to work on this, I think we should make elec. optional when calculating cost
+    private String status; // status can be pending, confirmed or cancelled
     private LocalDateTime createdAt;
-    private LocalDateTime cancelledAt;
+    private LocalDateTime cancelledAt; // this is null unless the status is listed as canceled. 
 
     public Reservation() {}
 
+    // other constructor that field matches  ReservationDAO's map() method
     public Reservation(long reservationId, long customerId, long boatId, long slipId,
                        LocalDate checkInDate, String expectedTerm, BigDecimal monthlyCost,
                        String status, LocalDateTime createdAt, LocalDateTime cancelledAt) {

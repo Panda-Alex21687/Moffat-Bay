@@ -1,3 +1,12 @@
+/**Alexander Baldree
+Max Jankowski
+Aftabur Rahman
+Jordan Dardar
+
+Green team Module 5
+Modified by Max on 9-4-26
+
+*/
 package com.moffatbaymarina.servlet;
 
 import com.fasterxml.jackson.databind.JsonNode;
@@ -19,16 +28,18 @@ import java.sql.SQLException;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+
+ //handling the UST-04 story and verifing email. 
 @WebServlet("/verification")
 public class VerificationServlet extends HttpServlet {
     private static final ObjectMapper JSON = new ObjectMapper();
-
+	 // verification link cliked from email, token will arrive as a parameter for query.
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws IOException {
         verify(request.getParameter("token"), response);
     }
-
+	 // the same verification, but posts token as a JSON instead of relying in a query string
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws IOException {
@@ -51,6 +62,9 @@ public class VerificationServlet extends HttpServlet {
         verify(token, response);
     }
 
+	 
+	 //hashing the supplied token and looks for a match. if found, will mark the record used and switchs the 
+	 // customer email_verified flag. commits both changes. if no token was supplied responds with a 422 and 404 if it doesnt match
     private void verify(String token, HttpServletResponse response) throws IOException {
         prepareJson(response);
         if (token == null || token.isBlank()) {
@@ -63,7 +77,9 @@ public class VerificationServlet extends HttpServlet {
         EmailVerificationDAO verificationDAO = new EmailVerificationDAO();
         CustomerDAO customerDAO = new CustomerDAO();
 
-        try {
+        try {            
+			// here findValid checks both the token and its hash. the demo data is in plain text 
+			// but the real world entry will store only in hash. see the DAO for verification 
             EmailVerification verification = verificationDAO.findValid(cleanToken, tokenHash);
             if (verification == null) {
                 writeJson(response, HttpServletResponse.SC_NOT_FOUND,
@@ -75,7 +91,9 @@ public class VerificationServlet extends HttpServlet {
                 connection.setAutoCommit(false);
                 try {
                     if (!verificationDAO.markVerified(connection, verification.getVerificationId())) {
-                        connection.rollback();
+                        // markVerified only returns false if verified_at was set, Indicates that someone else 
+                        // already completed this exact token. Treats it as used 
+                        connection.rollback(); 
                         writeJson(response, HttpServletResponse.SC_CONFLICT,
                                 error("The verification token has already been used."));
                         return;

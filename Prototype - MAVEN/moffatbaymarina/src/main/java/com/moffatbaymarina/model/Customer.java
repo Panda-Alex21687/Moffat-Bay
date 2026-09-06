@@ -1,7 +1,17 @@
-package com.moffatbaymarina.model;
+
+/**Alexander Baldree
+Max Jankowski
+Aftabur Rahman
+Jordan Dardar
+
+Green team Module 5
+Modified by Max on 9-4-26
+
+*/package com.moffatbaymarina.model;
 
 import java.time.LocalDateTime;
 
+ // like the boats.java file this is data holder that mirrors a row from Customers table. linked to com.moffatbaymarina.Customerdao. for queries that read and write
 public class Customer {
     private long customerId;
     private String firstName;
@@ -11,13 +21,19 @@ public class Customer {
     private String city;
     private String state;
     private String zip;
+    // doubles as the login username as coded in CustomerDAO.findByEmail. */
     private String email;
+    
+	 // expected to be hashed when the field is being filled, its a bad practice to leave this in plain txt
     private String passwordHash;
+    
+	 // This is turned to true after the verification flow is finished and email verified 
     private boolean emailVerified;
     private LocalDateTime createdAt;
 
     public Customer() {}
 
+    /** argument constructor for field order match CustomerDAO using map() method. */
     public Customer(long customerId, String firstName, String lastName, String phone,
                     String street, String city, String state, String zip, String email,
                     String passwordHash, boolean emailVerified, LocalDateTime createdAt) {
