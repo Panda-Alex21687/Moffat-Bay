@@ -595,7 +595,7 @@ CSD460
                 params.get("data");
 
             const currentId =
-                params.get("current");
+                params.get("current") || params.get("id");
 
 
             if (data) {
@@ -634,34 +634,9 @@ CSD460
          * current reservation history.
          */
         function lookupURL() {
-
-            const reservations =
-                getReservations();
-
-            const current =
-                getCurrentReservation();
-
-            const data =
-                encodeURIComponent(
-                    JSON.stringify(
-                        reservations
-                    )
-                );
-
-            const currentId =
-                current
-                    ? encodeURIComponent(
-                        current.id
-                    )
-                    : "";
-
-            return (
-                "reservation-lookup.html" +
-                "?data=" +
-                data +
-                "&current=" +
-                currentId
-            );
+            // Reservation history now comes from the logged-in customer's
+            // server-side session, so no reservation data is placed in the URL.
+            return "reservation-lookup.html";
         }
 
 
@@ -842,86 +817,97 @@ CSD460
         }
 
 
-        function confirmReservation() {
+        async function updateReservationStatus(reservation, status) {
+            const response = await fetch("reservation", {
+                method: "PUT",
+                credentials: "same-origin",
+                headers: {
+                    "Content-Type": "application/json",
+                    "Accept": "application/json"
+                },
+                body: JSON.stringify({
+                    reservationId: reservation.id,
+                    status: status
+                })
+            });
 
-            const reservation =
-                getCurrentReservation();
-
-            if (!reservation) {
-                return;
+            const data = await response.json();
+            if (!response.ok || !data.ok) {
+                const error = new Error(
+                    data.message || "Unable to update the reservation."
+                );
+                error.status = response.status;
+                throw error;
             }
 
-
-            reservation.status =
-                "Confirmed";
-
-            saveReservation(
-                reservation
-            );
-
-            updateLookupLinks();
-
-
-            document.getElementById(
-                "message"
-            ).innerHTML =
-                '<div class="notice success">' +
-                    "<strong>Reservation confirmed.</strong> " +
-                    "Your reservation is now marked as confirmed." +
-                "</div>";
-
-
-            render();
+            return data;
         }
 
 
-        function cancelReservation() {
+        async function confirmReservation() {
 
-            const reservation =
-                getCurrentReservation();
+            const reservation = getCurrentReservation();
+            if (!reservation) return;
 
-            if (!reservation) {
-                return;
+            const message = document.getElementById("message");
+
+            try {
+                await updateReservationStatus(reservation, "CONFIRMED");
+
+                reservation.status = "Confirmed";
+                saveReservation(reservation);
+                updateLookupLinks();
+
+                message.innerHTML =
+                    '<div class="notice success">' +
+                        "<strong>Reservation confirmed.</strong> " +
+                        "Your reservation is now marked as confirmed." +
+                    "</div>";
+
+                render();
+            } catch (error) {
+                message.innerHTML =
+                    '<div class="notice warning">' +
+                        escapeHTML(error.message || "Unable to confirm the reservation.") +
+                    "</div>";
             }
+        }
 
 
-            const approved =
-                confirm(
-                    "Cancel reservation " +
-                    reservation.id +
-                    "?"
-                );
+        async function cancelReservation() {
 
+            const reservation = getCurrentReservation();
+            if (!reservation) return;
 
-            if (!approved) {
-                return;
-            }
-
-
-            reservation.status =
-                "Cancelled";
-
-            reservation.cancelledAt =
-                new Date().toISOString();
-
-
-            saveReservation(
-                reservation
+            const approved = confirm(
+                "Cancel reservation " + reservation.id + "?"
             );
 
-            updateLookupLinks();
+            if (!approved) return;
 
+            const message = document.getElementById("message");
 
-            document.getElementById(
-                "message"
-            ).innerHTML =
-                '<div class="notice warning">' +
-                    "<strong>Reservation cancelled.</strong> " +
-                    "The cancelled reservation remains available in reservation history." +
-                "</div>";
+            try {
+                await updateReservationStatus(reservation, "CANCELLED");
 
+                reservation.status = "Cancelled";
+                reservation.cancelledAt = new Date().toISOString();
+                saveReservation(reservation);
+                updateLookupLinks();
 
-            render();
+                message.innerHTML =
+                    '<div class="notice warning">' +
+                        "<strong>Reservation cancelled.</strong> " +
+                        "The cancelled reservation remains available in reservation history." +
+                    "</div>";
+
+                render();
+            } catch (error) {
+                message.innerHTML =
+                    '<div class="notice warning">' +
+                        escapeHTML(error.message || "Unable to cancel the reservation.") +
+                    "</div>";
+            }
         }
 
 

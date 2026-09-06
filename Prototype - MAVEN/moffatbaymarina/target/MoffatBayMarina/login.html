@@ -399,6 +399,11 @@ Modified by Max 8-22, removing JS Script and allowing this to function as a redi
                 return;
             }
 
+            // Prevent reservation data from a previous account on this browser
+            // from carrying into the newly authenticated customer's session.
+            localStorage.removeItem("moffatBayReservations");
+            localStorage.removeItem("moffatBayCurrentReservationId");
+
             window.location.href = data.redirect || "post_login.html";
 
         } catch (error) {
