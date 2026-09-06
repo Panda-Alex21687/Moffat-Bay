@@ -1,13 +1,26 @@
+/**Alexander Baldree
+Max Jankowski
+Aftabur Rahman
+Jordan Dardar
+
+Green team Module 5
+Modified by Max on 9-5-26
+
+*/
+
 package com.moffatbaymarina.model;
 
+
+ // holder for data the mirrors a row in the slips table. one slip as numbered in the overveiw chart
 public class Slip {
     private long slipId;
-    private long slipTypeId;
-    private String slipNumber;
-    private String status;
+    private long slipTypeId; // this indicated the physial size of the slip category this slip fits in 
+    private String slipNumber; // This represents the user and worker readable slip number
+    private String status; // this can be available, reserved or held
 
     public Slip() {}
 
+    // DAO mathcing full-argument constructor. Using map() 
     public Slip(long slipId, long slipTypeId, String slipNumber, String status) {
         this.slipId = slipId;
         this.slipTypeId = slipTypeId;

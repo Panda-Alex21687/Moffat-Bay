@@ -1,19 +1,32 @@
+/**Alexander Baldree
+Max Jankowski
+Aftabur Rahman
+Jordan Dardar
+
+Green team Module 5
+Modified by Max on 9-4-26
+
+*/
+
 package com.moffatbaymarina.model;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
+
+ // data holder that mirrors a row from boats table. linked to com.moffatbaymarina.dao.boatDAO for queries that read and write
 public class Boat {
     private long boatId;
     private long customerId;
-    private String boatName;
-    private BigDecimal boatLengthFt;
-    private String boatType;
+    private String boatName;   
+    private BigDecimal boatLengthFt; //boat length in ft, this required for size lookup
+    private String boatType; // This can be used as optional info, maybe used for future purposes. Can also be null    
     private String registrationNumber;
     private LocalDateTime createdAt;
 
     public Boat() {}
 
+	// argument constructor. matches boatDAO's map method 
     public Boat(long boatId, long customerId, String boatName, BigDecimal boatLengthFt,
                 String boatType, String registrationNumber, LocalDateTime createdAt) {
         this.boatId = boatId;
