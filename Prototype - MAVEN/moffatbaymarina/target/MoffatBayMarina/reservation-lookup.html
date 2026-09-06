@@ -337,176 +337,15 @@ CSD460
 
 
     <script>
-
         /* ========================================
-           SHARED RESERVATION PROTOTYPE FUNCTIONS
+           ACCOUNT-SCOPED RESERVATION LOOKUP
+           Reservation history is loaded from the
+           database for the authenticated session.
         ======================================== */
 
         const RESERVATION_KEY = "moffatBayReservations";
         const CURRENT_RESERVATION_KEY = "moffatBayCurrentReservationId";
-
-        function getReservations() {
-            try {
-                const saved = localStorage.getItem(RESERVATION_KEY);
-                return saved ? JSON.parse(saved) : [];
-            }
-            catch (error) {
-                console.error("Unable to read reservation data.", error);
-                return [];
-            }
-        }
-
-        function saveReservations(reservations) {
-            localStorage.setItem(
-                RESERVATION_KEY,
-                JSON.stringify(reservations)
-            );
-        }
-
-        function saveReservation(reservation) {
-            const reservations = getReservations();
-
-            const index = reservations.findIndex(
-                item => item.id === reservation.id
-            );
-
-            if (index >= 0) {
-                reservations[index] = reservation;
-            }
-            else {
-                reservations.push(reservation);
-            }
-
-            saveReservations(reservations);
-
-            localStorage.setItem(
-                CURRENT_RESERVATION_KEY,
-                reservation.id
-            );
-
-            return reservation;
-        }
-
-        function getReservationById(id) {
-            const cleanId = String(id || "").trim().toLowerCase();
-
-            return (
-                getReservations().find(
-                    reservation =>
-                        String(reservation.id)
-                            .toLowerCase() === cleanId
-                ) || null
-            );
-        }
-
-        function getCurrentReservation() {
-            const currentId =
-                localStorage.getItem(
-                    CURRENT_RESERVATION_KEY
-                );
-
-            if (currentId) {
-                const reservation =
-                    getReservationById(currentId);
-
-                if (reservation) {
-                    return reservation;
-                }
-            }
-
-            const reservations = getReservations();
-
-            return reservations.length
-                ? reservations[reservations.length - 1]
-                : null;
-        }
-
-        function requiredSlipSize(boatLength) {
-            const length = Number(boatLength);
-
-            if (!Number.isFinite(length) || length <= 0) {
-                return null;
-            }
-
-            if (length <= 26) {
-                return 26;
-            }
-
-            if (length <= 40) {
-                return 40;
-            }
-
-            if (length <= 50) {
-                return 50;
-            }
-
-            return null;
-        }
-
-        function monthlyCost(boatLength) {
-            return (Number(boatLength) * 10) + 10;
-        }
-
-        function generateReservationId() {
-            const year = new Date().getFullYear();
-
-            return (
-                "MB-" +
-                year +
-                "-" +
-                Math.floor(10000 + Math.random() * 90000)
-            );
-        }
-
-        function generateSlipNumber(slipSize) {
-            const reservations = getReservations();
-
-            const used = reservations.filter(
-                reservation =>
-                    Number(reservation.slipSize) ===
-                        Number(slipSize) &&
-                    reservation.status !== "Cancelled"
-            ).length;
-
-            const dockLetters = ["A", "B", "C"];
-
-            let startingSlip = 1;
-
-            if (Number(slipSize) === 26) {
-                startingSlip = 8;
-            }
-            else if (Number(slipSize) === 40) {
-                startingSlip = 4;
-            }
-
-            const dock =
-                dockLetters[
-                    Math.floor(used / 8) %
-                    dockLetters.length
-                ];
-
-            return (
-                dock +
-                "-" +
-                (startingSlip + (used % 8))
-            );
-        }
-
-        function statusHTML(status) {
-            if (status === "Cancelled") {
-                return (
-                    '<span class="status cancelled">' +
-                    "Cancelled" +
-                    "</span>"
-                );
-            }
-
-            return (
-                '<span class="status">' +
-                (status || "Pending") +
-                "</span>"
-            );
-        }
+        let accountReservations = [];
 
         function escapeHTML(value) {
             return String(value ?? "")
@@ -517,403 +356,273 @@ CSD460
                 .replaceAll("'", "&#039;");
         }
 
-
-        /* ========================================
-           LOOKUP PAGE FUNCTIONALITY
-        ======================================== */
-
-        /*
-         * Imports reservation history passed from
-         * the Summary page.
-         */
-        function importReservationDataFromURL() {
-
-            const params =
-                new URLSearchParams(
-                    window.location.search
-                );
-
-            const data =
-                params.get("data");
-
-            const currentId =
-                params.get("current");
-
-
-            if (data) {
-                try {
-
-                    const reservations =
-                        JSON.parse(data);
-
-                    if (Array.isArray(reservations)) {
-                        saveReservations(
-                            reservations
-                        );
-                    }
-
-                }
-                catch (error) {
-                    console.error(
-                        "Unable to import reservation history.",
-                        error
-                    );
-                }
-            }
-
-
-            if (currentId) {
-                localStorage.setItem(
-                    CURRENT_RESERVATION_KEY,
-                    currentId
-                );
-            }
+        function displayStatus(status) {
+            const value = String(status || "PENDING").toUpperCase();
+            return value.charAt(0) + value.slice(1).toLowerCase();
         }
 
+        function statusHTML(status) {
+            const display = displayStatus(status);
+            const cssClass = display === "Cancelled"
+                ? "status cancelled"
+                : "status";
+
+            return '<span class="' + cssClass + '">' +
+                escapeHTML(display) +
+                '</span>';
+        }
+
+        function normalizeReservation(reservation) {
+            return {
+                id: reservation.reservationId,
+                email: reservation.email || "",
+                customerName: reservation.customerName || "",
+                boatName: reservation.boatName || "",
+                boatLength: reservation.boatLengthFt ?? "",
+                slipSize: reservation.slipSizeFt ?? "",
+                slipNumber: reservation.slipNumber || "",
+                checkIn: reservation.checkInDate || "",
+                expectedTerm: reservation.expectedTerm || "",
+                monthlyCost: Number(reservation.monthlyCost || 0),
+                status: displayStatus(reservation.status),
+                createdAt: reservation.createdAt || "",
+                cancelledAt: reservation.cancelledAt || null
+            };
+        }
+
+        async function requestReservations(params = new URLSearchParams()) {
+            const query = params.toString();
+            const response = await fetch(
+                "reservation-lookup" + (query ? "?" + query : ""),
+                {
+                    method: "GET",
+                    credentials: "same-origin",
+                    headers: { "Accept": "application/json" }
+                }
+            );
+
+            let data = {};
+            try {
+                data = await response.json();
+            } catch (error) {
+                data = { message: "The server returned an invalid response." };
+            }
+
+            if (!response.ok || !data.ok) {
+                const requestError = new Error(
+                    data.message || "Unable to load reservations."
+                );
+                requestError.status = response.status;
+                throw requestError;
+            }
+
+            return (data.reservations || []).map(normalizeReservation);
+        }
 
         function resultHTML(reservation) {
-
             return (
                 '<div class="grid">' +
-
                     '<div class="item">' +
                         '<span class="label">Reservation ID</span>' +
-                        '<span class="value">' +
-                            escapeHTML(reservation.id) +
-                        '</span>' +
+                        '<span class="value">' + escapeHTML(reservation.id) + '</span>' +
                     '</div>' +
-
                     '<div class="item">' +
                         '<span class="label">Customer Email</span>' +
-                        '<span class="value">' +
-                            escapeHTML(reservation.email) +
-                        '</span>' +
+                        '<span class="value">' + escapeHTML(reservation.email) + '</span>' +
                     '</div>' +
-
                     '<div class="item">' +
                         '<span class="label">Boat Name</span>' +
-                        '<span class="value">' +
-                            escapeHTML(reservation.boatName) +
-                        '</span>' +
+                        '<span class="value">' + escapeHTML(reservation.boatName) + '</span>' +
                     '</div>' +
-
                     '<div class="item">' +
                         '<span class="label">Boat Length</span>' +
-                        '<span class="value">' +
-                            escapeHTML(reservation.boatLength) +
-                            ' ft' +
-                        '</span>' +
+                        '<span class="value">' + escapeHTML(reservation.boatLength) + ' ft</span>' +
                     '</div>' +
-
                     '<div class="item">' +
                         '<span class="label">Slip Size</span>' +
-                        '<span class="value">' +
-                            escapeHTML(reservation.slipSize) +
-                            ' ft' +
-                        '</span>' +
+                        '<span class="value">' + escapeHTML(reservation.slipSize) + ' ft</span>' +
                     '</div>' +
-
                     '<div class="item">' +
                         '<span class="label">Slip Number</span>' +
-                        '<span class="value">' +
-                            escapeHTML(reservation.slipNumber) +
-                        '</span>' +
+                        '<span class="value">' + escapeHTML(reservation.slipNumber) + '</span>' +
                     '</div>' +
-
                     '<div class="item">' +
                         '<span class="label">Check-In Date</span>' +
-                        '<span class="value">' +
-                            escapeHTML(reservation.checkIn) +
-                        '</span>' +
+                        '<span class="value">' + escapeHTML(reservation.checkIn) + '</span>' +
                     '</div>' +
-
                     '<div class="item">' +
                         '<span class="label">Status</span>' +
-                        '<span class="value">' +
-                            statusHTML(reservation.status) +
-                        '</span>' +
+                        '<span class="value">' + statusHTML(reservation.status) + '</span>' +
                     '</div>' +
-
                     '<div class="item">' +
                         '<span class="label">Monthly Cost</span>' +
-                        '<span class="cost">$' +
-                            Number(reservation.monthlyCost)
-                                .toFixed(2) +
-                            '/month' +
-                        '</span>' +
+                        '<span class="cost">$' + reservation.monthlyCost.toFixed(2) + '/month</span>' +
                     '</div>' +
-
                 '</div>' +
-
                 '<div class="actions">' +
-
                     '<button class="btn secondary" type="button" onclick="openSummary(\'' +
                         escapeHTML(reservation.id) +
-                    '\')">' +
-                        'OPEN SUMMARY' +
-                    '</button>' +
-
+                    '\')">OPEN SUMMARY</button>' +
                 '</div>'
             );
         }
 
+        async function searchReservations() {
+            const reservationId = document.getElementById("rid").value.trim();
+            const email = document.getElementById("email").value.trim();
+            const result = document.getElementById("result");
+            const resultBody = document.getElementById("resultBody");
 
-        function searchReservations() {
-
-            const reservationId =
-                document
-                    .getElementById("rid")
-                    .value
-                    .trim()
-                    .toLowerCase();
-
-            const email =
-                document
-                    .getElementById("email")
-                    .value
-                    .trim()
-                    .toLowerCase();
-
-            const result =
-                document.getElementById(
-                    "result"
-                );
-
-            const resultBody =
-                document.getElementById(
-                    "resultBody"
-                );
-
-
-            result.style.display =
-                "block";
-
+            result.style.display = "block";
 
             if (!reservationId && !email) {
-
                 resultBody.innerHTML =
                     '<div class="notice warning">' +
-                        "Enter a reservation ID or email address." +
-                    "</div>";
-
+                    'Enter a reservation ID or email address.' +
+                    '</div>';
                 return;
             }
-
-
-            const matches =
-                getReservations().filter(
-                    reservation => {
-
-                        const idMatches =
-                            reservationId &&
-                            String(
-                                reservation.id
-                            )
-                                .toLowerCase() ===
-                                reservationId;
-
-                        const emailMatches =
-                            email &&
-                            String(
-                                reservation.email || ""
-                            )
-                                .toLowerCase() ===
-                                email;
-
-
-                        if (
-                            reservationId &&
-                            email
-                        ) {
-                            return (
-                                idMatches &&
-                                emailMatches
-                            );
-                        }
-
-
-                        return (
-                            idMatches ||
-                            emailMatches
-                        );
-                    }
-                );
-
-
-            if (matches.length === 0) {
-
-                resultBody.innerHTML =
-                    '<div class="notice warning">' +
-                        "<strong>No reservation found.</strong> " +
-                        "Check the reservation ID or email address and try again." +
-                    "</div>";
-
-                return;
-            }
-
 
             resultBody.innerHTML =
-                matches
-                    .map(resultHTML)
-                    .join(
-                        '<div style="height: 18px;"></div>'
-                    );
-        }
+                '<div class="notice info">Searching your reservations...</div>';
 
+            const params = new URLSearchParams();
+            if (reservationId) params.set("reservationId", reservationId);
+            if (email) params.set("email", email);
+
+            try {
+                const matches = await requestReservations(params);
+
+                if (matches.length === 0) {
+                    resultBody.innerHTML =
+                        '<div class="notice warning">' +
+                        '<strong>No reservation found in your account.</strong> ' +
+                        'Only reservations belonging to the logged-in customer can be displayed.' +
+                        '</div>';
+                    return;
+                }
+
+                resultBody.innerHTML = matches
+                    .map(resultHTML)
+                    .join('<div style="height: 18px;"></div>');
+            } catch (error) {
+                showLookupError(resultBody, error);
+            }
+        }
 
         function openSummary(id) {
-
-            localStorage.setItem(
-                CURRENT_RESERVATION_KEY,
-                id
-            );
-
-            window.location.href =
-                "reservation-summary.html";
+            localStorage.setItem(CURRENT_RESERVATION_KEY, String(id));
+            localStorage.setItem(RESERVATION_KEY, JSON.stringify(accountReservations));
+            window.location.href = "reservation-summary.html?id=" +
+                encodeURIComponent(id);
         }
 
+        async function renderHistory() {
+            const history = document.getElementById("history");
 
-        function renderHistory() {
+            // Remove prototype history before loading the authenticated account.
+            localStorage.removeItem(RESERVATION_KEY);
+            localStorage.removeItem(CURRENT_RESERVATION_KEY);
 
-            const reservations =
-                getReservations();
+            history.innerHTML =
+                '<div class="notice info">Loading your reservation history...</div>';
 
-            const history =
-                document.getElementById(
-                    "history"
+            try {
+                accountReservations = await requestReservations();
+
+                // Keep only this authenticated customer's records available to
+                // the existing summary page during this browser session.
+                localStorage.setItem(
+                    RESERVATION_KEY,
+                    JSON.stringify(accountReservations)
                 );
 
+                if (accountReservations.length === 0) {
+                    history.innerHTML =
+                        '<div class="notice info">' +
+                        'You do not have any reservations yet.' +
+                        '</div>';
+                    return;
+                }
 
-            if (reservations.length === 0) {
+                // The DAO already returns newest reservations first.
+                history.innerHTML = accountReservations
+                    .map(reservation =>
+                        '<div class="grid" style="margin-bottom: 18px;">' +
+                            '<div class="item">' +
+                                '<span class="label">Reservation ID</span>' +
+                                '<span class="value">' + escapeHTML(reservation.id) + '</span>' +
+                            '</div>' +
+                            '<div class="item">' +
+                                '<span class="label">Boat</span>' +
+                                '<span class="value">' + escapeHTML(reservation.boatName) + '</span>' +
+                            '</div>' +
+                            '<div class="item">' +
+                                '<span class="label">Check-In</span>' +
+                                '<span class="value">' + escapeHTML(reservation.checkIn) + '</span>' +
+                            '</div>' +
+                            '<div class="item">' +
+                                '<span class="label">Status</span>' +
+                                '<span class="value">' + statusHTML(reservation.status) + '</span>' +
+                            '</div>' +
+                            '<div class="actions" style="grid-column: 1 / -1;">' +
+                                '<button class="btn secondary" type="button" onclick="openSummary(\'' +
+                                    escapeHTML(reservation.id) +
+                                '\')">OPEN SUMMARY</button>' +
+                            '</div>' +
+                        '</div>'
+                    )
+                    .join("");
+            } catch (error) {
+                showLookupError(history, error);
+            }
+        }
 
-                history.innerHTML =
-                    '<div class="notice info">' +
-                        "No reservations have been created yet." +
-                    "</div>";
-
+        function showLookupError(container, error) {
+            if (error.status === 401) {
+                container.innerHTML =
+                    '<div class="notice warning">' +
+                    '<strong>Login required.</strong> ' +
+                    'Please <a href="login.html">log in</a> to view your reservation history.' +
+                    '</div>';
                 return;
             }
 
-
-            const newestFirst =
-                [...reservations].reverse();
-
-
-            history.innerHTML =
-                newestFirst
-                    .map(
-                        reservation =>
-
-                            '<div class="grid" style="margin-bottom: 18px;">' +
-
-                                '<div class="item">' +
-                                    '<span class="label">Reservation ID</span>' +
-                                    '<span class="value">' +
-                                        escapeHTML(
-                                            reservation.id
-                                        ) +
-                                    '</span>' +
-                                '</div>' +
-
-                                '<div class="item">' +
-                                    '<span class="label">Boat</span>' +
-                                    '<span class="value">' +
-                                        escapeHTML(
-                                            reservation.boatName
-                                        ) +
-                                    '</span>' +
-                                '</div>' +
-
-                                '<div class="item">' +
-                                    '<span class="label">Check-In</span>' +
-                                    '<span class="value">' +
-                                        escapeHTML(
-                                            reservation.checkIn
-                                        ) +
-                                    '</span>' +
-                                '</div>' +
-
-                                '<div class="item">' +
-                                    '<span class="label">Status</span>' +
-                                    '<span class="value">' +
-                                        statusHTML(
-                                            reservation.status
-                                        ) +
-                                    '</span>' +
-                                '</div>' +
-
-                            '</div>'
-                    )
-                    .join("");
+            container.innerHTML =
+                '<div class="notice warning">' +
+                escapeHTML(error.message || "Unable to load reservations.") +
+                '</div>';
         }
 
-
-        document.getElementById(
-            "searchButton"
-        ).addEventListener(
+        document.getElementById("searchButton").addEventListener(
             "click",
             searchReservations
         );
 
-
-        document.getElementById(
-            "clearButton"
-        ).addEventListener(
+        document.getElementById("clearButton").addEventListener(
             "click",
             function () {
-
-                document.getElementById(
-                    "rid"
-                ).value = "";
-
-                document.getElementById(
-                    "email"
-                ).value = "";
-
-                document.getElementById(
-                    "result"
-                ).style.display =
-                    "none";
+                document.getElementById("rid").value = "";
+                document.getElementById("email").value = "";
+                document.getElementById("result").style.display = "none";
             }
         );
 
-
-        document.getElementById(
-            "rid"
-        ).addEventListener(
+        document.getElementById("rid").addEventListener(
             "keydown",
             function (event) {
-
-                if (event.key === "Enter") {
-                    searchReservations();
-                }
+                if (event.key === "Enter") searchReservations();
             }
         );
 
-
-        document.getElementById(
-            "email"
-        ).addEventListener(
+        document.getElementById("email").addEventListener(
             "keydown",
             function (event) {
-
-                if (event.key === "Enter") {
-                    searchReservations();
-                }
+                if (event.key === "Enter") searchReservations();
             }
         );
 
-
-        document.addEventListener(
-            "DOMContentLoaded",
-            function () {
-
-                importReservationDataFromURL();
-
-                renderHistory();
-            }
-        );
-
+        document.addEventListener("DOMContentLoaded", renderHistory);
     </script>
 
 </body>

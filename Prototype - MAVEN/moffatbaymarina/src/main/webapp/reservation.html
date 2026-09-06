@@ -304,8 +304,8 @@ CSD460
                 Prototype:
             </strong>
 
-            The reservation is stored in your browser
-            so the Summary and Lookup pages can use it.
+            Reservations are saved to the database under the
+            currently logged-in customer account.
 
         </div>
 
@@ -713,122 +713,114 @@ CSD460
                  */
                 form.addEventListener(
                     "submit",
-                    function (event) {
+                    async function (event) {
 
                         event.preventDefault();
-
                         message.innerHTML = "";
-
 
                         if (!form.checkValidity()) {
                             form.reportValidity();
                             return;
                         }
 
-
-                        const length =
-                            Number(boatLength.value);
-
-                        const requiredSlip =
-                            requiredSlipSize(length);
-
+                        const length = Number(boatLength.value);
+                        const requiredSlip = requiredSlipSize(length);
 
                         if (!requiredSlip) {
-
                             message.innerHTML =
                                 '<div class="notice warning">' +
                                     "<strong>Unable to create reservation.</strong> " +
-                                    "The prototype supports boats up to 50 feet." +
+                                    "This marina currently supports boats up to 50 feet." +
                                 "</div>";
-
                             return;
                         }
 
+                        const submitButton = form.querySelector('button[type="submit"]');
+                        submitButton.disabled = true;
+                        submitButton.textContent = "CREATING...";
 
-                        const reservation = {
+                        try {
+                            const response = await fetch("reservation", {
+                                method: "POST",
+                                credentials: "same-origin",
+                                headers: {
+                                    "Content-Type": "application/json",
+                                    "Accept": "application/json"
+                                },
+                                body: JSON.stringify({
+                                    boatName: boatName.value.trim(),
+                                    checkInDate: checkIn.value,
+                                    expectedTerm: "MONTHLY"
+                                })
+                            });
 
-                            id:
-                                generateReservationId(),
+                            const data = await response.json();
 
-                            email:
-                                email.value
-                                    .trim()
-                                    .toLowerCase(),
+                            if (!response.ok || !data.ok) {
+                                if (response.status === 401) {
+                                    message.innerHTML =
+                                        '<div class="notice warning">' +
+                                            "<strong>Login required.</strong> " +
+                                            'Please <a href="login.html">log in</a> before creating a reservation.' +
+                                        "</div>";
+                                } else {
+                                    message.innerHTML =
+                                        '<div class="notice warning">' +
+                                            "<strong>Unable to create reservation.</strong> " +
+                                            escapeHTML(data.message || "Please try again.") +
+                                        "</div>";
+                                }
+                                return;
+                            }
 
-                            boatName:
-                                boatName.value.trim(),
+                            const saved = data.reservation;
+                            const reservation = {
+                                id: saved.reservationId,
+                                email: email.value.trim().toLowerCase(),
+                                boatName: saved.boatName,
+                                boatLength: saved.boatLengthFt,
+                                slipSize: saved.slipSizeFt,
+                                slipNumber: saved.slipNumber,
+                                checkIn: saved.checkInDate,
+                                monthlyCost: Number(saved.monthlyCost || 0),
+                                status: "Pending",
+                                createdAt: new Date().toISOString()
+                            };
 
-                            boatLength:
-                                length,
-
-                            slipSize:
-                                requiredSlip,
-
-                            slipNumber:
-                                generateSlipNumber(
-                                    requiredSlip
-                                ),
-
-                            checkIn:
-                                checkIn.value,
-
-                            monthlyCost:
-                                monthlyCost(length),
-
-                            status:
-                                "Pending",
-
-                            createdAt:
-                                new Date()
-                                    .toISOString()
-                        };
-
-
-                        saveReservation(
-                            reservation
-                        );
-
-
-                        message.innerHTML =
-                            '<div class="notice success">' +
-                                "<strong>Reservation created.</strong> " +
-                                "Your reservation ID is " +
-                                escapeHTML(reservation.id) +
-                                "." +
-                            "</div>";
-
-
-                        /*
-                         * Pass the reservation data directly to the
-                         * Summary page as well as saving it locally.
-                         *
-                         * This makes the prototype work when the HTML
-                         * files are opened directly and when they are
-                         * served through localhost / XAMPP.
-                         */
-                        const reservationData =
-                            encodeURIComponent(
-                                JSON.stringify(
-                                    getReservations()
-                                )
+                            // Keep only the current account's new reservation locally
+                            // for the existing Summary page. History itself is loaded
+                            // securely from the database by reservation-lookup.html.
+                            localStorage.setItem(
+                                RESERVATION_KEY,
+                                JSON.stringify([reservation])
+                            );
+                            localStorage.setItem(
+                                CURRENT_RESERVATION_KEY,
+                                String(reservation.id)
                             );
 
-                        const currentReservationId =
-                            encodeURIComponent(
-                                reservation.id
-                            );
+                            message.innerHTML =
+                                '<div class="notice success">' +
+                                    "<strong>Reservation created.</strong> " +
+                                    "Your reservation ID is " +
+                                    escapeHTML(reservation.id) +
+                                    "." +
+                                "</div>";
 
-                        window.setTimeout(
-                            function () {
-                                window.location.href =
-                                    "reservation-summary.html" +
-                                    "?data=" +
-                                    reservationData +
-                                    "&current=" +
-                                    currentReservationId;
-                            },
-                            400
-                        );
+                            window.location.href =
+                                data.redirect ||
+                                ("reservation-summary.html?id=" + encodeURIComponent(reservation.id));
+
+                        } catch (error) {
+                            message.innerHTML =
+                                '<div class="notice warning">' +
+                                    "<strong>Unable to create reservation.</strong> " +
+                                    "Could not connect to the reservation service." +
+                                "</div>";
+                        } finally {
+                            submitButton.disabled = false;
+                            submitButton.textContent = "CREATE RESERVATION";
+                        }
                     }
                 );
 

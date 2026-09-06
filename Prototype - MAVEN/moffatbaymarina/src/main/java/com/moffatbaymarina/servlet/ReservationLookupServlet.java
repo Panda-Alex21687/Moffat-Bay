@@ -55,17 +55,20 @@ public class ReservationLookupServlet extends HttpServlet {
         String email = clean(request.getParameter("email"));
         Long sessionCustomerId = authenticatedCustomerId(request);
 
+        if (sessionCustomerId == null) {
+            writeJson(response, HttpServletResponse.SC_UNAUTHORIZED,
+                    error("Log in to view your reservation history."));
+            return;
+        }
+
         try {
             ReservationDAO reservationDAO = new ReservationDAO();
             List<Reservation> reservations;
             if (reservationId != null || !email.isBlank()) {
-                reservations = reservationDAO.search(reservationId, email);
-            } else if (sessionCustomerId != null) {
-                reservations = reservationDAO.findByCustomerId(sessionCustomerId);
+                reservations = reservationDAO.searchForCustomer(
+                        sessionCustomerId, reservationId, email);
             } else {
-                writeJson(response, 422, // nothing to search by at all - don't just dump every reservation
-                        error("Enter a reservation ID or email address."));
-                return;
+                reservations = reservationDAO.findByCustomerId(sessionCustomerId);
             }
 
             List<Map<String, Object>> results = new ArrayList<>();
@@ -144,6 +147,7 @@ public class ReservationLookupServlet extends HttpServlet {
     private void prepareJson(HttpServletResponse response) {
         response.setContentType("application/json");
         response.setCharacterEncoding("UTF-8");
+        response.setHeader("Cache-Control", "no-store");
     }
 
     private void writeJson(HttpServletResponse response, int status, Object body)
