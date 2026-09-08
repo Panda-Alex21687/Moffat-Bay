@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Reserve a Slip - Moffat Bay Marina</title>
+    <title>Reservation Confirmation - Moffat Bay Marina</title>
 
     <link rel="stylesheet" href="/styles.css">
     <link rel="stylesheet" href="/footer.css">
@@ -26,49 +26,42 @@
 </header>
 
 <main>
+
     <section class="login-container">
 
-        <h2>Reserve a Marina Slip</h2>
+        <h2>Reservation Confirmed</h2>
 
         <p>
-            You selected:
-            <strong id="selectedSlip">Marina Slip</strong>
+            Your marina slip reservation has been successfully submitted.
         </p>
 
         <p>
-            Please review the selected slip and continue with your reservation.
+            <strong>Selected Slip:</strong>
+            <span id="confirmedSlip">Marina Slip</span>
         </p>
 
-        <form action="/reserve-slip" method="post">
-        
-            <input type="hidden" id="slipInput" name="slip">
+        <p>
+            Your reservation is now active in the Moffat Bay Marina system.
+        </p>
 
-            <div>
-                <label for="arrival">Arrival Date</label>
-                <input type="date" id="arrival" name="arrival" required>
-            </div>
-
-            <br>
-
-            <div>
-                <label for="departure">Departure Date</label>
-                <input type="date" id="departure" name="departure" required>
-            </div>
-
-            <br>
-
-            <button type="submit">Continue Reservation</button>
-
-        </form>
+        <p>
+            Thank you for choosing Moffat Bay Marina.
+        </p>
 
         <p>
             <a href="/marina-slips.html">Return to Slip Map</a>
         </p>
 
+        <p>
+            <a href="/post_login.html">Return to Home</a>
+        </p>
+
     </section>
+
 </main>
 
 <footer>
+
     <div class="footer-container">
 
         <div class="footer-item">
@@ -109,6 +102,7 @@
     <div class="footer-bottom">
         <p>&copy; 2026 Moffat Bay Marina. All Rights Reserved.</p>
     </div>
+
 </footer>
 
 <script>
@@ -116,8 +110,7 @@
     const slip = params.get("slip");
 
     if (slip) {
-        document.getElementById("selectedSlip").textContent = slip;
-        document.getElementById("slipInput").value = slip;
+        document.getElementById("confirmedSlip").textContent = slip;
     }
 </script>
 
