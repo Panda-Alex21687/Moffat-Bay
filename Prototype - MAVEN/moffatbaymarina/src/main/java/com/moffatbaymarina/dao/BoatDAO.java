@@ -51,8 +51,8 @@ public class BoatDAO {
             statement.setLong(1, boat.getCustomerId());
             statement.setString(2, boat.getBoatName());
             statement.setBigDecimal(3, boat.getBoatLengthFt());
-            // boat_type and registration_number are optional fields on the form as of now 
-			// a blank becomes a sql null as opposed to a empty "" string
+            // boat_type and registration_number are optional fields on the form as of now
+            // a blank becomes a sql null as opposed to a empty "" string
             statement.setString(4, blankToNull(boat.getBoatType()));
             statement.setString(5, blankToNull(boat.getRegistrationNumber()));
             if (statement.executeUpdate() != 1) {
@@ -82,20 +82,14 @@ public class BoatDAO {
         }
     }
 
-<<<<<<< HEAD
-
-	 // Searchs boat by the primary key. returns only if it belongs to the given customer. this is used when a client is looking for 
-	 // "their vessel". This way other customers cant view other cleints boat information. 
-=======
->>>>>>> 5c82e941f8fdc7abad350cf4481e22126524e7e6
     // Searchs boat by the primary key. returns only if it belongs to the given
     // customer. this is used when a client is looking for
     // "their vessel". This way other customers cant view other cleints boat
     // information.
-<<<<<<< HEAD
-
-=======
->>>>>>> 5c82e941f8fdc7abad350cf4481e22126524e7e6
+    // Searchs boat by the primary key. returns only if it belongs to the given
+    // customer. this is used when a client is looking for
+    // "their vessel". This way other customers cant view other cleints boat
+    // information.
     public Boat findForCustomer(long boatId, long customerId) throws SQLException {
         String sql = "SELECT * FROM boats WHERE boat_id = ? AND customer_id = ?";
         try (Connection connection = DatabaseConnection.getConnection();
