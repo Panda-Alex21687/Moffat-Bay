@@ -47,6 +47,38 @@ CSD460
 
     <!-- Universal Footer Stylesheet - load last -->
     <link rel="stylesheet" href="css/footer.css">
+
+    <!-- Module 7: About Us page-specific image styles.
+         These overrides use existing project images without changing
+         the shared stylesheet used by other Moffat Bay pages. -->
+    <style>
+        .page-hero {
+            background:
+                linear-gradient(
+                    90deg,
+                    rgba(2, 18, 42, 0.82),
+                    rgba(2, 18, 42, 0.28)
+                ),
+                url("images/marina_dock.jpeg")
+                center 50% / cover no-repeat,
+                linear-gradient(
+                    135deg,
+                    #0d3158,
+                    #4d6f89
+                );
+        }
+
+        .marina-photo {
+            background:
+                url("images/moffat_beach.jpg")
+                center 67% / cover no-repeat,
+                linear-gradient(
+                    135deg,
+                    #315976,
+                    #84a2b4
+                );
+        }
+    </style>
 </head>
 
 
