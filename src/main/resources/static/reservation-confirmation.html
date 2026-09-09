@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reservation Confirmation - Moffat Bay Marina</title>
+
+    <link rel="stylesheet" href="/styles.css">
+    <link rel="stylesheet" href="/footer.css">
+</head>
+
+<body>
+
+<header>
+    <h1>
+        MOFFAT BAY
+        <span>MARINA</span>
+    </h1>
+
+    <nav>
+        <a href="/register.html">REGISTER</a>
+        <a href="/about.html">ABOUT US</a>
+        <a href="/contact.html">CONTACT US</a>
+        <a href="/login.html">LOGIN</a>
+    </nav>
+</header>
+
+<main>
+
+    <section class="login-container">
+
+        <h2>Reservation Confirmed</h2>
+
+        <p>
+            Your marina slip reservation has been successfully submitted.
+        </p>
+
+        <p>
+            <strong>Selected Slip:</strong>
+            <span id="confirmedSlip">Marina Slip</span>
+        </p>
+
+        <p>
+            Your reservation is now active in the Moffat Bay Marina system.
+        </p>
+
+        <p>
+            Thank you for choosing Moffat Bay Marina.
+        </p>
+
+        <p>
+            <a href="/marina-slips.html">Return to Slip Map</a>
+        </p>
+
+        <p>
+            <a href="/post_login.html">Return to Home</a>
+        </p>
+
+    </section>
+
+</main>
+
+<footer>
+
+    <div class="footer-container">
+
+        <div class="footer-item">
+            <div class="footer-icon">⚓</div>
+            <div>
+                <h3>Visit Us</h3>
+                <p>Moffat Bay Marina</p>
+                <p>Oceanside, Washington</p>
+            </div>
+        </div>
+
+        <div class="footer-item">
+            <div class="footer-icon">☎</div>
+            <div>
+                <h3>Call Us</h3>
+                <p>(555) 123-4567</p>
+            </div>
+        </div>
+
+        <div class="footer-item">
+            <div class="footer-icon">✦</div>
+            <div>
+                <h3>VHF Channel</h3>
+                <p>Channel 16</p>
+            </div>
+        </div>
+
+        <div class="footer-item">
+            <div class="footer-icon">✉</div>
+            <div>
+                <h3>Email Us</h3>
+                <p>info@moffatbaymarina.com</p>
+            </div>
+        </div>
+
+    </div>
+
+    <div class="footer-bottom">
+        <p>&copy; 2026 Moffat Bay Marina. All Rights Reserved.</p>
+    </div>
+
+</footer>
+
+<script>
+    const params = new URLSearchParams(window.location.search);
+    const slip = params.get("slip");
+
+    if (slip) {
+        document.getElementById("confirmedSlip").textContent = slip;
+    }
+</script>
+
+</body>
+</html>
