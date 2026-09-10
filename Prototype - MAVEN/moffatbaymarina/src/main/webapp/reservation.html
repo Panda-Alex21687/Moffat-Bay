@@ -235,6 +235,20 @@ CSD460
                     </div>
 
 
+                       <!-- !!!!!!!!!!!!!! Modification to make electric service optional Max 9-9-26 !!!!!!!!!!!!!!! -->
+                    <div class="item">
+ 
+                        <label class="label" for="electricIncluded">
+                            Electric Service
+                        </label>
+ 
+                        <label style="display: flex; align-items: center; gap: 8px; font-weight: normal;">
+                            <input id="electricIncluded" type="checkbox">
+                            Include electric (+$10/month)
+                        </label>
+ 
+                    </div>
+                    
                     <div class="item">
 
                         <span class="label">
@@ -461,6 +475,7 @@ CSD460
                 : null;
         }
 
+
         function requiredSlipSize(boatLength) {
             const length = Number(boatLength);
 
@@ -483,8 +498,8 @@ CSD460
             return null;
         }
 
-        function monthlyCost(boatLength) {
-            return (Number(boatLength) * 10) + 10;
+        function monthlyCost(boatLength) { // !!!!!!!! Modified to increase price by 5% for 10.5 vs just 10. Also electic system activation is optional 
+            return (Number(boatLength) * 10.5) + (electricIncluded ? 10 : 0);
         }
 
         function generateReservationId() {
@@ -582,6 +597,9 @@ CSD460
 
                 const checkIn =
                     document.getElementById("checkIn");
+
+                const electricIncluded = // !!!! Modified 9-9-26 to allow for optional electical 
+                    document.getElementById("electricIncluded");
 
                 const slipSize =
                     document.getElementById("slipSize");
@@ -696,7 +714,7 @@ CSD460
 
                     cost.textContent =
                         "$" +
-                        monthlyCost(length)
+                        monthlyCost(length, electricIncluded.checked) // MODDED here to include the opted electrical service to be calculated 
                             .toFixed(2) +
                         "/month";
                 }
@@ -707,7 +725,11 @@ CSD460
                     updateEstimate
                 );
 
-
+                // Added this to allow for a rerun of the estimate when the electical checkbox is toggled to show the customer the estimate change 9-9-26
+                electricIncluded.addEventListener(
+                    "change",
+                    updateEstimate
+                );
                 /*
                  * Create a new reservation.
                  */
@@ -783,6 +805,7 @@ CSD460
                                 slipNumber: saved.slipNumber,
                                 checkIn: saved.checkInDate,
                                 monthlyCost: Number(saved.monthlyCost || 0),
+                                electricIncluded: Boolean(saved.electricIncluded), // added 9-9-26 for electical 
                                 status: "Pending",
                                 createdAt: new Date().toISOString()
                             };

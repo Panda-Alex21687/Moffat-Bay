@@ -70,6 +70,7 @@ public class ReservationServlet extends HttpServlet {
         String checkInValue = text(data, "checkInDate");
         if (checkInValue.isBlank()) checkInValue = text(data, "checkIn");
         String expectedTerm = text(data, "expectedTerm");
+        boolean electricIncluded = bool(data, "electricIncluded", false);
 
         if ((boatId == null && boatName.isBlank()) || checkInValue.isBlank()
                 || expectedTerm.isBlank()) {
@@ -112,10 +113,14 @@ public class ReservationServlet extends HttpServlet {
                 return;
             }
 
+            
+            // Modified by Max 9/9/26 the electrical fee getting included in only if client has opted in for it.
             BigDecimal monthlyCost = boat.getBoatLengthFt()
-                    .multiply(slipType.getRatePerFoot())
-                    .add(slipType.getElectricFee())
-                    .setScale(2, RoundingMode.HALF_UP);
+                    .multiply(slipType.getRatePerFoot());
+            if (electricIncluded) {
+                monthlyCost = monthlyCost.add(slipType.getElectricFee());
+            }
+            monthlyCost = monthlyCost.setScale(2, RoundingMode.HALF_UP);
 
             try (Connection connection = DatabaseConnection.getConnection()) {
                 connection.setAutoCommit(false);
@@ -141,6 +146,7 @@ public class ReservationServlet extends HttpServlet {
                     reservation.setCheckInDate(checkInDate);
                     reservation.setExpectedTerm(expectedTerm);
                     reservation.setMonthlyCost(monthlyCost);
+                    reservation.setElectricIncluded(electricIncluded);
                     reservation.setStatus("PENDING");
                     reservationDAO.insert(connection, reservation);
                     // Matches the supplied seed pattern: PENDING reservation--- HELD slip.
@@ -248,6 +254,7 @@ public class ReservationServlet extends HttpServlet {
         map.put("checkInDate", reservation.getCheckInDate().toString());
         map.put("expectedTerm", reservation.getExpectedTerm());
         map.put("monthlyCost", reservation.getMonthlyCost());
+        map.put("electricIncluded", reservation.isElectricIncluded()); // mod max 9/9/26
         map.put("status", reservation.getStatus());
         return map;
     }
@@ -275,6 +282,13 @@ public class ReservationServlet extends HttpServlet {
         if (node == null || node.isNull() || node.asText("").isBlank()) return null;
         try { return Long.valueOf(node.asText()); }
         catch (NumberFormatException e) { return null; }
+    }
+
+    
+    // Modification Max 9/9/26 to read field bool, fall back to default no charge if left emtpy, thi sis an opt in system 
+    private boolean bool(JsonNode data, String field, boolean defaultValue) {
+        JsonNode node = data.get(field);
+        return node == null || node.isNull() ? defaultValue : node.asBoolean(defaultValue);
     }
 
     private String text(JsonNode data, String field) {

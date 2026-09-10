@@ -342,11 +342,11 @@ CSD460
            Reservation history is loaded from the
            database for the authenticated session.
         ======================================== */
-
+ 
         const RESERVATION_KEY = "moffatBayReservations";
         const CURRENT_RESERVATION_KEY = "moffatBayCurrentReservationId";
         let accountReservations = [];
-
+ 
         function escapeHTML(value) {
             return String(value ?? "")
                 .replaceAll("&", "&amp;")
@@ -355,23 +355,23 @@ CSD460
                 .replaceAll('"', "&quot;")
                 .replaceAll("'", "&#039;");
         }
-
+ 
         function displayStatus(status) {
             const value = String(status || "PENDING").toUpperCase();
             return value.charAt(0) + value.slice(1).toLowerCase();
         }
-
+ 
         function statusHTML(status) {
             const display = displayStatus(status);
             const cssClass = display === "Cancelled"
                 ? "status cancelled"
                 : "status";
-
+ 
             return '<span class="' + cssClass + '">' +
                 escapeHTML(display) +
                 '</span>';
         }
-
+ 
         function normalizeReservation(reservation) {
             return {
                 id: reservation.reservationId,
@@ -384,12 +384,13 @@ CSD460
                 checkIn: reservation.checkInDate || "",
                 expectedTerm: reservation.expectedTerm || "",
                 monthlyCost: Number(reservation.monthlyCost || 0),
+                electricIncluded: Boolean(reservation.electricIncluded), // added for electrical 
                 status: displayStatus(reservation.status),
                 createdAt: reservation.createdAt || "",
                 cancelledAt: reservation.cancelledAt || null
             };
         }
-
+ 
         async function requestReservations(params = new URLSearchParams()) {
             const query = params.toString();
             const response = await fetch(
@@ -400,14 +401,14 @@ CSD460
                     headers: { "Accept": "application/json" }
                 }
             );
-
+ 
             let data = {};
             try {
                 data = await response.json();
             } catch (error) {
                 data = { message: "The server returned an invalid response." };
             }
-
+ 
             if (!response.ok || !data.ok) {
                 const requestError = new Error(
                     data.message || "Unable to load reservations."
@@ -415,10 +416,10 @@ CSD460
                 requestError.status = response.status;
                 throw requestError;
             }
-
+ 
             return (data.reservations || []).map(normalizeReservation);
         }
-
+ 
         function resultHTML(reservation) {
             return (
                 '<div class="grid">' +
@@ -454,6 +455,15 @@ CSD460
                         '<span class="label">Status</span>' +
                         '<span class="value">' + statusHTML(reservation.status) + '</span>' +
                     '</div>' +
+                    // electric service row added on 9-9-26
+                    '<div class="item">' +
+                        '<span class="label">Electric Service</span>' +
+                        '<span class="value">' + (
+                            reservation.electricIncluded
+                                ? '<span class="status">Included</span>'
+                                : '<span class="status cancelled">Not included</span>'
+                        ) + '</span>' +
+                    '</div>' +
                     '<div class="item">' +
                         '<span class="label">Monthly Cost</span>' +
                         '<span class="cost">$' + reservation.monthlyCost.toFixed(2) + '/month</span>' +
@@ -466,15 +476,15 @@ CSD460
                 '</div>'
             );
         }
-
+ 
         async function searchReservations() {
             const reservationId = document.getElementById("rid").value.trim();
             const email = document.getElementById("email").value.trim();
             const result = document.getElementById("result");
             const resultBody = document.getElementById("resultBody");
-
+ 
             result.style.display = "block";
-
+ 
             if (!reservationId && !email) {
                 resultBody.innerHTML =
                     '<div class="notice warning">' +
@@ -482,17 +492,17 @@ CSD460
                     '</div>';
                 return;
             }
-
+ 
             resultBody.innerHTML =
                 '<div class="notice info">Searching your reservations...</div>';
-
+ 
             const params = new URLSearchParams();
             if (reservationId) params.set("reservationId", reservationId);
             if (email) params.set("email", email);
-
+ 
             try {
                 const matches = await requestReservations(params);
-
+ 
                 if (matches.length === 0) {
                     resultBody.innerHTML =
                         '<div class="notice warning">' +
@@ -501,7 +511,7 @@ CSD460
                         '</div>';
                     return;
                 }
-
+ 
                 resultBody.innerHTML = matches
                     .map(resultHTML)
                     .join('<div style="height: 18px;"></div>');
@@ -509,34 +519,34 @@ CSD460
                 showLookupError(resultBody, error);
             }
         }
-
+ 
         function openSummary(id) {
             localStorage.setItem(CURRENT_RESERVATION_KEY, String(id));
             localStorage.setItem(RESERVATION_KEY, JSON.stringify(accountReservations));
             window.location.href = "reservation-summary.html?id=" +
                 encodeURIComponent(id);
         }
-
+ 
         async function renderHistory() {
             const history = document.getElementById("history");
-
+ 
             // Remove prototype history before loading the authenticated account.
             localStorage.removeItem(RESERVATION_KEY);
             localStorage.removeItem(CURRENT_RESERVATION_KEY);
-
+ 
             history.innerHTML =
                 '<div class="notice info">Loading your reservation history...</div>';
-
+ 
             try {
                 accountReservations = await requestReservations();
-
+ 
                 // Keep only this authenticated customer's records available to
                 // the existing summary page during this browser session.
                 localStorage.setItem(
                     RESERVATION_KEY,
                     JSON.stringify(accountReservations)
                 );
-
+ 
                 if (accountReservations.length === 0) {
                     history.innerHTML =
                         '<div class="notice info">' +
@@ -544,7 +554,7 @@ CSD460
                         '</div>';
                     return;
                 }
-
+ 
                 // The DAO already returns newest reservations first.
                 history.innerHTML = accountReservations
                     .map(reservation =>
@@ -565,6 +575,15 @@ CSD460
                                 '<span class="label">Status</span>' +
                                 '<span class="value">' + statusHTML(reservation.status) + '</span>' +
                             '</div>' +
+                            // ADDED: electric service row
+                            '<div class="item">' +
+                                '<span class="label">Electric Service</span>' +
+                                '<span class="value">' + (
+                                    reservation.electricIncluded
+                                        ? '<span class="status">Included</span>'
+                                        : '<span class="status cancelled">Not included</span>'
+                                ) + '</span>' +
+                            '</div>' +
                             '<div class="actions" style="grid-column: 1 / -1;">' +
                                 '<button class="btn secondary" type="button" onclick="openSummary(\'' +
                                     escapeHTML(reservation.id) +
@@ -577,7 +596,7 @@ CSD460
                 showLookupError(history, error);
             }
         }
-
+ 
         function showLookupError(container, error) {
             if (error.status === 401) {
                 container.innerHTML =
@@ -587,18 +606,18 @@ CSD460
                     '</div>';
                 return;
             }
-
+ 
             container.innerHTML =
                 '<div class="notice warning">' +
                 escapeHTML(error.message || "Unable to load reservations.") +
                 '</div>';
         }
-
+ 
         document.getElementById("searchButton").addEventListener(
             "click",
             searchReservations
         );
-
+ 
         document.getElementById("clearButton").addEventListener(
             "click",
             function () {
@@ -607,24 +626,24 @@ CSD460
                 document.getElementById("result").style.display = "none";
             }
         );
-
+ 
         document.getElementById("rid").addEventListener(
             "keydown",
             function (event) {
                 if (event.key === "Enter") searchReservations();
             }
         );
-
+ 
         document.getElementById("email").addEventListener(
             "keydown",
             function (event) {
                 if (event.key === "Enter") searchReservations();
             }
         );
-
+ 
         document.addEventListener("DOMContentLoaded", renderHistory);
     </script>
-
+ 
 </body>
-
+ 
 </html>

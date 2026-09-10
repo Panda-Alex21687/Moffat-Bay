@@ -292,6 +292,18 @@ CSD460
                     ></span>
                 </div>
 
+                <!-- addition shows whether electric service was selected Max 9-9-26-->
+                <div class="item">
+                    <span class="label">
+                        Electric Service
+                    </span>
+ 
+                    <span
+                        class="value"
+                        id="electricService"
+                    ></span>
+                </div>
+
 
                 <div class="item">
                     <span class="label">
@@ -502,7 +514,7 @@ CSD460
         }
 
         function monthlyCost(boatLength) {
-            return (Number(boatLength) * 10) + 10;
+            return (Number(boatLength) * 10.5) + (electricIncluded ? 10 : 0); //Modified on 9-9-26
         }
 
         function generateReservationId() {
@@ -516,40 +528,40 @@ CSD460
             );
         }
 
-        function generateSlipNumber(slipSize) {
+               function generateSlipNumber(slipSize) {
             const reservations = getReservations();
-
+ 
             const used = reservations.filter(
                 reservation =>
                     Number(reservation.slipSize) ===
                         Number(slipSize) &&
                     reservation.status !== "Cancelled"
             ).length;
-
+ 
             const dockLetters = ["A", "B", "C"];
-
+ 
             let startingSlip = 1;
-
+ 
             if (Number(slipSize) === 26) {
                 startingSlip = 8;
             }
             else if (Number(slipSize) === 40) {
                 startingSlip = 4;
             }
-
+ 
             const dock =
                 dockLetters[
                     Math.floor(used / 8) %
                     dockLetters.length
                 ];
-
+ 
             return (
                 dock +
                 "-" +
                 (startingSlip + (used % 8))
             );
         }
-
+ 
         function statusHTML(status) {
             if (status === "Cancelled") {
                 return (
@@ -558,14 +570,14 @@ CSD460
                     "</span>"
                 );
             }
-
+ 
             return (
                 '<span class="status">' +
                 (status || "Pending") +
                 "</span>"
             );
         }
-
+ 
         function escapeHTML(value) {
             return String(value ?? "")
                 .replaceAll("&", "&amp;")
@@ -574,42 +586,42 @@ CSD460
                 .replaceAll('"', "&quot;")
                 .replaceAll("'", "&#039;");
         }
-
-
+ 
+ 
         /* ========================================
            SUMMARY PAGE FUNCTIONALITY
         ======================================== */
-
+ 
         /*
          * Imports reservation information passed from
          * reservation.html.
          */
         function importReservationDataFromURL() {
-
+ 
             const params =
                 new URLSearchParams(
                     window.location.search
                 );
-
+ 
             const data =
                 params.get("data");
-
+ 
             const currentId =
                 params.get("current") || params.get("id");
-
-
+ 
+ 
             if (data) {
                 try {
-
+ 
                     const reservations =
                         JSON.parse(data);
-
+ 
                     if (Array.isArray(reservations)) {
                         saveReservations(
                             reservations
                         );
                     }
-
+ 
                 }
                 catch (error) {
                     console.error(
@@ -618,8 +630,8 @@ CSD460
                     );
                 }
             }
-
-
+ 
+ 
             if (currentId) {
                 localStorage.setItem(
                     CURRENT_RESERVATION_KEY,
@@ -627,8 +639,8 @@ CSD460
                 );
             }
         }
-
-
+ 
+ 
         /*
          * Creates a Lookup page URL containing the
          * current reservation history.
@@ -638,16 +650,16 @@ CSD460
             // server-side session, so no reservation data is placed in the URL.
             return "reservation-lookup.html";
         }
-
-
+ 
+ 
         /*
          * Updates normal Lookup navigation links so
          * they carry the reservation data forward.
          */
         function updateLookupLinks() {
-
+ 
             const url = lookupURL();
-
+ 
             document
                 .querySelectorAll(
                     'a[href="reservation-lookup.html"]'
@@ -658,101 +670,110 @@ CSD460
                     }
                 );
         }
-
-
+ 
+ 
         function render() {
-
+ 
             const reservation =
                 getCurrentReservation();
-
+ 
             const summaryCard =
                 document.getElementById(
                     "summaryCard"
                 );
-
+ 
             const noReservation =
                 document.getElementById(
                     "noReservation"
                 );
-
-
+ 
+ 
             if (!reservation) {
-
+ 
                 summaryCard.style.display =
                     "none";
-
+ 
                 noReservation.style.display =
                     "block";
-
+ 
                 return;
             }
-
-
+ 
+ 
             summaryCard.style.display =
                 "block";
-
+ 
             noReservation.style.display =
                 "none";
-
-
+ 
+ 
             document.getElementById(
                 "id"
             ).textContent =
                 reservation.id;
-
-
+ 
+ 
             document.getElementById(
                 "idTop"
             ).textContent =
                 reservation.id;
-
-
+ 
+ 
             document.getElementById(
                 "email"
             ).textContent =
                 reservation.email;
-
-
+ 
+ 
             document.getElementById(
                 "boatName"
             ).textContent =
                 reservation.boatName;
-
-
+ 
+ 
             document.getElementById(
                 "boatLength"
             ).textContent =
                 reservation.boatLength +
                 " ft";
-
-
+ 
+ 
             document.getElementById(
                 "slipSize"
             ).textContent =
                 reservation.slipSize +
                 " ft";
-
-
+ 
+ 
             document.getElementById(
                 "slipNumber"
             ).textContent =
                 reservation.slipNumber;
-
-
+ 
+ 
             document.getElementById(
                 "checkIn"
             ).textContent =
                 reservation.checkIn;
-
-
+ 
+ 
             document.getElementById(
                 "status"
             ).innerHTML =
                 statusHTML(
                     reservation.status
                 );
-
-
+ 
+ 
+            // Mod by Max 9-9-26: shows whether electric was included on this reservation
+            document.getElementById(
+                "electricService"
+            ).innerHTML =
+                reservation.electricIncluded
+                    ? '<span class="status">Included</span>'
+                    : '<span class="status cancelled">Not included</span>';
+ 
+ 
             document.getElementById(
                 "cost"
             ).textContent =
@@ -761,62 +782,62 @@ CSD460
                     reservation.monthlyCost
                 ).toFixed(2) +
                 "/month";
-
-
+ 
+ 
             const actions =
                 document.getElementById(
                     "actions"
                 );
-
-
+ 
+ 
             if (
                 reservation.status ===
                 "Cancelled"
             ) {
-
+ 
                 actions.innerHTML =
                     '<a class="btn primary" href="reservation.html">' +
                         "CREATE NEW RESERVATION" +
                     "</a>" +
-
+ 
                     '<a class="btn secondary" href="' +
                         lookupURL() +
                     '">' +
                         "VIEW HISTORY" +
                     "</a>";
             }
-
+ 
             else if (
                 reservation.status ===
                 "Confirmed"
             ) {
-
+ 
                 actions.innerHTML =
                     '<a class="btn secondary" href="' +
                         lookupURL() +
                     '">' +
                         "LOOK UP RESERVATION" +
                     "</a>" +
-
+ 
                     '<button class="btn danger" type="button" onclick="cancelReservation()">' +
                         "CANCEL RESERVATION" +
                     "</button>";
             }
-
+ 
             else {
-
+ 
                 actions.innerHTML =
                     '<button class="btn primary" type="button" onclick="confirmReservation()">' +
                         "CONFIRM RESERVATION" +
                     "</button>" +
-
+ 
                     '<button class="btn danger" type="button" onclick="cancelReservation()">' +
                         "CANCEL RESERVATION" +
                     "</button>";
             }
         }
-
-
+ 
+ 
         async function updateReservationStatus(reservation, status) {
             const response = await fetch("reservation", {
                 method: "PUT",
@@ -830,7 +851,7 @@ CSD460
                     status: status
                 })
             });
-
+ 
             const data = await response.json();
             if (!response.ok || !data.ok) {
                 const error = new Error(
@@ -839,31 +860,31 @@ CSD460
                 error.status = response.status;
                 throw error;
             }
-
+ 
             return data;
         }
-
-
+ 
+ 
         async function confirmReservation() {
-
+ 
             const reservation = getCurrentReservation();
             if (!reservation) return;
-
+ 
             const message = document.getElementById("message");
-
+ 
             try {
                 await updateReservationStatus(reservation, "CONFIRMED");
-
+ 
                 reservation.status = "Confirmed";
                 saveReservation(reservation);
                 updateLookupLinks();
-
+ 
                 message.innerHTML =
                     '<div class="notice success">' +
                         "<strong>Reservation confirmed.</strong> " +
                         "Your reservation is now marked as confirmed." +
                     "</div>";
-
+ 
                 render();
             } catch (error) {
                 message.innerHTML =
@@ -872,35 +893,35 @@ CSD460
                     "</div>";
             }
         }
-
-
+ 
+ 
         async function cancelReservation() {
-
+ 
             const reservation = getCurrentReservation();
             if (!reservation) return;
-
+ 
             const approved = confirm(
                 "Cancel reservation " + reservation.id + "?"
             );
-
+ 
             if (!approved) return;
-
+ 
             const message = document.getElementById("message");
-
+ 
             try {
                 await updateReservationStatus(reservation, "CANCELLED");
-
+ 
                 reservation.status = "Cancelled";
                 reservation.cancelledAt = new Date().toISOString();
                 saveReservation(reservation);
                 updateLookupLinks();
-
+ 
                 message.innerHTML =
                     '<div class="notice warning">' +
                         "<strong>Reservation cancelled.</strong> " +
                         "The cancelled reservation remains available in reservation history." +
                     "</div>";
-
+ 
                 render();
             } catch (error) {
                 message.innerHTML =
@@ -909,22 +930,22 @@ CSD460
                     "</div>";
             }
         }
-
-
+ 
+ 
         document.addEventListener(
             "DOMContentLoaded",
             function () {
-
+ 
                 importReservationDataFromURL();
-
+ 
                 updateLookupLinks();
-
+ 
                 render();
             }
         );
-
+ 
     </script>
-
+ 
 </body>
-
+ 
 </html>

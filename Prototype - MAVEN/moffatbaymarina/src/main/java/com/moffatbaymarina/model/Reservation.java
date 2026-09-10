@@ -23,6 +23,7 @@ public class Reservation {
     private long slipId;
     private LocalDate checkInDate;
     private String expectedTerm; // free text here so 6 months 12 months etc
+    private boolean electricIncluded; // added on 9/9/26 to reflect our new opt in for electric method 
     private BigDecimal monthlyCost; // we still need to work on this, I think we should make elec. optional when calculating cost
     private String status; // status can be pending, confirmed or cancelled
     private LocalDateTime createdAt;
@@ -33,14 +34,15 @@ public class Reservation {
     // other constructor that field matches  ReservationDAO's map() method
     public Reservation(long reservationId, long customerId, long boatId, long slipId,
                        LocalDate checkInDate, String expectedTerm, BigDecimal monthlyCost,
-                       String status, LocalDateTime createdAt, LocalDateTime cancelledAt) {
+                       boolean electricIncluded, String status, LocalDateTime createdAt, LocalDateTime cancelledAt) {
         this.reservationId = reservationId;
         this.customerId = customerId;
         this.boatId = boatId;
         this.slipId = slipId;
         this.checkInDate = checkInDate;
-        this.expectedTerm = expectedTerm;
+        this.expectedTerm = expectedTerm;        
         this.monthlyCost = monthlyCost;
+        this.electricIncluded = electricIncluded; // Added to allow user to opt into the elctric feature, Max 9/9/26
         this.status = status;
         this.createdAt = createdAt;
         this.cancelledAt = cancelledAt;
@@ -60,6 +62,8 @@ public class Reservation {
     public void setExpectedTerm(String expectedTerm) { this.expectedTerm = expectedTerm; }
     public BigDecimal getMonthlyCost() { return monthlyCost; }
     public void setMonthlyCost(BigDecimal monthlyCost) { this.monthlyCost = monthlyCost; }
+    public boolean isElectricIncluded() { return electricIncluded; }
+    public void setElectricIncluded(boolean electricIncluded) { this.electricIncluded = electricIncluded; } // Added by Max 9/9/26 for elec opt in 
     public String getStatus() { return status; }
     public void setStatus(String status) { this.status = status; }
     public LocalDateTime getCreatedAt() { return createdAt; }

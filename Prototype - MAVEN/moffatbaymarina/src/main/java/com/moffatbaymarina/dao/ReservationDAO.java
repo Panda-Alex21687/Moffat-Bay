@@ -39,7 +39,7 @@ public class ReservationDAO {
                  expected_term, monthly_cost, status, cancelled_at)
                 VALUES (?, ?, ?, ?, ?, ?, ?, ?)
                 """;
-        try (PreparedStatement statement = connection.prepareStatement(
+try (PreparedStatement statement = connection.prepareStatement(
                 sql, Statement.RETURN_GENERATED_KEYS)) {
             statement.setLong(1, reservation.getCustomerId());
             statement.setLong(2, reservation.getBoatId());
@@ -47,18 +47,19 @@ public class ReservationDAO {
             statement.setDate(4, Date.valueOf(reservation.getCheckInDate()));
             statement.setString(5, reservation.getExpectedTerm());
             statement.setBigDecimal(6, reservation.getMonthlyCost());
-            statement.setString(7, reservation.getStatus());
-
-            if (reservation.getCancelledAt() == null) { // a new reservation is never 'already' canceled. The column
-                                                        // still has to be given a null value
-                statement.setNull(8, java.sql.Types.TIMESTAMP);
+                       
+            statement.setBoolean(7, reservation.isElectricIncluded()); // added for elec opt in, Mod by Max 9/9. This flag marks if customer wants elect. at slip
+            statement.setString(8, reservation.getStatus());          
+            if (reservation.getCancelledAt() == null) {
+                statement.setNull(9, java.sql.Types.TIMESTAMP);
             } else {
-                statement.setTimestamp(8, Timestamp.valueOf(reservation.getCancelledAt()));
+                statement.setTimestamp(9, Timestamp.valueOf(reservation.getCancelledAt()));
             }
             if (statement.executeUpdate() != 1) {
                 throw new SQLException("Reservation insert did not create one row.");
             }
-
+            // AUTO_INCREMENT means reservation_id isn't known until after
+            // the insert runs, so it's read back from the generated keys.
             try (ResultSet keys = statement.getGeneratedKeys()) {
                 if (!keys.next()) {
                     throw new SQLException("No reservation_id was generated.");
@@ -242,6 +243,7 @@ public class ReservationDAO {
         reservation.setCheckInDate(checkIn == null ? null : checkIn.toLocalDate());
         reservation.setExpectedTerm(result.getString("expected_term"));
         reservation.setMonthlyCost(result.getBigDecimal("monthly_cost"));
+        reservation.setElectricIncluded(result.getBoolean("electric_included")); //Modified by Max 9/9/26 to include electic at slip reservation 
         reservation.setStatus(result.getString("status"));
         Timestamp created = result.getTimestamp("created_at");
         reservation.setCreatedAt(created == null ? null : created.toLocalDateTime());
