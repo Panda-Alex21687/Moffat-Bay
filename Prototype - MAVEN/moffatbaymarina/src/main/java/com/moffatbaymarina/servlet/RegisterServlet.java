@@ -10,22 +10,6 @@ Modified by Max on 9-4-26
 
 package com.moffatbaymarina.servlet;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.moffatbaymarina.config.DatabaseConnection;
-import com.moffatbaymarina.dao.BoatDAO;
-import com.moffatbaymarina.dao.CustomerDAO;
-import com.moffatbaymarina.dao.EmailVerificationDAO;
-import com.moffatbaymarina.model.Boat;
-import com.moffatbaymarina.model.Customer;
-import com.moffatbaymarina.model.EmailVerification;
-import jakarta.servlet.annotation.WebServlet;
-import jakarta.servlet.http.HttpServlet;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
-import jakarta.servlet.http.HttpSession;
-import org.mindrot.jbcrypt.BCrypt;
-
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.security.MessageDigest;
@@ -39,6 +23,25 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.regex.Pattern;
 
+import org.mindrot.jbcrypt.BCrypt;
+
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.moffatbaymarina.config.DatabaseConnection;
+import com.moffatbaymarina.dao.BoatDAO;
+import com.moffatbaymarina.dao.CustomerDAO;
+import com.moffatbaymarina.dao.EmailVerificationDAO;
+import com.moffatbaymarina.model.Boat;
+import com.moffatbaymarina.model.Customer;
+import com.moffatbaymarina.model.EmailVerification;
+import com.moffatbaymarina.service.EmailService;
+
+import jakarta.mail.MessagingException;
+import jakarta.servlet.annotation.WebServlet;
+import jakarta.servlet.http.HttpServlet;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+
 // POST /register - creates the customer, their first boat, and an
 // email verification token all in one go. Expects JSON in the body
 // (register.html's script builds the exact shape we read below).
@@ -49,15 +52,16 @@ public class RegisterServlet extends HttpServlet {
     private static final Pattern EMAIL = Pattern.compile("^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$");
     private static final Pattern ZIP = Pattern.compile("^\\d{5}(-\\d{4})?$");
 
-  
-	 // will validate each field, then if the customer with the email doesnt exist will insert the row with cleint and boat. 
-	 // if any of the inserts fail all are rolled back as one. 	
+    // will validate each field, then if the customer with the email doesnt exist
+    // will insert the row with cleint and boat.
+    // if any of the inserts fail all are rolled back as one.
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws IOException {
         prepareJson(response);
         JsonNode data = readJson(request, response);
-        if (data == null) return;
+        if (data == null)
+            return;
 
         String firstName = text(data, "firstName");
         String lastName = text(data, "lastName");
@@ -116,13 +120,16 @@ public class RegisterServlet extends HttpServlet {
                         error("An account already exists for this email address."));
                 return;
             }
-			// customer + boat + verification token all inserted together -
-            // if any one fails, everything rolls back so we never end up
-            // with half an account 
+
+            Customer customer = new Customer();
+            Boat boat = new Boat();
+            String rawToken = generateVerificationToken();
+
+            // Customer + boat + verification token are inserted in one transaction.
+            // If any database operation fails, the whole registration is rolled back.
             try (Connection connection = DatabaseConnection.getConnection()) {
                 connection.setAutoCommit(false);
                 try {
-                    Customer customer = new Customer();
                     customer.setFirstName(firstName);
                     customer.setLastName(lastName);
                     customer.setPhone(phone);
@@ -131,13 +138,10 @@ public class RegisterServlet extends HttpServlet {
                     customer.setState(state);
                     customer.setZip(zip);
                     customer.setEmail(email);
-                    // Real password hashing unlike the prototype-phasedatabase setup class this project also has. controls how slow/expensive this hash is
-                    // to compute, which is what keeps it resistant to brute-force attempts even years from now.
                     customer.setPasswordHash(BCrypt.hashpw(password, BCrypt.gensalt(12)));
                     customer.setEmailVerified(false);
                     customerDAO.insert(connection, customer);
 
-                    Boat boat = new Boat();
                     boat.setCustomerId(customer.getCustomerId());
                     boat.setBoatName(boatName);
                     boat.setBoatLengthFt(boatLength);
@@ -145,8 +149,6 @@ public class RegisterServlet extends HttpServlet {
                     boat.setRegistrationNumber(blankToNull(registrationNumber));
                     boatDAO.insert(connection, boat);
 
-                    // random token we'd normally email out, only its hash gets stored. see the sha256() section below
-                    String rawToken = generateVerificationToken();
                     EmailVerification verification = new EmailVerification();
                     verification.setCustomerId(customer.getCustomerId());
                     verification.setTokenHash(sha256(rawToken));
@@ -154,22 +156,6 @@ public class RegisterServlet extends HttpServlet {
                     verificationDAO.insert(connection, verification);
 
                     connection.commit();
-
-                    HttpSession session = request.getSession(true);
-                    session.setAttribute("customerId", customer.getCustomerId());
-                    session.setAttribute("email", customer.getEmail());
-                    session.setAttribute("firstName", customer.getFirstName());
-
-                    Map<String, Object> body = new LinkedHashMap<>();
-                    body.put("ok", true);
-                    body.put("message", "Account and boat information saved.");
-                    body.put("customerId", customer.getCustomerId());
-                    body.put("boatId", boat.getBoatId());
-                    body.put("emailVerified", false);
-                    // Prototype only: a real site would email this token.
-                    body.put("verificationToken", rawToken);
-                    body.put("verificationUrl", "verification.html?token=" + rawToken);
-                    writeJson(response, HttpServletResponse.SC_CREATED, body);
                 } catch (SQLException | RuntimeException e) {
                     connection.rollback();
                     throw e;
@@ -177,6 +163,36 @@ public class RegisterServlet extends HttpServlet {
                     connection.setAutoCommit(true);
                 }
             }
+
+            // Email is sent after the database transaction commits. A temporary SMTP
+            // failure should not roll back an account that was already saved correctly.
+            boolean emailSent = true;
+            try {
+                EmailService.sendVerificationEmail(
+                        customer.getEmail(),
+                        customer.getFirstName(),
+                        rawToken);
+            } catch (MessagingException | RuntimeException e) {
+                emailSent = false;
+                log("Registration succeeded, but verification email could not be sent", e);
+            }
+
+            Map<String, Object> body = new LinkedHashMap<>();
+            body.put("ok", true);
+            body.put("message", emailSent
+                    ? "Account and boat information saved. Verification email sent."
+                    : "Account and boat information saved, but the verification email could not be sent.");
+            body.put("customerId", customer.getCustomerId());
+            body.put("boatId", boat.getBoatId());
+            body.put("emailVerified", false);
+            body.put("emailSent", emailSent);
+
+            // Kept for the course prototype so the verification flow can still be
+            // tested locally even if SMTP credentials are not configured.
+            body.put("verificationToken", rawToken);
+            body.put("verificationUrl", "verification.html?token=" + rawToken);
+
+            writeJson(response, HttpServletResponse.SC_CREATED, body);
         } catch (SQLException e) {
             log("Registration database error", e);
             writeJson(response, HttpServletResponse.SC_INTERNAL_SERVER_ERROR,
@@ -188,7 +204,8 @@ public class RegisterServlet extends HttpServlet {
         }
     }
 
-    // matches the rule shown on register.html: 8+ chars, upper, lower, digit, and a special character
+    // matches the rule shown on register.html: 8+ chars, upper, lower, digit, and a
+    // special character
     private boolean validPassword(String password) {
         return password.length() >= 8
                 && password.matches(".*[A-Z].*")
@@ -197,21 +214,24 @@ public class RegisterServlet extends HttpServlet {
                 && password.matches(".*[^A-Za-z0-9].*");
     }
 
-    // 32 random bytes, url-safe base64 so it drops straight into a link with no escaping needed - this is the raw token we'd email out
-	// https://www.geeksforgeeks.org/java/url-encoding-decoding-using-base64-in-java/
+    // 32 random bytes, url-safe base64 so it drops straight into a link with no
+    // escaping needed - this is the raw token we'd email out
+    // https://www.geeksforgeeks.org/java/url-encoding-decoding-using-base64-in-java/
     private String generateVerificationToken() {
         byte[] bytes = new byte[32];
         RANDOM.nextBytes(bytes);
         return Base64.getUrlEncoder().withoutPadding().encodeToString(bytes);
     }
 
-    // one-way hash of the token before we store it. look at EmailVerificationDAO.findValid for how this gets checked later
+    // one-way hash of the token before we store it. look at
+    // EmailVerificationDAO.findValid for how this gets checked later
     private String sha256(String value) {
         try {
             MessageDigest digest = MessageDigest.getInstance("SHA-256");
             byte[] bytes = digest.digest(value.getBytes(java.nio.charset.StandardCharsets.UTF_8));
             StringBuilder hex = new StringBuilder();
-            for (byte current : bytes) hex.append(String.format("%02x", current));
+            for (byte current : bytes)
+                hex.append(String.format("%02x", current));
             return hex.toString();
         } catch (NoSuchAlgorithmException e) {
             throw new IllegalStateException("Unable to hash verification token.", e);
@@ -232,9 +252,13 @@ public class RegisterServlet extends HttpServlet {
 
     private BigDecimal decimal(JsonNode data, String field) {
         JsonNode node = data.get(field);
-        if (node == null || node.isNull()) return null;
-        try { return new BigDecimal(node.asText().trim()); }
-        catch (NumberFormatException e) { return null; }
+        if (node == null || node.isNull())
+            return null;
+        try {
+            return new BigDecimal(node.asText().trim());
+        } catch (NumberFormatException e) {
+            return null;
+        }
     }
 
     private String text(JsonNode data, String field) {

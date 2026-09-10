@@ -13,6 +13,7 @@
 /Users/alexbaldree/csd/Moffat-Bay/Prototype - MAVEN/moffatbaymarina/src/main/java/com/moffatbaymarina/model/Slip.java
 /Users/alexbaldree/csd/Moffat-Bay/Prototype - MAVEN/moffatbaymarina/src/main/java/com/moffatbaymarina/model/SlipType.java
 /Users/alexbaldree/csd/Moffat-Bay/Prototype - MAVEN/moffatbaymarina/src/main/java/com/moffatbaymarina/model/WaitlistEntry.java
+/Users/alexbaldree/csd/Moffat-Bay/Prototype - MAVEN/moffatbaymarina/src/main/java/com/moffatbaymarina/service/EmailService.java
 /Users/alexbaldree/csd/Moffat-Bay/Prototype - MAVEN/moffatbaymarina/src/main/java/com/moffatbaymarina/servlet/AboutServlet.java
 /Users/alexbaldree/csd/Moffat-Bay/Prototype - MAVEN/moffatbaymarina/src/main/java/com/moffatbaymarina/servlet/AvailabilityServlet.java
 /Users/alexbaldree/csd/Moffat-Bay/Prototype - MAVEN/moffatbaymarina/src/main/java/com/moffatbaymarina/servlet/LandingServlet.java

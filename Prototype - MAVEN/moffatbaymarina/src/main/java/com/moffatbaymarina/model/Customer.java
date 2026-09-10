@@ -7,7 +7,8 @@ Jordan Dardar
 Green team Module 5
 Modified by Max on 9-4-26
 
-*/package com.moffatbaymarina.model;
+*/
+package com.moffatbaymarina.model;
 
 import java.time.LocalDateTime;
 

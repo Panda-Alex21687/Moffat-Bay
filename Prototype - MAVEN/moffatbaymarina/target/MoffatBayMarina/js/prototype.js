@@ -108,16 +108,62 @@ CSD460
   function setupVerification() {
     const emailText = el('verificationEmail');
     const customerIdText = el('customerId');
-    if (emailText) emailText.textContent = sessionStorage.getItem('moffatPrototypeEmail') || 'customer@example.com';
-    if (customerIdText) customerIdText.textContent = sessionStorage.getItem('moffatPrototypeCustomerId') || 'MB-00000';
     const verifyBtn = el('verifyBtn');
-    if (verifyBtn) {
-      verifyBtn.addEventListener('click', () => {
+    const notice = el('verificationNotice');
+
+    if (!verifyBtn) return;
+
+    const storedEmail = sessionStorage.getItem('moffatPrototypeEmail');
+    const storedCustomerId = sessionStorage.getItem('moffatPrototypeCustomerId');
+    if (emailText) emailText.textContent = storedEmail || 'Email address from your registration';
+    if (customerIdText) customerIdText.textContent = storedCustomerId || 'Account pending verification';
+
+    const token = new URLSearchParams(window.location.search).get('token');
+
+    async function verifyToken() {
+      if (!token) {
+        if (notice) {
+          notice.textContent = 'No verification token was found in this link. Please use the verification link from your email.';
+        }
+        return;
+      }
+
+      verifyBtn.disabled = true;
+      verifyBtn.textContent = 'Verifying...';
+      if (notice) notice.textContent = 'Checking your verification token with the server...';
+
+      try {
+        const response = await fetch('verification', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json'
+          },
+          body: JSON.stringify({ token: token })
+        });
+
+        const body = await response.json();
+
+        if (!response.ok || !body.ok) {
+          throw new Error(body.message || 'Email verification could not be completed.');
+        }
+
         sessionStorage.setItem('moffatPrototypeVerified', 'true');
         el('verificationPending').classList.add('hidden');
         el('verificationComplete').classList.remove('hidden');
-      });
+      } catch (error) {
+        if (notice) {
+          notice.textContent = error.message || 'Email verification could not be completed.';
+        }
+        verifyBtn.disabled = false;
+        verifyBtn.textContent = 'Try Verification Again';
+      }
     }
+
+    verifyBtn.addEventListener('click', verifyToken);
+
+    // Opening the link from EmailService automatically verifies the token.
+    if (token) verifyToken();
   }
 
   function setupLogin() {
