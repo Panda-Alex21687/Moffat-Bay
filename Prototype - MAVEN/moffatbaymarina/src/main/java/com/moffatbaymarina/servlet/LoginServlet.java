@@ -28,7 +28,6 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 
-
 // POST /login - checks email + password, makes sure the account is
 // verified, then starts a session. Handles both a JSON body (AJAX-style)
 // and a plain HTML form post, so we don't need two separate endpoints.
@@ -36,9 +35,10 @@ import jakarta.servlet.http.HttpSession;
 public class LoginServlet extends HttpServlet {
     private static final ObjectMapper JSON = new ObjectMapper();
 
-   	 
-	 //looking up client by email, verifies password. If both check out starts a fresh session that holds customer Id. 
-	 //422 if credentials are blank, 401 if either email doesnt exist or passeord wrong 403 if email verified field null
+    // looking up client by email, verifies password. If both check out starts a
+    // fresh session that holds customer Id.
+    // 422 if credentials are blank, 401 if either email doesnt exist or passeord
+    // wrong 403 if email verified field null
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws IOException {
@@ -54,7 +54,8 @@ public class LoginServlet extends HttpServlet {
             return;
         }
 
-        try {   // same error message either way, bad email or bad password. This way nobody can use a failed login to figure out which emails exist
+        try { // same error message either way, bad email or bad password. This way nobody can
+              // use a failed login to figure out which emails exist
             Customer customer = new CustomerDAO().findByEmail(email);
             if (customer == null || !passwordMatches(password, customer.getPasswordHash())) {
                 writeJson(response, HttpServletResponse.SC_UNAUTHORIZED,
@@ -69,8 +70,8 @@ public class LoginServlet extends HttpServlet {
                 return;
             }
 
-			// kills any old pre-login session first so it can't get hijacked
-            // onto this account 
+            // kills any old pre-login session first so it can't get hijacked
+            // onto this account
             HttpSession oldSession = request.getSession(false);
             if (oldSession != null)
                 oldSession.invalidate();
@@ -94,8 +95,9 @@ public class LoginServlet extends HttpServlet {
         }
     }
 
-	// New accounts will use real BCrypt hashes. but for prototyping we will still seed in plain text. so this falls back to a straight
-    // string compare for those until the seed data gets converted. 
+    // New accounts will use real BCrypt hashes. but for prototyping we will still
+    // seed in plain text. so this falls back to a straight
+    // string compare for those until the seed data gets converted.
     private boolean passwordMatches(String password, String storedValue) {
         if (storedValue == null || storedValue.isBlank())
             return false;
@@ -119,8 +121,10 @@ public class LoginServlet extends HttpServlet {
         return password.equals(storedValue);
     }
 
-   // grabs email/password from JSON if that's what gets sent, otherwise should fall back to normal request params 
-	//Checks both "email"/"password" and the "loginEmail"/"loginPassword" names some of our HTML uses
+    // grabs email/password from JSON if that's what gets sent, otherwise should
+    // fall back to normal request params
+    // Checks both "email"/"password" and the "loginEmail"/"loginPassword" names
+    // some of our HTML uses
     private String[] readCredentials(HttpServletRequest request,
             HttpServletResponse response) throws IOException {
         String contentType = request.getContentType();

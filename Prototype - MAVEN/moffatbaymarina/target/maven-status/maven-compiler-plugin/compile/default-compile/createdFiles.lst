@@ -23,4 +23,5 @@ com/moffatbaymarina/servlet/RegisterServlet.class
 com/moffatbaymarina/servlet/WaitlistServlet.class
 com/moffatbaymarina/servlet/LoginServlet.class
 com/moffatbaymarina/model/Boat.class
+com/moffatbaymarina/servlet/CurrentUserServlet.class
 com/moffatbaymarina/model/Slip.class

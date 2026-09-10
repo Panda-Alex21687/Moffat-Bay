@@ -404,6 +404,11 @@ Modified by Max 8-22, removing JS Script and allowing this to function as a redi
             localStorage.removeItem("moffatBayReservations");
             localStorage.removeItem("moffatBayCurrentReservationId");
 
+            // Save the authenticated account name returned by LoginServlet.
+            // This comes from the customer record in the database.
+            sessionStorage.setItem("moffatLoggedInFirstName", data.firstName || "Customer");
+            sessionStorage.setItem("moffatLoggedInEmail", data.email || email);
+
             window.location.href = data.redirect || "post_login.html";
 
         } catch (error) {

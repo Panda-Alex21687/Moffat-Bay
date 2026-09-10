@@ -16,6 +16,7 @@
 /Users/alexbaldree/csd/Moffat-Bay/Prototype - MAVEN/moffatbaymarina/src/main/java/com/moffatbaymarina/service/EmailService.java
 /Users/alexbaldree/csd/Moffat-Bay/Prototype - MAVEN/moffatbaymarina/src/main/java/com/moffatbaymarina/servlet/AboutServlet.java
 /Users/alexbaldree/csd/Moffat-Bay/Prototype - MAVEN/moffatbaymarina/src/main/java/com/moffatbaymarina/servlet/AvailabilityServlet.java
+/Users/alexbaldree/csd/Moffat-Bay/Prototype - MAVEN/moffatbaymarina/src/main/java/com/moffatbaymarina/servlet/CurrentUserServlet.java
 /Users/alexbaldree/csd/Moffat-Bay/Prototype - MAVEN/moffatbaymarina/src/main/java/com/moffatbaymarina/servlet/LandingServlet.java
 /Users/alexbaldree/csd/Moffat-Bay/Prototype - MAVEN/moffatbaymarina/src/main/java/com/moffatbaymarina/servlet/LoginServlet.java
 /Users/alexbaldree/csd/Moffat-Bay/Prototype - MAVEN/moffatbaymarina/src/main/java/com/moffatbaymarina/servlet/RegisterServlet.java

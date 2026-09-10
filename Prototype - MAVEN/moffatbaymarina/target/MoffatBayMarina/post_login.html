@@ -167,7 +167,8 @@ Max Jankowski
         <div class="hero-content">
 
             <h1>
-                Welcome Back<br>User 1
+                Welcome Back,<br>
+                <span id="welcomeName">Customer</span>
             </h1>
 
             <div class="gold-line"></div>
@@ -345,6 +346,60 @@ Max Jankowski
 
 
 
+
+<script>
+    document.addEventListener("DOMContentLoaded", async function () {
+        const welcomeName = document.getElementById("welcomeName");
+
+        try {
+            const response = await fetch("current-user", {
+                method: "GET",
+                credentials: "same-origin",
+                cache: "no-store",
+                headers: {
+                    "Accept": "application/json"
+                }
+            });
+
+            const data = await response.json();
+
+            if (!response.ok || !data.ok) {
+                // No authenticated server session exists.
+                window.location.href = data.redirect || "login.html";
+                return;
+            }
+
+            const firstName = (data.firstName || "").trim();
+
+            if (welcomeName) {
+                welcomeName.textContent = firstName || "Customer";
+            }
+
+            // Keep these only as a convenience for other front-end pages.
+            // The server-side session remains the source of truth.
+            if (firstName) {
+                sessionStorage.setItem("moffatLoggedInFirstName", firstName);
+            }
+            if (data.email) {
+                sessionStorage.setItem("moffatLoggedInEmail", data.email);
+            }
+
+        } catch (error) {
+            console.error("Unable to load the logged-in customer:", error);
+            if (welcomeName) {
+                welcomeName.textContent = "Customer";
+            }
+        }
+
+        const logoutLink = document.getElementById("logoutLink");
+        if (logoutLink) {
+            logoutLink.addEventListener("click", function () {
+                sessionStorage.removeItem("moffatLoggedInFirstName");
+                sessionStorage.removeItem("moffatLoggedInEmail");
+            });
+        }
+    });
+</script>
 
 </body>
 
