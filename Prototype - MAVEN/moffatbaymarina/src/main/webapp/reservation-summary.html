@@ -293,6 +293,19 @@ CSD460
                 </div>
 
 
+                <!-- Now showing whether electric service was selected 9-10 -->
+                <div class="item">
+                    <span class="label">
+                        Electric Service
+                    </span>
+
+                    <span
+                        class="value"
+                        id="electricService"
+                    ></span>
+                </div>
+
+
                 <div class="item">
                     <span class="label">
                         Monthly Cost
@@ -501,8 +514,11 @@ CSD460
             return null;
         }
 
-        function monthlyCost(boatLength) {
-            return (Number(boatLength) * 10) + 10;
+        // still keeping in sync with reservation.html's version (rate change to 
+        // 10.50 and electric optional) even though nothing in this file
+        // currently calls this function. 9-10
+        function monthlyCost(boatLength, electricIncluded) {
+            return (Number(boatLength) * 10.5) + (electricIncluded ? 10 : 0);
         }
 
         function generateReservationId() {
@@ -751,6 +767,15 @@ CSD460
                 statusHTML(
                     reservation.status
                 );
+
+
+            // shows whether electric was included on this reservation by client, Added Max 9-10
+            document.getElementById(
+                "electricService"
+            ).innerHTML =
+                reservation.electricIncluded
+                    ? '<span class="status">Included</span>'
+                    : '<span class="status cancelled">Not included</span>';
 
 
             document.getElementById(

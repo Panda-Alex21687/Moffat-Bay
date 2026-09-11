@@ -188,9 +188,9 @@ CSD460
                     </h2>
 
                     <p class="small">
-                        Monthly rate is $10 per foot of boat length
-                        plus $10 for electric power. Boats are assigned
-                        the smallest slip that fits.
+                        Monthly rate is $10.50 per foot of boat length.
+                        Electric power is now optional at $10/month.
+                        Boats are assigned the smallest slip that fits.
                     </p>
 
                 </div>
@@ -243,6 +243,14 @@ CSD460
                     CALCULATE
                 </button>
 
+            </div>
+
+            <!-- electric is now optional -->
+            <div style="margin-top: 16px;">
+                <label style="display: flex; align-items: center; gap: 8px; font-size: 14px;">
+                    <input type="checkbox" id="electricIncluded" onchange="estimate()">
+                    Include electric service (+$10/month)
+                </label>
             </div>
 
         </section>
@@ -304,11 +312,11 @@ CSD460
                 </div>
 
 
-                <!-- Slip Rate -->
+                <!-- Slip Rate changed from 10 to 10.5 to reflect 5% increase -->
                 <div class="item">
 
                     <span class="label">
-                        Slip Rate ($10 / ft)
+                        Slip Rate ($10.50 / ft)
                     </span>
 
                     <span
@@ -323,12 +331,11 @@ CSD460
                 <div class="item">
 
                     <span class="label">
-                        Electric Power (Flat-Rate)
+                        Electric Service
                     </span>
 
-                    <span class="value">
-                        $10 / month
-                    </span>
+                    <!-- This was a static 10 a month, now it all depends on the user input as to the opt in electric feature. Added Max 9-10 -->
+                    <span class="value" id="rElectric"></span>
 
                 </div>
 
@@ -393,7 +400,8 @@ CSD460
                 style="margin: 4px 0 18px;"
             >
                 Cost is based on your boat length, not the slip size.
-                Electric power is included in the examples below.
+                Figures below are base rate only - add $10/month if
+                you'd like electric service.
             </p>
 
 
@@ -408,7 +416,7 @@ CSD460
                     </span>
 
                     <span class="value">
-                        $270 / month
+                        $273 / month
                     </span>
 
                 </div>
@@ -422,7 +430,7 @@ CSD460
                     </span>
 
                     <span class="value">
-                        $350 / month
+                        $357 / month
                     </span>
 
                 </div>
@@ -436,7 +444,7 @@ CSD460
                     </span>
 
                     <span class="value">
-                        $410 / month
+                        $420 / month
                     </span>
 
                 </div>
@@ -450,7 +458,7 @@ CSD460
                     </span>
 
                     <span class="value">
-                        $510 / month
+                        $525 / month
                     </span>
 
                 </div>
@@ -638,8 +646,9 @@ CSD460
 
 
             /* Get current availability and cost. */
-            const available = availableSlips(size);
-            const cost = monthlyCost(len);
+            const available = availableSlips(size);           
+            const electricOn = document.getElementById("electricIncluded").checked; // the elec opt in check box is read and passed to monthlyCost
+            const cost = monthlyCost(len, electricOn);
 
 
             /* Boat length */
@@ -673,6 +682,14 @@ CSD460
                         ' available</span>'
                     : '<span class="status cancelled">' +
                         'Fully reserved</span>';
+
+
+           
+            document.getElementById( // added the electric service selection. if checkbox selected then the 10 is added, instead of always on, 9-10 Max
+                "rElectric"
+            ).innerHTML = electricOn
+                ? '<span class="status">Included (+$10/mo)</span>'
+                : '<span class="status cancelled">Not included</span>';
 
 
             /* Estimated monthly cost */

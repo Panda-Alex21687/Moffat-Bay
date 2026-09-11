@@ -36,3 +36,9 @@ out/
 ### VS Code ###
 .vscode/
 src/main/resources/application.properties
+# Ignore Maven build output
+target/
+*.class
+
+# Ignore OS-specific system files
+.DS_Store

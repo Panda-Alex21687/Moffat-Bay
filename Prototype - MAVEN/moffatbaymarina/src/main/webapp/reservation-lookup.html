@@ -383,7 +383,8 @@ CSD460
                 slipNumber: reservation.slipNumber || "",
                 checkIn: reservation.checkInDate || "",
                 expectedTerm: reservation.expectedTerm || "",
-                monthlyCost: Number(reservation.monthlyCost || 0),
+                monthlyCost: Number(reservation.monthlyCost || 0),               
+                electricIncluded: Boolean(reservation.electricIncluded), // added whether electric service was selected 9-10
                 status: displayStatus(reservation.status),
                 createdAt: reservation.createdAt || "",
                 cancelledAt: reservation.cancelledAt || null
@@ -453,6 +454,15 @@ CSD460
                     '<div class="item">' +
                         '<span class="label">Status</span>' +
                         '<span class="value">' + statusHTML(reservation.status) + '</span>' +
+                    '</div>' +
+                    //  electric service row addition 9-10
+                    '<div class="item">' +
+                        '<span class="label">Electric Service</span>' +
+                        '<span class="value">' + (
+                            reservation.electricIncluded
+                                ? '<span class="status">Included</span>'
+                                : '<span class="status cancelled">Not included</span>'
+                        ) + '</span>' +
                     '</div>' +
                     '<div class="item">' +
                         '<span class="label">Monthly Cost</span>' +
@@ -564,6 +574,15 @@ CSD460
                             '<div class="item">' +
                                 '<span class="label">Status</span>' +
                                 '<span class="value">' + statusHTML(reservation.status) + '</span>' +
+                            '</div>' +
+                            // adding the electric service row 9-10 Max
+                            '<div class="item">' +
+                                '<span class="label">Electric Service</span>' +
+                                '<span class="value">' + (
+                                    reservation.electricIncluded
+                                        ? '<span class="status">Included</span>'
+                                        : '<span class="status cancelled">Not included</span>'
+                                ) + '</span>' +
                             '</div>' +
                             '<div class="actions" style="grid-column: 1 / -1;">' +
                                 '<button class="btn secondary" type="button" onclick="openSummary(\'' +
