@@ -237,16 +237,24 @@ CSD460
 
                     <!-- electric service is now optional. Max 9-10-26 -->
                     <div class="item">
-
+ 
                         <label class="label" for="electricIncluded">
                             Electric Service
                         </label>
-
-                        <label style="display: flex; align-items: center; gap: 8px; font-weight: normal;">
-                            <input id="electricIncluded" type="checkbox">
-                            Include electric (+$10/month)
-                        </label>
-
+ 
+                        <!-- Had to tinker a bit with this one, Im sure its not great
+                         I don't have much of on eye for aesthtics, feel free to change style. -->
+                        <div class="consent-row">
+                            <input
+                                id="electricIncluded"
+                                type="checkbox"
+                                style="width: 20px; height: 20px;"
+                            >
+                            <label for="electricIncluded">
+                                Include electric (+$10/month)
+                            </label>
+                        </div>
+ 
                     </div>
 
 

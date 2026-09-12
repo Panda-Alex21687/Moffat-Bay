@@ -85,7 +85,7 @@ public class ReservationLookupServlet extends HttpServlet {
         }
     }
 
-     // builds the full display info for one reservation - looks up
+    // builds the full display info for one reservation - looks up
     // customer/boat/slip/slip type separately per reservation. Kind of
     // a N+1 query pattern, fine for our scale but worth knowing about
     private Map<String, Object> details(Reservation reservation) throws SQLException {
@@ -108,6 +108,7 @@ public class ReservationLookupServlet extends HttpServlet {
                 : reservation.getCheckInDate().toString());
         map.put("expectedTerm", reservation.getExpectedTerm());
         map.put("monthlyCost", reservation.getMonthlyCost());
+        map.put("electricIncluded", reservation.isElectricIncluded()); //adding to see if this fixs the positive indicator in summary
         map.put("status", reservation.getStatus());
         map.put("createdAt", reservation.getCreatedAt() == null ? null
                 : reservation.getCreatedAt().toString());

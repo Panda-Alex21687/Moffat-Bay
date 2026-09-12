@@ -477,7 +477,7 @@ CSD460
             );
         }
 
-        async function searchReservations() {
+        async function searchReservations() { 
             const reservationId = document.getElementById("rid").value.trim();
             const email = document.getElementById("email").value.trim();
             const result = document.getElementById("result");
@@ -501,7 +501,20 @@ CSD460
             if (email) params.set("email", email);
 
             try {
-                const matches = await requestReservations(params);
+                const matches = await requestReservations(params); //fetching the result
+
+                matches.forEach(function (match) { // need to add open Summary() only saves reservation to localStorage modded by Max 9-12-26
+                    const existingIndex = accountReservations.findIndex(
+                        function (item) {
+                            return String(item.id) === String(match.id);
+                        }
+                    );
+                    if (existingIndex >= 0) {
+                        accountReservations[existingIndex] = match;
+                    } else {
+                        accountReservations.push(match);
+                    }
+                });
 
                 if (matches.length === 0) {
                     resultBody.innerHTML =
