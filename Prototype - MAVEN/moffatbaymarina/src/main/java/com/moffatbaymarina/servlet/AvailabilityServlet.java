@@ -73,8 +73,13 @@ public class AvailabilityServlet extends HttpServlet {
                 if (required == null) {                    
                     body.put("requiredSlipType", null);// Boat is longer than the largest slip category offered.
                     body.put("message", "No slip type can accommodate this boat.");
-                } else {  // same cost formula as everywhere else: length * rate + electric
-                    BigDecimal estimatedCost = boatLength.multiply(required.getRatePerFoot())
+                } else {  // same cost formula as everywhere else: length * rate + electric                    
+                    
+                    //Modification made here as the elec is now optional, thus estimate below is base cost only
+                    // the electicalFee selected is seperate so that it can be seen what this option does to the total cost 9-10 Max
+                    BigDecimal baseCost = boatLength.multiply(required.getRatePerFoot())
+                            .setScale(2, RoundingMode.HALF_UP);
+                    BigDecimal costWithElectric = baseCost
                             .add(required.getElectricFee())
                             .setScale(2, RoundingMode.HALF_UP);
                     Map<String, Object> requiredMap = new LinkedHashMap<>();
@@ -82,7 +87,9 @@ public class AvailabilityServlet extends HttpServlet {
                     requiredMap.put("sizeFt", required.getSizeFt());
                     requiredMap.put("availableCount",
                             slipDAO.countAvailable(required.getSlipTypeId()));
-                    requiredMap.put("estimatedMonthlyCost", estimatedCost);
+                    requiredMap.put("estimatedMonthlyCost", baseCost);
+                    requiredMap.put("electricFeeIfSelected", required.getElectricFee());
+                    requiredMap.put("estimatedMonthlyCostWithElectric", costWithElectric);
                     body.put("requiredSlipType", requiredMap);
                 }
             }

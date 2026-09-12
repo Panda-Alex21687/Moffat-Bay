@@ -36,7 +36,7 @@ public class ReservationDAO {
         String sql = """
                 INSERT INTO reservations
                 (customer_id, boat_id, slip_id, check_in_date,
-                 expected_term, monthly_cost, status, cancelled_at)
+                 expected_term, monthly_cost, electric_included, status, cancelled_at)
                 VALUES (?, ?, ?, ?, ?, ?, ?, ?)
                 """;
         try (PreparedStatement statement = connection.prepareStatement(
@@ -47,13 +47,14 @@ public class ReservationDAO {
             statement.setDate(4, Date.valueOf(reservation.getCheckInDate()));
             statement.setString(5, reservation.getExpectedTerm());
             statement.setBigDecimal(6, reservation.getMonthlyCost());
-            statement.setString(7, reservation.getStatus());
+            statement.setBoolean(7, reservation.isElectricIncluded()); // addition for elec opt in Max 9-10-26
+            statement.setString(8, reservation.getStatus());
 
             if (reservation.getCancelledAt() == null) { // a new reservation is never 'already' canceled. The column
                                                         // still has to be given a null value
-                statement.setNull(8, java.sql.Types.TIMESTAMP);
+                statement.setNull(9, java.sql.Types.TIMESTAMP);
             } else {
-                statement.setTimestamp(8, Timestamp.valueOf(reservation.getCancelledAt()));
+                statement.setTimestamp(9, Timestamp.valueOf(reservation.getCancelledAt()));
             }
             if (statement.executeUpdate() != 1) {
                 throw new SQLException("Reservation insert did not create one row.");
@@ -72,8 +73,7 @@ public class ReservationDAO {
     /**
      * Looks up a reservation by primary key, using its own short-lived
      * connection - for read-only lookups outside of any transaction.
-     *
-     * @return the matching reservation, or {@code null} if none exists
+   
      */
     public Reservation findById(long reservationId) throws SQLException {
         String sql = "SELECT * FROM reservations WHERE reservation_id = ?";
@@ -242,6 +242,7 @@ public class ReservationDAO {
         reservation.setCheckInDate(checkIn == null ? null : checkIn.toLocalDate());
         reservation.setExpectedTerm(result.getString("expected_term"));
         reservation.setMonthlyCost(result.getBigDecimal("monthly_cost"));
+        reservation.setElectricIncluded(result.getBoolean("electric_included")); // added for electrical opt in 
         reservation.setStatus(result.getString("status"));
         Timestamp created = result.getTimestamp("created_at");
         reservation.setCreatedAt(created == null ? null : created.toLocalDateTime());
