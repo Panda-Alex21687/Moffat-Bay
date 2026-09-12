@@ -79,6 +79,7 @@ CSD460
                 );
         }
     </style>
+    <link rel="stylesheet" href="css/about.css">
 </head>
 
 
@@ -137,11 +138,7 @@ CSD460
                         </a>
                     </li>
 
-                    <li>
-                        <a href="contact.html">
-                            CONTACT US
-                        </a>
-                    </li>
+
 
                     <li>
                         <a href="reservation.html">
@@ -254,7 +251,63 @@ CSD460
              MARINA INFORMATION CARDS
         ======================================== -->
 
-        <section class="info-band">
+
+    <!-- ISSUE 65 CONTACT MERGE START -->
+    <!-- Client-requested contact information merged into About Us.
+         Employee image created with ChatGPT and stored locally in the project images folder. -->
+    <section class="about-contact-section">
+        <div class="about-contact-layout">
+            <div class="about-contact-employee">
+                <img
+                    src="images/moffat-bay-employee-pointing.png"
+                    alt="Moffat Bay Marina employee pointing toward the contact form"
+                >
+            </div>
+
+            <div class="about-contact-form-card">
+                <h3>Send Us a Message</h3>
+                <p>Send us your information and message below.</p>
+
+                <form class="about-contact-form">
+                    <div class="about-contact-form-row">
+                        <div class="about-contact-field">
+                            <label for="contactFirstName">First Name</label>
+                            <input type="text" id="contactFirstName" name="firstName">
+                        </div>
+
+                        <div class="about-contact-field">
+                            <label for="contactLastName">Last Name</label>
+                            <input type="text" id="contactLastName" name="lastName">
+                        </div>
+                    </div>
+
+                    <div class="about-contact-form-row">
+                        <div class="about-contact-field">
+                            <label for="contactEmail">Email Address</label>
+                            <input type="email" id="contactEmail" name="email">
+                        </div>
+
+                        <div class="about-contact-field">
+                            <label for="contactPhone">Phone Number</label>
+                            <input type="tel" id="contactPhone" name="phone">
+                        </div>
+                    </div>
+
+                    <div class="about-contact-field">
+                        <label for="contactMessage">Message</label>
+                        <textarea id="contactMessage" name="message" rows="5"></textarea>
+                    </div>
+
+                    <button type="button" class="about-contact-button">
+                        SEND MESSAGE
+                    </button>
+                </form>
+            </div>
+
+        </div>
+    </section>
+    <!-- ISSUE 65 CONTACT MERGE END -->
+<section class="info-band">
 
             <div class="info-grid">
 
@@ -336,12 +389,7 @@ CSD460
                 an account in later user stories.
             </p>
 
-            <a
-                href="contact.html"
-                class="btn btn-primary"
-            >
-                CONTACT THE MARINA
-            </a>
+
 
         </section>
 
