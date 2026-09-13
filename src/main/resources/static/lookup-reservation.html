@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Look Up Reservation - Moffat Bay Marina</title>
+
+    <link rel="stylesheet" href="/styles.css">
+    <link rel="stylesheet" href="/footer.css">
+</head>
+
+<body>
+
+<header>
+    <div class="header-container">
+        <a href="/marina-slips.html" class="logo">
+            <span class="logo-anchor">⚓</span>
+            <span class="logo-text">
+                <strong>MOFFAT BAY</strong>
+                <small>MARINA</small>
+            </span>
+        </a>
+
+        <nav>
+            <a href="/marina-slips.html">Marina</a>
+            <a href="/lookup-reservation.html">Look Up Reservation</a>
+        </nav>
+    </div>
+</header>
+
+<main class="page-content">
+
+    <h1>Look Up Reservation</h1>
+
+    <p>Enter your reservation information below to view your reservation.</p>
+
+    <form action="/lookup-reservation" method="post">
+
+        <div class="form-group">
+            <label for="reservationId">Reservation ID</label>
+            <input
+                type="number"
+                id="reservationId"
+                name="reservationId"
+                required>
+        </div>
+
+        <div class="form-group">
+            <label for="email">Email Address</label>
+            <input
+                type="email"
+                id="email"
+                name="email"
+                required>
+        </div>
+
+        <button type="submit">Look Up Reservation</button>
+
+    </form>
+
+</main>
+
+<footer>
+    <div class="footer-container">
+
+        <div class="footer-item">
+            <div class="footer-icon">⚓</div>
+            <div>
+                <h3>Moffat Bay Marina</h3>
+                <p>Enjoy your stay on the bay.</p>
+            </div>
+        </div>
+
+        <div class="footer-item">
+            <div class="footer-icon">📍</div>
+            <div>
+                <h3>Location</h3>
+                <p>Moffat Bay Marina</p>
+            </div>
+        </div>
+
+        <div class="footer-item">
+            <div class="footer-icon">✉</div>
+            <div>
+                <h3>Email Us</h3>
+                <p>info@moffatbaymarina.com</p>
+            </div>
+        </div>
+
+    </div>
+
+    <div class="footer-bottom">
+        <p>&copy; 2026 Moffat Bay Marina. All Rights Reserved.</p>
+    </div>
+</footer>
+
+</body>
+</html>

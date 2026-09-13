@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reservation Details - Moffat Bay Marina</title>
+
+    <link rel="stylesheet" href="/styles.css">
+    <link rel="stylesheet" href="/footer.css">
+</head>
+
+<body>
+
+<header>
+    <div class="header-container">
+        <a href="/marina-slips.html" class="logo">
+            <span class="logo-anchor">⚓</span>
+            <span class="logo-text">
+                <strong>MOFFAT BAY</strong>
+                <small>MARINA</small>
+            </span>
+        </a>
+
+        <nav>
+            <a href="/marina-slips.html">Marina</a>
+            <a href="/lookup-reservation.html">Look Up Reservation</a>
+        </nav>
+    </div>
+</header>
+
+<main class="page-content">
+
+    <h1>Reservation Details</h1>
+
+    <div id="result">
+        <p>Loading reservation information...</p>
+    </div>
+
+    <p>
+        <a href="/lookup-reservation.html">Look Up Another Reservation</a>
+    </p>
+
+</main>
+
+<footer>
+    <div class="footer-container">
+
+        <div class="footer-item">
+            <div class="footer-icon">⚓</div>
+            <div>
+                <h3>Moffat Bay Marina</h3>
+                <p>Enjoy your stay on the bay.</p>
+            </div>
+        </div>
+
+        <div class="footer-item">
+            <div class="footer-icon">📍</div>
+            <div>
+                <h3>Location</h3>
+                <p>Moffat Bay Marina</p>
+            </div>
+        </div>
+
+        <div class="footer-item">
+            <div class="footer-icon">✉</div>
+            <div>
+                <h3>Email Us</h3>
+                <p>info@moffatbaymarina.com</p>
+            </div>
+        </div>
+
+    </div>
+
+    <div class="footer-bottom">
+        <p>&copy; 2026 Moffat Bay Marina. All Rights Reserved.</p>
+    </div>
+</footer>
+
+<script>
+    fetch("/lookup-reservation-result")
+        .then(response => response.json())
+        .then(data => {
+
+            const result = document.getElementById("result");
+
+            if (data.error) {
+                result.innerHTML = "<p>" + data.error + "</p>";
+                return;
+            }
+
+            result.innerHTML = `
+                <div class="reservation-details">
+                    <p><strong>Reservation ID:</strong> ${data.reservation_id}</p>
+                    <p><strong>Customer:</strong> ${data.first_name} ${data.last_name}</p>
+                    <p><strong>Email:</strong> ${data.email}</p>
+                    <p><strong>Slip:</strong> ${data.slip_number}</p>
+                    <p><strong>Check-In Date:</strong> ${data.check_in_date}</p>
+                    <p><strong>Expected Term:</strong> ${data.expected_term}</p>
+                    <p><strong>Monthly Cost:</strong> $${data.monthly_cost}</p>
+                    <p><strong>Status:</strong> ${data.status}</p>
+                </div>
+            `;
+        })
+        .catch(() => {
+            document.getElementById("result").innerHTML =
+                "<p>Unable to retrieve reservation information.</p>";
+        });
+</script>
+
+</body>
+</html>
