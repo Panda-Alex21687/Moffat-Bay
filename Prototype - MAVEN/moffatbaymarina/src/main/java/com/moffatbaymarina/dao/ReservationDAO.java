@@ -37,7 +37,7 @@ public class ReservationDAO {
                 INSERT INTO reservations
                 (customer_id, boat_id, slip_id, check_in_date,
                  expected_term, monthly_cost, electric_included, status, cancelled_at)
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
                 """;
         try (PreparedStatement statement = connection.prepareStatement(
                 sql, Statement.RETURN_GENERATED_KEYS)) {
