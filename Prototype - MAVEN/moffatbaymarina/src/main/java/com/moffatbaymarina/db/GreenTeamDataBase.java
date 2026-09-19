@@ -15,7 +15,7 @@ In addition to this java file, I will add a db.properties file as from what I re
 
  */
 
-package com.moffatbaymarina.db;
+package com.moffatbay.db;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -92,10 +92,12 @@ public class GreenTeamDataBase {
 
     
 	// Modified on 8-28 by Max. removed notes field. not in finalized ERD
-    private record ReservationSeed(
-            String ownerEmail, String slipNumber, String checkInDate,
-            String expectedTerm, double monthlyCost, boolean electricIncluded, // again here added the electic option 
-            String status, String cancelledAt
+    // ADDED new field departureDate, inserted after checkInDate
+	private record ReservationSeed(
+        String ownerEmail, String slipNumber, String checkInDate,
+        String departureDate,                       // ADDED 9-17-26
+        String expectedTerm, double monthlyCost,
+        boolean electricIncluded, String status, String cancelledAt
     ) {}
 
     
@@ -106,9 +108,11 @@ public class GreenTeamDataBase {
     private static final ReservationSeed[] RESERVATION_SEEDS = {
 
         // Priya registered and reserved in one session (26 ft boat so, goes without saying 26 ft slip).
-        new ReservationSeed("priya.sharma@example.com", "A8", "2026-09-01",
-            "12 months", 283.00, true,
-            "CONFIRMED", null), // Removed all the notes from what was once the Notes field. Modified by Max on 8-28
+        // ADDED: a departure date literal added to every seed entry Max 9-17-26
+		new ReservationSeed("priya.sharma@example.com", "A8", "2026-09-01",
+			"2027-09-01",           // ADDED: new departureDate arg
+			"12 months", 283.00, true,
+			"CONFIRMED", null);
 
         // Emily already had a slip reserved (36 ft boat with a 40 ft slip).
         new ReservationSeed("emily.tran@example.com", "B4", "2026-09-15",
@@ -314,6 +318,7 @@ public class GreenTeamDataBase {
                 + "boat_id INT UNSIGNED NOT NULL,"
                 + "slip_id INT UNSIGNED NOT NULL,"
                 + "check_in_date DATE NOT NULL,"
+				"departure_date DATE NULL,"          // added a new nullable column 9-17-26
                 + "expected_term VARCHAR(30) NOT NULL,"
                 + "monthly_cost DECIMAL(10,2) NOT NULL,"                
                 + "electric_included BOOLEAN NOT NULL DEFAULT FALSE," //Modification made here to add the optional opt in electric fee. Max 9-9-26
@@ -575,7 +580,7 @@ public class GreenTeamDataBase {
         String sql = "INSERT INTO reservations "
             + "(customer_id, boat_id, slip_id, check_in_date, expected_term, "
             + "monthly_cost, electric_included, status, cancelled_at) "
-            + "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
+            + "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
         try (PreparedStatement ps = conn.prepareStatement(sql)) {
             for (ReservationSeed r : RESERVATION_SEEDS) {
@@ -583,20 +588,21 @@ public class GreenTeamDataBase {
                 ps.setInt(2, boatIdsByOwnerEmail.get(r.ownerEmail()));
                 ps.setInt(3, slipIdsByNumber.get(r.slipNumber()));
                 ps.setDate(4, Date.valueOf(r.checkInDate()));
-                ps.setString(5, r.expectedTerm());
-                ps.setBigDecimal(6, BigDecimal.valueOf(r.monthlyCost()));
+				ps.setDate(5, Date.valueOf(r.departureDate()));   // ADDED 9-17-2026
+                ps.setString(6, r.expectedTerm());
+                ps.setBigDecimal(7, BigDecimal.valueOf(r.monthlyCost()));
                 // ADDED: electric is now optional per reservation
-                ps.setBoolean(7, r.electricIncluded());
-                ps.setString(8, r.status());
+                ps.setBoolean(8, r.electricIncluded());
+                ps.setString(9, r.status());
 
                 // cancelled_at is nullable - only Casey's row has a
                 // real value; everyone else gets an explicit SQL
                 // NULL via ps.setNull(...) rather than leaving the
                 // parameter unset (which JDBC does not allow).
                 if (r.cancelledAt() != null) {
-                    ps.setTimestamp(9, Timestamp.valueOf(r.cancelledAt()));
+                    ps.setTimestamp(10, Timestamp.valueOf(r.cancelledAt()));
                 } else {
-                    ps.setNull(9, Types.TIMESTAMP);
+                    ps.setNull(10, Types.TIMESTAMP);
                 }
 
                 ps.executeUpdate();

@@ -233,6 +233,24 @@ CSD460
                         >
 
                     </div>
+					
+					<!-- another added field to help with waitlist calculation  -->
+                    <div class="item">
+
+                        <label
+                            class="label"
+                            for="departureDate"
+                        >
+                            Departure Date
+                        </label>
+
+                        <input
+                            id="departureDate"
+                            type="date"
+                            required
+                        >
+
+                    </div>
 
 
                     <!-- electric service is now optional. Max 9-10-26 -->
@@ -607,6 +625,9 @@ CSD460
 
                 const checkIn =
                     document.getElementById("checkIn");
+					
+				const departureDate = // added to script for departure field addition 
+                    document.getElementById("departureDate"); 
 
                 // ADDED: electric-service checkbox
                 const electricIncluded =
@@ -633,6 +654,12 @@ CSD460
                         .split("T")[0];
 
                 checkIn.min = today;
+				
+				departureDate.min = today; // Added min date for depart 9-17-26 
+				
+				checkIn.addEventListener("change", function () { // Added listener to sync depart 9-17
+                    departureDate.min = checkIn.value; // ADDED min date sync for depart 
+                });
 
 
                 /*
@@ -786,6 +813,7 @@ CSD460
                                 body: JSON.stringify({
                                     boatName: boatName.value.trim(),
                                     checkInDate: checkIn.value,
+                                    departureDate: departureDate.value, // ADD field to body 
                                     expectedTerm: "MONTHLY",
                                     electricIncluded: electricIncluded.checked // tells the server to add elec fee to monthly cost 
                                 })
@@ -819,6 +847,7 @@ CSD460
                                 slipSize: saved.slipSizeFt,
                                 slipNumber: saved.slipNumber,
                                 checkIn: saved.checkInDate,
+								departureDate: saved.departureDate, // ADDED filed to saved reservation 
                                 monthlyCost: Number(saved.monthlyCost || 0),
                                 electricIncluded: Boolean(saved.electricIncluded), // added here so the summary page shows if the electric was selected 
                                 status: "Pending",
