@@ -122,6 +122,24 @@ public class WaitlistDAO {
         }
     }
 
+    // added to count customers currently 'WAITING' for a given slip type, with NO
+    // customer_id filter at all. name-free number the public wait list page still needs: show counts only, never who is on the list. 
+    public int countWaiting(long slipTypeId) throws SQLException {
+        // made an addtion here on  9-19 same shape as SlipDAO.countAvailable, just against waitlist_entries
+        String sql = """
+                SELECT COUNT(*) FROM waitlist_entries
+                WHERE slip_type_id = ? AND UPPER(status) = 'WAITING'
+                """;
+        try (Connection connection = DatabaseConnection.getConnection(); // Large addtion to method below
+                PreparedStatement statement = connection.prepareStatement(sql)) { 
+            statement.setLong(1, slipTypeId); 
+            try (ResultSet result = statement.executeQuery()) { 
+                result.next();
+                return result.getInt(1); 
+            }
+        }
+    }
+
     // conversion to @link
     private WaitlistEntry map(ResultSet result) throws SQLException {
         WaitlistEntry entry = new WaitlistEntry();

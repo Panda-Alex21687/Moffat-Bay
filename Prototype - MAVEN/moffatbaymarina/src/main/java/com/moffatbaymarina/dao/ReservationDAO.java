@@ -35,26 +35,33 @@ public class ReservationDAO {
     public Reservation insert(Connection connection, Reservation reservation) throws SQLException {
         String sql = """
                 INSERT INTO reservations
-                (customer_id, boat_id, slip_id, check_in_date,
+                (customer_id, boat_id, slip_id, check_in_date, departure_date,
                  expected_term, monthly_cost, electric_included, status, cancelled_at)
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
-                """;
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                """; // ADDED DEPARTURE_DATE COLUMN, PLACEHOLDER COUNT NOW MATCHES 10 COLUMNS
         try (PreparedStatement statement = connection.prepareStatement(
                 sql, Statement.RETURN_GENERATED_KEYS)) {
             statement.setLong(1, reservation.getCustomerId());
             statement.setLong(2, reservation.getBoatId());
             statement.setLong(3, reservation.getSlipId());
             statement.setDate(4, Date.valueOf(reservation.getCheckInDate()));
-            statement.setString(5, reservation.getExpectedTerm());
-            statement.setBigDecimal(6, reservation.getMonthlyCost());
-            statement.setBoolean(7, reservation.isElectricIncluded()); // addition for elec opt in Max 9-10-26
-            statement.setString(8, reservation.getStatus());
+
+            if (reservation.getDepartureDate() == null) { // ADDED null check for deaparture input 9-1726
+                statement.setNull(5, java.sql.Types.DATE); // ADDED binding null for depart
+            } else {
+                statement.setDate(5, Date.valueOf(reservation.getDepartureDate())); // ADDED BINDING FOR DEPARTURE DATE
+            }
+
+            statement.setString(6, reservation.getExpectedTerm()); // Shifted numbers 
+            statement.setBigDecimal(7, reservation.getMonthlyCost()); 
+            statement.setBoolean(8, reservation.isElectricIncluded()); // addition for elec opt in Max 9-10-26 - SHIFTED FROM PARAMETER 7 TO 8
+            statement.setString(9, reservation.getStatus()); 
 
             if (reservation.getCancelledAt() == null) { // a new reservation is never 'already' canceled. The column
                                                         // still has to be given a null value
-                statement.setNull(9, java.sql.Types.TIMESTAMP);
+                statement.setNull(10, java.sql.Types.TIMESTAMP); 
             } else {
-                statement.setTimestamp(9, Timestamp.valueOf(reservation.getCancelledAt()));
+                statement.setTimestamp(10, Timestamp.valueOf(reservation.getCancelledAt())); 
             }
             if (statement.executeUpdate() != 1) {
                 throw new SQLException("Reservation insert did not create one row.");
@@ -240,6 +247,8 @@ public class ReservationDAO {
         reservation.setSlipId(result.getLong("slip_id"));
         Date checkIn = result.getDate("check_in_date");
         reservation.setCheckInDate(checkIn == null ? null : checkIn.toLocalDate());
+		Date departure = result.getDate("departure_date"); // ADDED read for depart 9-17-26
+        reservation.setDepartureDate(departure == null ? null : departure.toLocalDate()); // ADDED setter for departure 
         reservation.setExpectedTerm(result.getString("expected_term"));
         reservation.setMonthlyCost(result.getBigDecimal("monthly_cost"));
         reservation.setElectricIncluded(result.getBoolean("electric_included")); // added for electrical opt in 
