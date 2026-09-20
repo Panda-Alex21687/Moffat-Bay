@@ -69,13 +69,14 @@ public class ReservationServlet extends HttpServlet {
         String boatName = text(data, "boatName");
         String checkInValue = text(data, "checkInDate");
         if (checkInValue.isBlank()) checkInValue = text(data, "checkIn");
-        String expectedTerm = text(data, "expectedTerm");
+		String departureValue = text(data, "departureDate"); // ADDED read for departure 9-17-26
+        String expectedTerm = text(data, "expectedTerm");		
         boolean electricIncluded = bool(data, "electricIncluded", false); // addition for opt in 9-10-26
 
         if ((boatId == null && boatName.isBlank()) || checkInValue.isBlank()
-                || expectedTerm.isBlank()) {
+                || departureValue.isBlank() || expectedTerm.isBlank()) { // ADDED depart date to the req. field 9-17
             writeJson(response, 422,
-                    error("Boat, check-in date, and expected term are required."));
+                    error("Boat, check-in date, departure date, and expected term are required.")); // ADDED depart error message 9-17
             return;
         }
 
@@ -88,6 +89,18 @@ public class ReservationServlet extends HttpServlet {
         if (checkInDate.isBefore(LocalDate.now())) {
             writeJson(response, 422, error("Check-in date cannot be in the past."));
             return;
+        }
+		
+		// new for departure field 
+        LocalDate departureDate; // ADDED the declaration for deaprture date 
+        try { departureDate = LocalDate.parse(departureValue); } // ADDED parsing for depart 
+        catch (DateTimeParseException e) { // catch for the date 
+            writeJson(response, 422, error("Enter a valid departure date.")); // error response 917
+            return; // daparture date validation 
+        }
+        if (!departureDate.isAfter(checkInDate)) { 
+            writeJson(response, 422, error("Departure date must be after the check-in date.")); 
+            return; 
         }
 
         BoatDAO boatDAO = new BoatDAO();
@@ -144,6 +157,7 @@ public class ReservationServlet extends HttpServlet {
                     reservation.setBoatId(boat.getBoatId());
                     reservation.setSlipId(slip.getSlipId());
                     reservation.setCheckInDate(checkInDate);
+					reservation.setDepartureDate(departureDate); // ADDED setter for depart 
                     reservation.setExpectedTerm(expectedTerm);
                     reservation.setMonthlyCost(monthlyCost);
                     reservation.setElectricIncluded(electricIncluded); // added 9-10
@@ -252,6 +266,7 @@ public class ReservationServlet extends HttpServlet {
         map.put("slipTypeId", slipType.getSlipTypeId());
         map.put("slipSizeFt", slipType.getSizeFt());
         map.put("checkInDate", reservation.getCheckInDate().toString());
+		map.put("departureDate", reservation.getDepartureDate().toString()); // ADD field to response
         map.put("expectedTerm", reservation.getExpectedTerm());
         map.put("monthlyCost", reservation.getMonthlyCost());
         map.put("electricIncluded", reservation.isElectricIncluded()); //added really late 9-10
