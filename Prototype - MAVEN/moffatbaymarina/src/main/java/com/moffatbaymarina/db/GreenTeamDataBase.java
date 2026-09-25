@@ -112,20 +112,23 @@ public class GreenTeamDataBase {
 		new ReservationSeed("priya.sharma@example.com", "A8", "2026-09-01",
 			"2027-09-01",           // ADDED: new departureDate arg
 			"12 months", 283.00, true,
-			"CONFIRMED", null);
-
+			"CONFIRMED", null), 
+            
         // Emily already had a slip reserved (36 ft boat with a 40 ft slip).
         new ReservationSeed("emily.tran@example.com", "B4", "2026-09-15",
+            "2027-03-15", // ADDED: departureDate - the record now has 9 components, this call was still passing only 8
             "6 months", 388.00, true,
             "CONFIRMED", null),
 
         // Johns reservation is still pending 
         new ReservationSeed("john.ruiz@example.com", "B5", "2026-10-01",
+            "2027-04-01", // ADDED: departureDate - same missing-argument problem as Emily's row above
             "6 months", 357.00, false,
             "PENDING", null),
 
         // Casey: cancelled after a change of plans, all this to prove a concept 
         new ReservationSeed("casey.jones@example.com", "C1", "2026-10-15",
+            "2027-01-15", // ADDED: departureDate - same missing-argument problem as the two rows above
             "3 months", 482.50, true,
             "CANCELLED", "2026-08-24 15:00:00")
     };
@@ -318,7 +321,7 @@ public class GreenTeamDataBase {
                 + "boat_id INT UNSIGNED NOT NULL,"
                 + "slip_id INT UNSIGNED NOT NULL,"
                 + "check_in_date DATE NOT NULL,"
-				"departure_date DATE NULL,"          // added a new nullable column 9-17-26
+				+ "departure_date DATE NULL,"          // added a new nullable column 9-17-26
                 + "expected_term VARCHAR(30) NOT NULL,"
                 + "monthly_cost DECIMAL(10,2) NOT NULL,"                
                 + "electric_included BOOLEAN NOT NULL DEFAULT FALSE," //Modification made here to add the optional opt in electric fee. Max 9-9-26
@@ -578,7 +581,7 @@ public class GreenTeamDataBase {
             Map<String, Integer> slipIdsByNumber) throws SQLException {
 
         String sql = "INSERT INTO reservations "
-            + "(customer_id, boat_id, slip_id, check_in_date, expected_term, "
+            + "(customer_id, boat_id, slip_id, check_in_date, departure_date, expected_term, " // FIXED: added departure_date - column list had 9 names but 10 '?' placeholders below, would throw "Column count doesn't match value count" the moment this runs
             + "monthly_cost, electric_included, status, cancelled_at) "
             + "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 

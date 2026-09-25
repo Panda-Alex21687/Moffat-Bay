@@ -1,26 +1,9 @@
-package com.moffatbay.db;
+package com.moffatbaymarina.db;
 
 /*
- * Fills every real 50 ft slip with a confirmed reservation, then adds
- * 3 more customers to the 50 ft wait list on top of that.
- *
- * This is a SEPARATE file from GreenTeamDataBaseIdea.java on purpose:
- * that file drops and recreates the whole database fresh every run,
- * and its 5 seed customers are curated persona data (each one maps to
- * a specific user story). This class does the opposite - it runs
- * AFTER the database already exists and just adds a pile of generic
- * filler accounts on top, so mixing the two would blur "meaningful
- * demo data" together with "bulk data that only exists to exhaust
- * capacity for testing."
- *
- * Run GreenTeamDataBaseIdea first, then run this.
- *
- * Also worth knowing: the slips table only ever had 6 physical slip
- * rows (2 per size) before this ran - slip_types.total_capacity says
- * 18 for 50 ft, but nothing had actually created those 18 real slip
- * rows. This class creates the missing 16 fifty-foot slips (matching
- * the marina map: slips 1-3 and 13-15 on each of docks A/B/C) before
- * reserving all of them.
+  Fills every real 50 ft slip with a confirmed reservation, then adds
+  3 more customers to the 50 ft wait list on top of that.
+
  */
 
 import java.io.IOException;
@@ -241,8 +224,7 @@ public class SlipCapacityDemoData {
     }
 
     // Plain-text passwords here too, matching GreenTeamDataBaseIdea's
-    // current no-hashing prototype phase - same reasoning applies:
-    // don't reuse these anywhere real.
+    // current no-hashing prototype phase same reasoning applies, don't reuse these anywhere real.
     private static int insertFillerCustomer(Connection conn, int index) throws SQLException {
         String firstName = FIRST_NAMES[index % FIRST_NAMES.length];
         String lastName = LAST_NAMES[index % LAST_NAMES.length];
@@ -296,9 +278,7 @@ public class SlipCapacityDemoData {
         }
     }
 
-    // monthly_cost follows the same rule as everywhere else in the
-    // project: length * 10.50, plus 10 only if electric is included -
-    // alternates true/false just for a bit of variety
+    // monthly_cost follows the same rule as everywhere else in the project
     private static void insertFillerReservation(
             Connection conn, int customerId, int boatId, int slipId, int index)
             throws SQLException {
@@ -311,7 +291,7 @@ public class SlipCapacityDemoData {
         String sql = "INSERT INTO reservations "
 			+ "(customer_id, boat_id, slip_id, check_in_date, departure_date, expected_term, "  // added for end date 9-17-26
 			+ "monthly_cost, electric_included, status, cancelled_at) "
-			+ "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 'CONFIRMED', ?)";
+			+ "VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'CONFIRMED', ?)"; // Fixed again, agian and again pay attention to these 
         try (PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setInt(1, customerId);
             ps.setInt(2, boatId);

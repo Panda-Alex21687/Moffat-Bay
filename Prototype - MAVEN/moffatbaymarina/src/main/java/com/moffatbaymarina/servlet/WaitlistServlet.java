@@ -13,6 +13,7 @@ package com.moffatbaymarina.servlet;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.moffatbaymarina.dao.BoatDAO;
+import com.moffatbaymarina.dao.SlipDAO; // ADDED: needed for the public per-slip-type available count
 import com.moffatbaymarina.dao.SlipTypeDAO;
 import com.moffatbaymarina.dao.WaitlistDAO;
 import com.moffatbaymarina.model.Boat;
@@ -32,43 +33,64 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-// Wait list stuff for whoever's logged in: 'GET' lists their own entries
-// plus each one's current spot in line, POST adds a new entry. 
-// both reqiure active session.
+// Wait list stuff: 'GET' is now public (per the project spec, the wait list
+// page itself needs no login) and returns a name-free per-slip-size summary;
+// when the caller IS logged in it also returns that customer's own entries.
+// joining the list still requires active session.
+// CHANGED 9-19-26 by Max.  GET no longer requires login, see doGet below.
 @WebServlet("/waitlist")
 public class WaitlistServlet extends HttpServlet {
     private static final ObjectMapper JSON = new ObjectMapper();
 
-	// returns waitlist entries belonging to the custoemr logged in. Each has the current position so the client can see
-	// how many people are still ahead of them in that particular slip category.	
+	// returns the public wait list summary (counts only, no names - see project spec)
+	// for every slip size, plus, when the caller is logged in, that customer's own
+	// entries with their current position so they can see how many are ahead of them.
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws IOException {
         prepareJson(response);
         Long customerId = authenticatedCustomerId(request);
-        if (customerId == null) {
-            writeJson(response, HttpServletResponse.SC_UNAUTHORIZED,
-                    error("Log in to view your waitlist entries."));
-            return;
-        }
+        // MODIFIED: no more 401, the page must work for a visitor who isn't
+        // logged in, so we just fall through with customerId possibly null.
 
         try {
             WaitlistDAO waitlistDAO = new WaitlistDAO();
             BoatDAO boatDAO = new BoatDAO();
             SlipTypeDAO slipTypeDAO = new SlipTypeDAO();
-            List<Map<String, Object>> results = new ArrayList<>();
-			// tack the current position onto each entry so the customer
-            // can see how many people are ahead of them
-            for (WaitlistEntry entry : waitlistDAO.findByCustomerId(customerId)) {
-                Boat boat = boatDAO.findById(entry.getBoatId());
-                SlipType slipType = slipTypeDAO.findById(entry.getSlipTypeId());
-                Map<String, Object> row = waitlistMap(entry, boat, slipType);
-                row.put("position", waitlistDAO.getPosition(entry));
-                results.add(row);
+            SlipDAO slipDAO = new SlipDAO(); // ADDED 9-19: for the public availableCount per slip type
+
+            // mod 9-19. public, counts-only summary - one row per slip size. No customer
+            // names or IDs appear anywhere in this block, so it's safe for any visitor.
+            List<Map<String, Object>> summary = new ArrayList<>();
+            for (SlipType slipType : slipTypeDAO.findAll()) {
+                Map<String, Object> row = new LinkedHashMap<>();
+                row.put("slipTypeId", slipType.getSlipTypeId());
+                row.put("sizeFt", slipType.getSizeFt());
+                row.put("availableCount", slipDAO.countAvailable(slipType.getSlipTypeId()));
+                row.put("waitingCount", waitlistDAO.countWaiting(slipType.getSlipTypeId()));
+                summary.add(row);
             }
+
             Map<String, Object> body = new LinkedHashMap<>();
             body.put("ok", true);
-            body.put("entries", results);
+            body.put("loggedIn", customerId != null); // Anow tells the page whether to show "your entries" + the join form 9-19
+            body.put("slipTypes", summary); // addition: public summary built above
+
+            // modified on 9-20-26: personal entries are only fetched when someone is logged in, instead of gating the whole endpoint on it like before.
+            if (customerId != null) {
+                List<Map<String, Object>> results = new ArrayList<>();
+                // tack the current position onto each entry so the customer
+                // can see how many people are ahead of them
+                for (WaitlistEntry entry : waitlistDAO.findByCustomerId(customerId)) {
+                    Boat boat = boatDAO.findById(entry.getBoatId());
+                    SlipType slipType = slipTypeDAO.findById(entry.getSlipTypeId());
+                    Map<String, Object> row = waitlistMap(entry, boat, slipType);
+                    row.put("position", waitlistDAO.getPosition(entry));
+                    results.add(row);
+                }
+                body.put("entries", results); // CHANGED: moved inside the if (customerId != null) block
+            }
+
             writeJson(response, HttpServletResponse.SC_OK, body);
         } catch (SQLException e) {
             log("Waitlist lookup error", e);
