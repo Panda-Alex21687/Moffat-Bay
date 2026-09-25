@@ -15,7 +15,7 @@ In addition to this java file, I will add a db.properties file as from what I re
 
  */
 
-package com.moffatbaymarina.db;
+package com.moffatbay.db;
 
 import java.io.IOException;
 import java.io.InputStream;
