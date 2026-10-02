@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>Wait Lists | Moffat Bay Marina</title>
+
+    <!-- ========================================
+         GOOGLE FONTS
+    ======================================== -->
+
+    <link
+        rel="preconnect"
+        href="https://fonts.googleapis.com"
+    >
+
+    <link
+        rel="preconnect"
+        href="https://fonts.gstatic.com"
+        crossorigin
+    >
+
+    <link
+        href="https://fonts.googleapis.com/css2?family=Montserrat:wght@500;600;700&family=Open+Sans:wght@400;600&display=swap"
+        rel="stylesheet"
+    >
+
+    <!-- ========================================
+         EXTERNAL STYLESHEET
+    ======================================== -->
+
+    <link
+        rel="stylesheet"
+        href="css/styles.css"
+    >
+
+    <!-- Universal Footer Stylesheet - load last -->
+    <link rel="stylesheet" href="css/footer.css">
+</head>
+
+
+<body>
+
+    <!-- ========================================
+         HEADER / NAVIGATION
+    ======================================== -->
+
+    <header>
+
+        <div class="nav">
+
+            <!-- Marina Brand -->
+            <a
+                class="brand"
+                href="reservation.html"
+            >
+
+                <span class="anchor">
+                    ⚓
+                </span>
+
+                <span>
+
+                    <span class="brand-name">
+                        MOFFAT BAY
+                    </span>
+
+                    <span class="brand-sub">
+                        MARINA
+                    </span>
+
+                </span>
+
+            </a>
+
+
+            <!-- Main Navigation -->
+            <nav aria-label="Main navigation">
+
+                <ul>
+
+                    <li>
+                        <a href="index.html">
+                            HOME
+                        </a>
+                    </li>
+
+                    <li>
+                        <a href="pricing.html">
+                            PRICING
+                        </a>
+                    </li>
+
+                    <li>
+                        <a href="availability.html">
+                            AVAILABILITY
+                        </a>
+                    </li>
+
+                    <li>
+                        <a
+                            class="active"
+                            href="waitlist.html"
+                            aria-current="page"
+                        >
+                            WAIT LIST
+                        </a>
+                    </li>
+
+                    <li>
+                        <a href="marina-slips.html">
+                            RESERVATION
+                        </a>
+                    </li>
+
+                </ul>
+
+            </nav>
+
+        </div>
+
+    </header>
+
+
+    <!-- ========================================
+         MAIN CONTENT
+    ======================================== -->
+
+    <main class="container">
+
+
+        <!-- ========================================
+             PAGE TITLE
+        ======================================== -->
+
+        <div class="eyebrow">
+            WAIT LIST LOOKUP
+        </div>
+
+        <h1 class="title">
+            Slip Wait Lists
+        </h1>
+
+        <div class="gold-line"></div>
+
+
+        <!-- ========================================
+             WAIT LIST INFORMATION
+        ======================================== -->
+
+        <section class="card">
+
+            <div class="card-head">
+
+                <div>
+
+                    <h2>
+                        Customers Waiting by Slip Size
+                    </h2>
+
+                    <p class="small">
+                        For privacy, wait lists show only the
+                        number of customers waiting — never
+                        customer names.
+                    </p>
+
+                </div>
+
+            </div>
+
+
+            <!--
+                Wait list information is generated
+                by JavaScript using marina-data.js.
+            -->
+            <div id="waitlistBody"></div>
+
+        </section>
+
+    </main>
+<!-- ========================================
+         UNIVERSAL FOOTER
+    ======================================== -->
+    <footer class="site-footer">
+
+        <div class="footer-container">
+
+            <div class="footer-item">
+                <div class="footer-icon" aria-hidden="true">📍</div>
+                <div>
+                    <h3>VISIT US</h3>
+                    <p>
+                        123 Harbor Way<br>
+                        Moffat Bay, ST 12345
+                    </p>
+                </div>
+            </div>
+
+            <div class="footer-item">
+                <div class="footer-icon" aria-hidden="true">📞</div>
+                <div>
+                    <h3>CALL US</h3>
+                    <p>
+                        <a href="tel:+15551234567">(555) 123-4567</a><br>
+                        Mon – Fri: 8am – 5pm
+                    </p>
+                </div>
+            </div>
+
+            <div class="footer-item">
+                <div class="footer-icon" aria-hidden="true">📡</div>
+                <div>
+                    <h3>VHF CHANNEL</h3>
+                    <p>
+                        Channel 16<br>
+                        Harbormaster
+                    </p>
+                </div>
+            </div>
+
+            <div class="footer-item">
+                <div class="footer-icon" aria-hidden="true">✉</div>
+                <div>
+                    <h3>EMAIL US</h3>
+                    <p>
+                        <a href="mailto:info@moffatbaymarina.com">
+                            info@moffatbaymarina.com
+                        </a><br>
+                        We're here to help!
+                    </p>
+                </div>
+            </div>
+
+        </div>
+
+        <div class="footer-bottom">
+            <p>
+                © 2026 Moffat Bay Marina &nbsp;•&nbsp; CSD460 &nbsp;•&nbsp; The Green Team
+            </p>
+        </div>
+
+    </footer>
+    
+    <script>
+async function loadWaitlist() {
+    const waitlistBody = document.getElementById("waitlistBody");
+
+    try {
+        const response = await fetch("/api/waitlist", {
+            method: "GET",
+            credentials: "same-origin"
+        });
+
+        const data = await response.json();
+
+        if (!response.ok || !data.ok) {
+            throw new Error(data.message || "Unable to load waitlist information.");
+        }
+
+        let html = '<div class="grid">';
+
+        data.slipTypes.forEach(function (slipType) {
+            const waitingText =
+                slipType.waitingCount === 0
+                    ? '<span class="status">No wait</span>'
+                    : '<span class="value">' +
+                      slipType.waitingCount +
+                      ' customer' +
+                      (slipType.waitingCount === 1 ? '' : 's') +
+                      ' waiting</span>';
+
+            const availabilityText =
+                slipType.availableCount > 0
+                    ? slipType.availableCount + ' slips open'
+                    : 'Fully reserved';
+
+            html +=
+                '<div class="item">' +
+                    '<span class="label">' +
+                        slipType.sizeFt +
+                        ' ft slips' +
+                    '</span>' +
+                    waitingText +
+                '</div>' +
+
+                '<div class="item">' +
+                    '<span class="label">Current Availability</span>' +
+                    '<span class="value">' +
+                        availabilityText +
+                    '</span>' +
+                '</div>';
+        });
+
+        html += '</div>';
+        
+        if (data.loggedIn && data.boat) {
+            html +=
+                '<div class="card" style="margin-top: 24px;">' +
+                    '<div class="card-head">' +
+                        '<div>' +
+                            '<h2>Your Boat</h2>' +
+                            '<p>Wait list eligibility is based on the slip size required for your boat.</p>' +
+                        '</div>' +
+                    '</div>' +
+
+                    '<div class="grid">' +
+                        '<div class="item">' +
+                            '<span class="label">Boat Name</span>' +
+                            '<span class="value">' + data.boat.boatName + '</span>' +
+                        '</div>' +
+
+                        '<div class="item">' +
+                            '<span class="label">Boat Length</span>' +
+                            '<span class="value">' + data.boat.boatLengthFt + ' ft</span>' +
+                        '</div>' +
+                    '</div>' +
+                '</div>';
+                
+                if (data.entries && data.entries.length > 0) {
+                    const entry = data.entries[0];
+
+                    html +=
+                        '<div class="card" style="margin-top: 24px;">' +
+                            '<div class="card-head">' +
+                                '<div>' +
+                                    '<h2>Your Wait List Status</h2>' +
+                                    '<p>Your current position for the required slip size.</p>' +
+                                '</div>' +
+                            '</div>' +
+
+                            '<div class="grid">' +
+                                '<div class="item">' +
+                                    '<span class="label">Slip Size</span>' +
+                                    '<span class="value">' + entry.sizeFt + ' ft</span>' +
+                                '</div>' +
+
+                                '<div class="item">' +
+                                    '<span class="label">Position</span>' +
+                                    '<span class="value">#' + entry.position + '</span>' +
+                                '</div>' +
+
+                                '<div class="item">' +
+                                    '<span class="label">Status</span>' +
+                                    '<span class="value">' + entry.status + '</span>' +
+                                '</div>' +
+                            '</div>' +
+                        '</div>';
+                }
+        }
+
+        waitlistBody.innerHTML = html;
+
+    } catch (error) {
+        console.error("Waitlist load error:", error);
+
+        waitlistBody.innerHTML =
+            '<div class="notice">' +
+                'Waitlist information could not be loaded.' +
+            '</div>';
+    }
+}
+
+loadWaitlist();
+</script>
+
+</body>
+</html>

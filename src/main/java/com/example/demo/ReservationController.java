@@ -31,7 +31,7 @@ public class ReservationController {
             return "redirect:/login.html";
         }
 
-        int customerId = (Integer) customerIdObject;
+        Long customerId = (Long) customerIdObject;
 
         try {
             java.time.LocalDate arrival =
@@ -105,7 +105,7 @@ public class ReservationController {
                  PreparedStatement statement =
                          connection.prepareStatement(boatSql)) {
 
-                statement.setInt(1, customerId);
+                statement.setLong(1, customerId);
 
                 try (ResultSet resultSet = statement.executeQuery()) {
 
@@ -134,7 +134,7 @@ public class ReservationController {
                  PreparedStatement statement =
                          connection.prepareStatement(reservationSql)) {
 
-                statement.setInt(1, customerId);
+                statement.setLong(1, customerId);
                 statement.setInt(2, boatId);
                 statement.setInt(3, slipId);
                 statement.setDate(
