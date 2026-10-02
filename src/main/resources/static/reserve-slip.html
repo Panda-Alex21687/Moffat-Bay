@@ -62,6 +62,8 @@
         <p>
             Please review the selected slip and continue with your reservation.
         </p>
+        
+        <div id="reservationMessage"></div>
 
         <form action="/reserve-slip" method="post">
 
@@ -138,6 +140,15 @@
 <script>
     const params = new URLSearchParams(window.location.search);
     const slip = params.get("slip");
+    const error = params.get("error");
+
+    if (error === "unavailable") {
+        const message = document.getElementById("reservationMessage");
+
+        message.innerHTML =
+            '<p>This slip is no longer available.</p>' +
+            '<p><a href="/waitlist.html">View Wait List Options</a></p>';
+    }
 
     if (slip) {
         document.getElementById("selectedSlip").textContent = slip;
