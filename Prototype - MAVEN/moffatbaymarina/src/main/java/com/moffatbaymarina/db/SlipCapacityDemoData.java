@@ -1,3 +1,13 @@
+/*
+Alexander Baldree
+Max Jankowski
+Aftabur Rahman
+Jordan Dardar
+
+Green team Module 4 CSD-460
+*/
+
+
 package com.moffatbaymarina.db;
 
 /*
@@ -55,9 +65,7 @@ public class SlipCapacityDemoData {
 
         String dbUrl = "jdbc:mysql://" + host + ":" + port + "/" + dbName;
 
-        // NOTE: unlike GreenTeamDataBaseIdea, there is no drop/recreate
-        // here - this connects straight to the existing database and
-        // adds to it. Run GreenTeamDataBaseIdea first.
+        // NOTE: unlike GreenTeamDataBaseIdea, there is no drop recreate here - this connects straight to the existing database and adds to it. Run GreenTeamDataBaseIdea first.
         try (Connection conn = DriverManager.getConnection(dbUrl, user, password)) {
             System.out.println("Connected to database: " + dbName);
 
@@ -87,23 +95,10 @@ public class SlipCapacityDemoData {
         }
     }
 
+    // Settings now come from environment variables (MARINA_DB_USER, MARINA_DB_PASSWORD,
+    // MARINA_DB_HOST ...) or an optional local, uncommitted db.properties - see DbSettings.
     private static Properties loadProperties() {
-        Properties props = new Properties();
-        try (InputStream in = SlipCapacityDemoData.class
-                .getClassLoader()
-                .getResourceAsStream("db.properties")) {
-
-            if (in == null) {
-                throw new IOException(
-                    "db.properties not found on the classpath. "
-                    + "Copy the template into your resources folder first.");
-            }
-            props.load(in);
-
-        } catch (IOException e) {
-            throw new RuntimeException("Could not load db.properties", e);
-        }
-        return props;
+        return com.moffatbaymarina.config.DbSettings.load();
     }
 
     private static int findFiftyFootSlipTypeId(Connection conn) throws SQLException {

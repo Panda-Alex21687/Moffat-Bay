@@ -212,23 +212,10 @@ public class GreenTeamDataBase {
 
     // Loading the db.properties from path. this is to make credentials are outside
     // the source. I just dont want us to be dinged for something simple like that.
+    // Settings now come from environment variables (MARINA_DB_USER, MARINA_DB_PASSWORD,
+    // MARINA_DB_HOST ...) or an optional local, uncommitted db.properties - see DbSettings.
     private static Properties loadProperties() {
-        Properties props = new Properties();
-        try (InputStream in = GreenTeamDataBase.class
-                .getClassLoader()
-                .getResourceAsStream("db.properties")) {
-
-            if (in == null) {
-                throw new IOException(
-                        "db.properties not found on the classpath. "
-                                + "Copy the template into your resources folder first.");
-            }
-            props.load(in);
-
-        } catch (IOException e) {
-            throw new RuntimeException("Could not load db.properties", e);
-        }
-        return props;
+        return com.moffatbaymarina.config.DbSettings.load();
     }
 
     // will drop database if it exists to keep working with a clean build 8-28 Max
@@ -703,13 +690,9 @@ public class GreenTeamDataBase {
     // ------------------------------------------------------------
     // SUMMARY OUTPUT suggested by Gemini and Im not sold on it yet. Let me know.
     //
-    // Quick sanity check printed after every run - lets you
-    // confirm at a glance that all 7 tables have the row counts
-    // you expect, without opening phpMyAdmin.
+    // Quick sanity check printed after every run - lets you confirm at a glance that all 7 tables have the row counts you expect, without opening phpMyAdmin.
     //
-    // So after a few days I determined I dont mind this last section as a display
-    // of what the tables hold.
-    // This will come in handy as more data is added to the test db and knowing how
+    // So after a few days I determined I dont mind this last section as a display of what the tables hold. This will come in handy as more data is added to the test db and knowing how
     // much data is stored in it.
     // ------------------------------------------------------------
 
