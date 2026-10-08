@@ -1,0 +1,32 @@
+﻿main.container > h1.title,
+section.hero-compact h1,
+main > h1[style*="font-size"] {
+    background:
+        linear-gradient(
+            90deg,
+            rgba(2, 18, 42, 0.88),
+            rgba(13, 49, 88, 0.62)
+        ),
+        url("images/moffat-bay-marina.jpg")
+        center 52% / cover no-repeat;
+
+    color: #ffffff !important;
+    font-size: clamp(32px, 5vw, 52px) !important;
+    line-height: 1.1;
+    padding: clamp(24px, 4vw, 40px);
+    border-left: 6px solid #c8921e;
+    border-radius: 8px;
+    box-shadow: 0 8px 22px rgba(2, 18, 42, 0.18);
+    text-shadow: 0 2px 6px rgba(0, 0, 0, 0.45);
+}
+
+@media (max-width: 600px) {
+    main.container > h1.title,
+    section.hero-compact h1,
+    main > h1[style*="font-size"] {
+        padding: 22px 18px;
+        border-left-width: 4px;
+        border-radius: 6px;
+        background-position: center;
+    }
+}
