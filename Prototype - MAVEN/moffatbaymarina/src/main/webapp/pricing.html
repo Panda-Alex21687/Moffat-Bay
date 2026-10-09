@@ -579,6 +579,7 @@ CSD460
          * The smallest available slip that fits the
          * customer's boat is selected.
          */
+		 
         function estimate() {
 
             const len = parseInt(
@@ -754,11 +755,8 @@ CSD460
         }
 
 
-        /*
-         * Adds the customer to the selected slip-size
-         * wait list using the joinWaitlist() function
-         * from marina-data.js.
-         */
+		 // Adds the customer to the selected slip-size wait list using the joinWaitlist() function
+		 // from marina-data.js.
         function addToWaitlist(size) {
 
             const position = joinWaitlist(size);
@@ -797,6 +795,7 @@ CSD460
 
     </script>
 
+<script src="js/user-nav.js"></script>
 </body>
 
 </html>

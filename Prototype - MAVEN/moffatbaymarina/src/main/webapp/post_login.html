@@ -394,14 +394,19 @@ Max Jankowski
 
         const logoutLink = document.getElementById("logoutLink");
         if (logoutLink) {
-            logoutLink.addEventListener("click", function () {
-                sessionStorage.removeItem("moffatLoggedInFirstName");
+            logoutLink.addEventListener("click", function (event) { // added event to take care of issue 3 for Alex. ends the server session. if not the client would still be seen as logged in
+                event.preventDefault();
+                sessionStorage.removeItem("moffatLoggedInFirstName"); 
                 sessionStorage.removeItem("moffatLoggedInEmail");
+                fetch("logout", { method: "POST", credentials: "same-origin" })
+                    .catch(function () { /* still send them home */ })
+                    .then(function () { window.location.href = "index.html"; });
             });
         }
     });
 </script>
 
+<script src="js/user-nav.js"></script>
 </body>
 
 </html>
