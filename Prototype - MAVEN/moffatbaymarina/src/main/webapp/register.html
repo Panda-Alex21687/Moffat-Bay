@@ -20,7 +20,7 @@ CSD460
         content="width=device-width, initial-scale=1.0"
     >
 
-    <title>Register - Moffat Bay Marina Prototype</title>
+    <title>Register - Moffat Bay Marina </title>
 
     <!-- ========================================
          GOOGLE FONTS
@@ -53,7 +53,6 @@ CSD460
 
     <!-- Universal Footer Stylesheet - load last -->
     <link rel="stylesheet" href="css/footer.css">
-    <link rel="stylesheet" href="css/visual-consistency.css">
 </head>
 
 
@@ -96,19 +95,42 @@ CSD460
             </a>
 
 
-            <!-- Prototype Navigation -->
+            
              <nav aria-label="Main navigation">
 
                 <ul>
 
+                    <li>
+            <a href="index.html">
+                HOME
+            </a>
+        </li>
 
-                <a
-                    class="active"
-                    href="register.html"
-                    aria-current="page"
-                >
-                    REGISTER
-                </a>
+                <li>
+
+
+                    <a
+
+
+                        class="active"
+
+
+                        href="register.html"
+
+
+                        aria-current="page"
+
+
+                    >
+
+
+                        REGISTER
+
+
+                    </a>
+
+
+                </li>
 
 
                     <li>
@@ -118,9 +140,8 @@ CSD460
                     </li>
 
 
-
                     <li>
-                        <a href="login.html">   <!-- Changed head spacing to match design. removed prototype indicator, Login link takes user to login  -->
+                        <a href="login.html">   
                             LOGIN
                         </a>
                     </li>
@@ -148,43 +169,11 @@ CSD460
         <section class="hero-compact">
 
 
-            <!-- Hero Information
-            <div>
-
-                <div class="eyebrow">
-                    UST-04 - Registration
-                </div>
-
-                <h1>
-                    Create your marina account
-                </h1>
-
-                <p class="lead">
-                    Customers use their email address as the username.
-                    The prototype collects the required customer and
-                    boat information before continuing to the
-                    verification step.
-                </p>
-
-            </div>  -->
+            
 
 
             <!-- Password Requirement Notice -->
-            <aside class="prototype-badge">
-
-                <strong>
-                    Project password requirement
-                </strong>
-
-                <p>
-                    At least 8 characters, including at least one
-                    uppercase letter and one lowercase letter.
-                    This prototype validates that rule in the browser;
-                    secure password storage belongs to the later
-                    development phase.
-                </p>
-
-            </aside>
+            
 
         </section>
 
@@ -439,7 +428,6 @@ CSD460
                         </div>
 
 
-
                         <!-- ========================================
                              BOAT NAME
                         ======================================== -->
@@ -618,7 +606,7 @@ CSD460
 
                             <div class="helper">
                                 Confirm password is included as
-                                a prototype usability safeguard.
+                                a  usability safeguard.
                             </div>
 
                             <div
@@ -635,13 +623,7 @@ CSD460
                          FORM ACTIONS
                     ======================================== -->
 
-                     <!--
-                         removed the prototype message that no info entered here will be
-                         used in a server. As now we are tring to do just that.
-                         Added on the other hand a general error portion to use messages
-                         like this account already exists for the emal to check that function in the
-                         testing report
-                         -->
+                     
 
                     <div
                         class="notice error"
@@ -666,14 +648,12 @@ CSD460
             </section>
 
 
-            <!-- ========================================
-                 REGISTRATION PROTOTYPE COVERAGE
-            ======================================== -->
+            
 
             <aside class="card soft">
 
                 <h3>
-                    Registration prototype coverage
+                    Registration  coverage
                 </h3>
 
                 <ul class="aside-list">
@@ -695,13 +675,13 @@ CSD460
                     </li>
 
                     <li>
-                        A unique prototype customer ID is
+                        A unique  customer ID is
                         generated after successful form completion.
                     </li>
 
                     <li>
                         Email verification is represented by
-                        the next prototype screen.
+                        the next  screen.
                     </li>
 
                 </ul>
@@ -775,7 +755,6 @@ CSD460
     </footer>
 
 
-
     <!-- ========================================
          removed the entire Extternal JS section. replace with script to submit info to the DB
          Added the following submission form script to the html as a client side script.
@@ -786,9 +765,14 @@ CSD460
     ======================================== -->
 
 
-
     <script>
         (function () {
+            // Backend now lives on a different origin (Tailscale Funnel),
+            // not served from the same Tomcat as this page - every fetch
+            // needs the full URL plus credentials so the session cookie
+            // set by /register still gets sent back on later requests.
+            const API_BASE = "https://obsidianserver.tail969ab5.ts.net/MoffatBayMarina";
+
             const form = document.getElementById("registrationForm");
             const submitButton = document.getElementById("submitButton");
             const formError = document.getElementById("formError");
@@ -894,8 +878,9 @@ CSD460
 
                 submitButton.disabled = true;
 
-                fetch("register", {
+                fetch(API_BASE + "/register", {
                     method: "POST",
+                    credentials: "include",
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify(payload)
                 })
@@ -930,7 +915,7 @@ CSD460
 
     </script>
 
-<script src="js/user-nav.js"></script>
+    <script src="js/user-nav.js"></script>
 </body>
 
 </html>
