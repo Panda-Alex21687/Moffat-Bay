@@ -1,31 +1,22 @@
 # ==========================================
-# MOFFAT BAY MARINA DATABASE 
+# MOFFAT BAY MARINA DATABASE - EXAMPLE ONLY
 # ==========================================
 #
-# NO real passwords in this file. It is committed to GitHub.
+# Do NOT put real passwords in this file. It is committed to GitHub.
 #
-# Normal way (server / Docker): set environment variables instead of using a file:
-#     MARINA_DB_URL=jdbc:mysql://marina-db:3306/moffat_bay?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
-#     MARINA_DB_USER=marina_app
-#     MARINA_DB_PASSWORD=<your password>
-#
-# Local development without environment variables:
-#     1. copy this file to  src/main/resources/db.properties
-#     2. fill in your own values
-#     db.properties is listed in .gitignore, so git will never upload it.
-
+# 
 #
 # The seed tools (GreenTeamDataBase, SlipCapacityDemoData) also read
 # MARINA_DB_HOST, MARINA_DB_PORT and MARINA_DB_NAME, and need a user that is
 # allowed to create/drop the database.
 
 db.url=jdbc:mysql://localhost:3306/moffat_bay?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
-db.username=Green 
+db.username=Green
 db.password=GreenTeam
 
 db.driver=com.mysql.cj.jdbc.Driver
-
-# used only by the seed tools:
 db.host=localhost
 db.port=3306
 db.name=moffat_bay
+
+
