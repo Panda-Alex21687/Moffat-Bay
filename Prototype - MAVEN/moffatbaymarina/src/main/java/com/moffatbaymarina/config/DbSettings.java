@@ -75,6 +75,15 @@ public final class DbSettings {
             }
         }
 
+        // a stray space after a value (e.g. "db.username=Green ") would otherwise be part of
+        // the user name; the password is left exactly as typed
+        for (String key : KEYS) {
+            String value = settings.getProperty(key);
+            if (value != null && !key.equals("db.password")) {
+                settings.setProperty(key, value.trim());
+            }
+        }
+
         // db.user and db.username have both been used; make either one work
         copyIfMissing(settings, "db.username", "db.user");
         copyIfMissing(settings, "db.user", "db.username");

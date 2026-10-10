@@ -92,6 +92,15 @@ public class LoginServlet extends HttpServlet {
             log("Login error", e);
             writeJson(response, HttpServletResponse.SC_INTERNAL_SERVER_ERROR,
                     error("Login could not be completed."));
+        } catch (RuntimeException | LinkageError e) {
+            // Missing database settings (IllegalStateException) or a missing driver/library
+            // used to escape as Tomcat's HTML error page, which the login page could only
+            // report as "Unable to connect". Answer in JSON instead and leave the details
+            // in the Tomcat log.
+            log("Login configuration error", e);
+            writeJson(response, HttpServletResponse.SC_INTERNAL_SERVER_ERROR,
+                    error("The server is not set up correctly (database settings or libraries). "
+                            + "See the Tomcat log for details."));
         }
     }
 
