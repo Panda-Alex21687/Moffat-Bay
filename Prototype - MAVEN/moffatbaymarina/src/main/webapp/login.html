@@ -23,7 +23,7 @@ Modified by Max 8-22, removing JS Script and allowing this to function as a redi
         content="width=device-width, initial-scale=1.0"
     >
 
-    <title>Login - Moffat Bay Marina Prototype</title>
+    <title>Login - Moffat Bay Marina </title>
 
 
     <!-- ========================================
@@ -57,7 +57,6 @@ Modified by Max 8-22, removing JS Script and allowing this to function as a redi
 
     <!-- Universal Footer Stylesheet - load last -->
     <link rel="stylesheet" href="css/footer.css">
-    <link rel="stylesheet" href="css/visual-consistency.css">
 </head>
 
 
@@ -100,7 +99,7 @@ Modified by Max 8-22, removing JS Script and allowing this to function as a redi
             </a>
 
 
-            <!-- Main Navigation Modified by Max 8-22 to change spacing of navi links and remove prototype tab -->
+            
             <nav aria-label="Main navigation">
 
                 <ul>
@@ -116,7 +115,6 @@ Modified by Max 8-22, removing JS Script and allowing this to function as a redi
                             ABOUT US
                         </a>
                     </li>
-
 
 
                     <li>
@@ -152,7 +150,7 @@ Modified by Max 8-22, removing JS Script and allowing this to function as a redi
             <div>
 
                 <div class="eyebrow">
-                    UST-04 - Login / authentication
+                    Login / authentication
                 </div>
 
                 <h1>
@@ -168,20 +166,7 @@ Modified by Max 8-22, removing JS Script and allowing this to function as a redi
 
 
             <!-- Production Security Notice -->
-            <aside class="prototype-badge">
-
-                <strong>
-                    Secure customer login
-                </strong>
-
-                <p>
-                    Credentials are securely validated on the server.
-                    Passwords are verified against their stored hash,
-                    and an authenticated server-side session is created
-                    after a successful login.
-                </p>
-
-            </aside>
+            
 
         </section>
 
@@ -197,7 +182,7 @@ Modified by Max 8-22, removing JS Script and allowing this to function as a redi
         >
 
 
-            <!-- Prototype Notice -->
+            
             <div class="notice info">
 
                 Enter your registered customer email address and password to sign in.
@@ -346,6 +331,12 @@ Modified by Max 8-22, removing JS Script and allowing this to function as a redi
 
 
 <script>
+    // Backend now lives on a different origin (Tailscale Funnel), not
+    // served from the same Tomcat as this page - the fetch below needs
+    // the full URL plus credentials so LoginServlet's session cookie
+    // actually comes back and gets sent on later requests.
+    const API_BASE = "https://obsidianserver.tail969ab5.ts.net/MoffatBayMarina";
+
     const loginForm = document.getElementById("loginForm");
     const emailInput = document.getElementById("loginEmail");
     const passwordInput = document.getElementById("loginPassword");
@@ -376,9 +367,9 @@ Modified by Max 8-22, removing JS Script and allowing this to function as a redi
         loginButton.textContent = "Signing In...";
 
         try {
-            const response = await fetch("login", {
+            const response = await fetch(API_BASE + "/login", {
                 method: "POST",
-                credentials: "same-origin",
+                credentials: "include",
                 headers: {
                     "Content-Type": "application/json"
                 },
@@ -406,7 +397,11 @@ Modified by Max 8-22, removing JS Script and allowing this to function as a redi
             sessionStorage.setItem("moffatLoggedInFirstName", data.firstName || "Customer");
             sessionStorage.setItem("moffatLoggedInEmail", data.email || email);
 
-            window.location.href = data.redirect || "post_login.html";
+            const returnPage =
+    new URLSearchParams(window.location.search).get("return");
+
+window.location.href =
+    returnPage || data.redirect || "post_login.html";
 
         } catch (error) {
             passwordError.textContent =
@@ -417,7 +412,7 @@ Modified by Max 8-22, removing JS Script and allowing this to function as a redi
         }
     });
 </script>
-<script src="js/user-nav.js"></script>
+    <script src="js/user-nav.js"></script>
 </body>
 
 </html>

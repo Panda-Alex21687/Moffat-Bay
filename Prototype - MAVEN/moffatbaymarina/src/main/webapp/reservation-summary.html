@@ -45,7 +45,6 @@ CSD460
 
     <!-- Universal Footer Stylesheet - load last -->
     <link rel="stylesheet" href="css/footer.css">
-    <link rel="stylesheet" href="css/visual-consistency.css">
 </head>
 
 <body>
@@ -123,7 +122,7 @@ CSD460
     <main class="container">
 
         <div class="eyebrow">
-            UST-07 • RESERVATION SUMMARY
+            RESERVATION SUMMARY
         </div>
 
         <h1 class="title">
@@ -327,21 +326,7 @@ CSD460
             ></div>
 
         </section>
-
-
-        <div class="notice info">
-
-            <strong>
-                Prototype:
-            </strong>
-
-            Confirming or cancelling the reservation
-            updates the same browser data used by the
-            Reservation Lookup page.
-
-        </div>
-
-    </main>
+</main>
 
 
     <!-- ========================================
@@ -410,8 +395,13 @@ CSD460
 
     <script>
 
+        // Backend now lives on a different origin (Tailscale Funnel), not
+        // served from the same Tomcat as this page - every fetch needs the
+        // full URL plus credentials so the login session cookie goes along.
+        const API_BASE = "https://obsidianserver.tail969ab5.ts.net/MoffatBayMarina";
+
         /* ========================================
-           SHARED RESERVATION PROTOTYPE FUNCTIONS
+           SHARED RESERVATION  FUNCTIONS
         ======================================== */
 
         const RESERVATION_KEY = "moffatBayReservations";
@@ -844,9 +834,9 @@ CSD460
 
 
         async function updateReservationStatus(reservation, status) {
-            const response = await fetch("reservation", {
+            const response = await fetch(API_BASE + "/reservation", {
                 method: "PUT",
-                credentials: "same-origin",
+                credentials: "include",
                 headers: {
                     "Content-Type": "application/json",
                     "Accept": "application/json"
@@ -951,7 +941,7 @@ CSD460
 
     </script>
 
-<script src="js/user-nav.js"></script>
+    <script src="js/user-nav.js"></script>
 </body>
 
 </html>

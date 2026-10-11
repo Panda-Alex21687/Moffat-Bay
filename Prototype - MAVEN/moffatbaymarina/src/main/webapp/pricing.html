@@ -65,7 +65,6 @@ CSD460
 
     <!-- Universal Footer Stylesheet - load last -->
     <link rel="stylesheet" href="css/footer.css">
-    <link rel="stylesheet" href="css/visual-consistency.css">
 </head>
 
 
@@ -467,25 +466,7 @@ CSD460
             </div>
 
         </section>
-
-
-        <!-- ========================================
-             PROTOTYPE NOTICE
-        ======================================== -->
-
-        <div class="notice info">
-
-            <strong>
-                Prototype:
-            </strong>
-
-            Availability and wait list numbers are simulated
-            with localStorage. Database integration will be
-            added later.
-
-        </div>
-
-    </main>
+</main>
 <!-- ========================================
          UNIVERSAL FOOTER
     ======================================== -->
@@ -550,15 +531,11 @@ CSD460
     </footer>
 
 
-
     <!-- ========================================
          EXTERNAL JAVASCRIPT
     ======================================== -->
 
-    <!--
-        marina-data.js contains the functions and
-        prototype marina slip data used by this page.
-    -->
+    
     <script src="js/marina-data.js"></script>
 
 
@@ -579,7 +556,6 @@ CSD460
          * The smallest available slip that fits the
          * customer's boat is selected.
          */
-		 
         function estimate() {
 
             const len = parseInt(
@@ -755,8 +731,11 @@ CSD460
         }
 
 
-		 // Adds the customer to the selected slip-size wait list using the joinWaitlist() function
-		 // from marina-data.js.
+        /*
+         * Adds the customer to the selected slip-size
+         * wait list using the joinWaitlist() function
+         * from marina-data.js.
+         */
         function addToWaitlist(size) {
 
             const position = joinWaitlist(size);
@@ -795,7 +774,7 @@ CSD460
 
     </script>
 
-<script src="js/user-nav.js"></script>
+    <script src="js/user-nav.js"></script>
 </body>
 
 </html>

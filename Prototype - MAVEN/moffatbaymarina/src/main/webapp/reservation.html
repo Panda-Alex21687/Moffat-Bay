@@ -215,6 +215,14 @@ CSD460
                             required
                         >
 
+                        <div
+                            class="small"
+                            id="boatLengthLimit"
+                            style="margin-top: 6px;"
+                        >
+                            Maximum boat length: 50 ft
+                        </div>
+
                     </div>
 
 
@@ -278,6 +286,11 @@ CSD460
 
 
                     <div class="item">
+                        <span class="label">Selected Slip</span>
+                        <span class="value" id="selectedSlip">No slip selected</span>
+                    </div>
+
+                    <div class="item">
 
                         <span class="label">
                             Required Slip Size
@@ -338,20 +351,7 @@ CSD460
             </form>
 
         </section>
-
-
-        <div class="notice info">
-
-            <strong>
-                Prototype:
-            </strong>
-
-            Reservations are saved to the database under the
-            currently logged-in customer account.
-
-        </div>
-
-    </main>
+</main>
 
 
     <!-- ========================================
@@ -421,7 +421,7 @@ CSD460
     <script>
 
         /* ========================================
-           SHARED RESERVATION PROTOTYPE FUNCTIONS
+           SHARED RESERVATION  FUNCTIONS
         ======================================== */
 
         const RESERVATION_KEY = "moffatBayReservations";
@@ -624,6 +624,26 @@ CSD460
                 const boatLength =
                     document.getElementById("boatLength");
 
+                /*
+                 * Marina slips support boats up to 50 ft.
+                 * Prevent values above 50 from remaining in the field.
+                 */
+                boatLength.addEventListener("input", function () {
+                    const value = Number(boatLength.value);
+
+                    if (Number.isFinite(value) && value > 50) {
+                        boatLength.value = "50";
+                    }
+
+                    if (boatLength.value !== "" && Number(boatLength.value) > 50) {
+                        boatLength.setCustomValidity(
+                            "Boat length cannot exceed 50 feet."
+                        );
+                    } else {
+                        boatLength.setCustomValidity("");
+                    }
+                });
+
                 const checkIn =
                     document.getElementById("checkIn");
 					
@@ -633,6 +653,9 @@ CSD460
                 // ADDED: electric-service checkbox
                 const electricIncluded =
                     document.getElementById("electricIncluded");
+
+                const selectedSlip =
+                    document.getElementById("selectedSlip");
 
                 const slipSize =
                     document.getElementById("slipSize");
@@ -645,6 +668,16 @@ CSD460
                         "reservationMessage"
                     );
 
+
+                const query = new URLSearchParams(window.location.search);
+                const preferredSlip = query.get("slip");
+                const preferredSlipSize = Number(query.get("slipSize"));
+
+                if (preferredSlip) {
+                    selectedSlip.textContent =
+                        preferredSlip +
+                        (preferredSlipSize ? " (" + preferredSlipSize + " ft)" : "");
+                }
 
                 /*
                  * Prevent past check-in dates.
@@ -738,7 +771,7 @@ CSD460
 
                         slipSize.textContent =
                             length > 50
-                                ? "Maximum prototype size is 50 ft"
+                                ? "Maximum  size is 50 ft"
                                 : "Enter boat length";
 
                         cost.textContent =
@@ -788,6 +821,18 @@ CSD460
                         }
 
                         const length = Number(boatLength.value);
+
+                        if (length > 50) {
+                            boatLength.value = "50";
+                            boatLength.setCustomValidity(
+                                "Boat length cannot exceed 50 feet."
+                            );
+                            boatLength.reportValidity();
+                            return;
+                        }
+
+                        boatLength.setCustomValidity("");
+
                         const requiredSlip = requiredSlipSize(length);
 
                         if (!requiredSlip) {
@@ -816,7 +861,8 @@ CSD460
                                     checkInDate: checkIn.value,
                                     departureDate: departureDate.value, // ADD field to body 
                                     expectedTerm: "MONTHLY",
-                                    electricIncluded: electricIncluded.checked // tells the server to add elec fee to monthly cost 
+                                    electricIncluded: electricIncluded.checked,
+                                    preferredSlip: preferredSlip || null
                                 })
                             });
 

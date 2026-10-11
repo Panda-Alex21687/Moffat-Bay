@@ -69,7 +69,7 @@ CSD460
       required.forEach((id) => {
         const input = el(id);
         if (!input.value.trim()) {
-          showError(input, 'This field is required for the prototype flow.');
+          showError(input, 'This field is required.');
           valid = false;
         }
       });
@@ -184,7 +184,7 @@ CSD460
         valid = false;
       }
       if (password.value.length < 8) {
-        showError(password, 'Enter a password with at least 8 characters for this prototype demonstration.');
+        showError(password, 'Enter a password with at least 8 characters');
         valid = false;
       }
       if (!valid) return;
